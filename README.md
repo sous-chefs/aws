@@ -6,6 +6,7 @@ This cookbook provides libraries, resources and providers to configure and manag
 * EBS Volumes (`ebs_volume`)
 * Elastic IPs (`elastic_ip`)
 * Elastic Load Balancer (`elastic_lb`)
+* AWS Resource Tags (`resource_tag`)
 
 Requirements
 ============
@@ -119,10 +120,26 @@ Attribute Parameters:
 * `aws_secret_access_key`, `aws_access_key` - passed to `Opscode::AWS:Ec2` to authenticate, required.
 * `name` - the name of the LB, required.
 
+`resource_tag.rb`
+------------------
+
+Actions:
+
+* `add` - Add tags to a resource.
+* `update` - Add or modify existing tags on a resource -- this is the default action.
+* `remove` - Remove tags from a resource, but only if the specified values match the existing ones.
+* `force_remove` - Remove tags from a resource, regardless of their values.
+
+Attribute Parameters
+
+* `aws_secret_access_key`, `aws_access_key` - passed to `Opscode::AWS:Ec2` to authenticate, required.
+* `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
+* `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no `resource_id` is specified the name attribute will be used.
+
 Usage
 =====
 
-For both the `ebs_volume` and `elastic_ip` resources, put the following at the top of the recipe where they are used.
+The following examples assume that the recommended data bag item has been created and that the following has been included at the top of the recipe where they are used.
 
     include_recipe "aws"
     aws = data_bag_item("aws", "main")
@@ -192,6 +209,31 @@ For example, to register the node in the 'QA' ELB:
       aws_secret_access_key aws['aws_secret_access_key']
       name "QA"
       action :register
+    end
+
+aws_resource_tag
+----------------
+
+`resource_tag` can be used to manipulate the tags assigned to one or more AWS resources, i.e. ec2 instances, ebs volumes or ebs volume snapshots.
+
+Assigining tags to a node to reflect it's role and environment:
+
+    aws_resource_tag node['ec2']['instance_id'] do
+      aws_access_key aws['aws_access_key_id']
+      aws_secret_access_key aws['aws_secret_access_key']
+      tags({"Name" => "www.example.com app server",
+            "Environment" => node.chef_environment})
+      action :update
+    end
+
+Assigning a set of tags to multiple resources, e.g. ebs volumes in a disk set:
+
+    aws_resource_tag 'my awesome raid set' do
+      aws_access_key aws['aws_access_key_id']
+      aws_secret_access_key aws['aws_secret_access_key']
+      resource_id [ "vol-d0518cb2", "vol-fad31a9a", "vol-fb106a9f", "vol-74ed3b14" ]
+      tags({"Name" => "My awesome RAID disk set",
+            "Environment" => node.chef_environment})
     end
 
 
