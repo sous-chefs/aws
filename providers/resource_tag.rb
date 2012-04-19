@@ -14,8 +14,10 @@ action :add do
     unless existing_tags.keys.include?(k)
       ec2.create_tags(resource_id, { k => v })
       Chef::Log.info("AWS: Added tag '#{k}' with value '#{v}' on resource #{resource_id}")
+      new_resource.updated_by_last_action(true)
     else
       Chef::Log.debug("AWS: Resource #{resource_id} already has a tag with key '#{k}', will not add tag '#{k}' => '#{v}'")
+      new_resource.updated_by_last_action(false)
     end
   end
 end
@@ -33,8 +35,10 @@ action :update do
   unless updated_tags.eql?(existing_tags)
     Chef::Log.info("AWS: Updating the following tags for resource #{resource_id}: " + updated_tags.inspect)
     ec2.create_tags(resource_id, updated_tags)
+    new_resource.updated_by_last_action(true)
   else
     Chef::Log.debug("AWS: Tags for resource #{resource_id} are unchanged")
+    new_resource.updated_by_last_action(false)
   end
 end
 
@@ -53,6 +57,7 @@ action :remove do
     if existing_tags.keys.include?(key) and existing_tags[key] == @new_resource.tags[key]
       ec2.delete_tags(resource_id, {key => @new_resource.tags[key]})
       Chef::Log.info("AWS: Deleted tag '#{key}' on resource #{resource_id} with value '#{existing_tags[key]}'")
+      new_resource.updated_by_last_action(true)
     end
   end
 end
@@ -72,6 +77,7 @@ action :force_remove do
     if existing_tags.keys.include?(key)
       ec2.delete_tags(resource_id, key)
       Chef::Log.info("AWS: Deleted tag '#{key}' on resource #{resource_id} with value '#{existing_tags[key]}'")
+      new_resource.updated_by_last_action(true)
     end
   end
 end
