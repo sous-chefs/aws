@@ -204,6 +204,7 @@ aws_elastic_lb
 `elastic_lb` opererates similar to `elastic_ip'.  Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
 
 For example, to register the node in the 'QA' ELB:
+
     aws_elastic_lb "elb_qa" do
       aws_access_key aws['aws_access_key_id']
       aws_secret_access_key aws['aws_secret_access_key']
