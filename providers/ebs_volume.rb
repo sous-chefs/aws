@@ -23,11 +23,11 @@ action :create do
       compatible = volume_compatible_with_resource_definition?(attached_volume)
       raise "Volume #{attached_volume[:aws_id]} attached at #{attached_volume[:aws_device]} but does not conform to this resource's specifications" unless compatible
       Chef::Log.debug("The volume matches the resource's definition, so the volume is assumed to be already created")
-      node.set[:aws][:ebs_volume][new_resource.name][:volume_id] = attached_volume[:aws_id]
+      node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume[:aws_id]
     else
       # If not, create volume and register its id in the node data
       nvid = create_volume(new_resource.snapshot_id, new_resource.size, new_resource.availability_zone, new_resource.timeout)
-      node.set[:aws][:ebs_volume][new_resource.name][:volume_id] = nvid
+      node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
       new_resource.updated_by_last_action(true)
     end
     node.save unless Chef::Config[:solo]
@@ -46,7 +46,7 @@ action :attach do
   else
     # attach the volume and register its id in the node data
     attach_volume(vol[:aws_id], instance_id, new_resource.device, new_resource.timeout)
-    node.set[:aws][:ebs_volume][new_resource.name][:volume_id] = vol[:aws_id]
+    node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol['aws_id']
     node.save unless Chef::Config[:solo]
     new_resource.updated_by_last_action(true)
   end
@@ -89,7 +89,7 @@ private
 
 def volume_id_in_node_data
   begin
-    node[:aws][:ebs_volume][new_resource.name][:volume_id]
+    node['aws']['ebs_volume'][new_resource.name]['volume_id']
   rescue NoMethodError => e
     nil
   end
