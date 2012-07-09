@@ -10,3 +10,8 @@ attribute :volume_id,             :kind_of => String
 attribute :description,           :kind_of => String
 attribute :timeout,               :default => 3*60 # 3 mins, nil or 0 for no timeout
 attribute :snapshots_to_keep,     :default => 2
+
+def initialize(*args)
+  super
+  @action = :create
+end
