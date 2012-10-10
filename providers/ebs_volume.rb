@@ -46,7 +46,7 @@ action :attach do
   else
     # attach the volume and register its id in the node data
     attach_volume(vol[:aws_id], instance_id, new_resource.device, new_resource.timeout)
-    node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol['aws_id']
+    node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:aws_id]
     node.save unless Chef::Config[:solo]
     new_resource.updated_by_last_action(true)
   end
