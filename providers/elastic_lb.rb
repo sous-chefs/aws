@@ -1,14 +1,18 @@
 include Opscode::Aws::Ec2
 
 action :register do
-  elb.register_instances_with_load_balancer(new_resource.name, instance_id)
+  converge_by("add the node #{new_resource.name} to ELB") do
+    Chef::Log.info("Adding node to ELB #{new_resource.name}")
+    elb.register_instances_with_load_balancer(new_resource.name, instance_id)
+  end
   new_resource.updated_by_last_action(true)
-  Chef::Log.info("Added node to ELB #{new_resource.name}")
 end
 
 action :deregister do
-  Chef::Log.info("Removing node from ELB #{new_resource.name}")
-  elb.deregister_instances_with_load_balancer(new_resource.name, instance_id)
+  converge_by("remove the node #{new_resource.name} from ELB") do
+    Chef::Log.info("Removing node from ELB #{new_resource.name}")
+    elb.deregister_instances_with_load_balancer(new_resource.name, instance_id)
+  end
   new_resource.updated_by_last_action(true)
 end
 
