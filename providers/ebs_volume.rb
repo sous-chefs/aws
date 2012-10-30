@@ -39,7 +39,6 @@ action :create do
         node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
         node.save unless Chef::Config[:solo]
       end
-      new_resource.updated_by_last_action(true)
     end
   end
 end
@@ -60,7 +59,6 @@ action :attach do
       node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol['aws_id']
       node.save unless Chef::Config[:solo]
     end
-    new_resource.updated_by_last_action(true)
   end
 end
 
@@ -70,7 +68,6 @@ action :detach do
   converge_by("detach volume with id: #{vol[:aws_id]}") do
     detach_volume(vol[:aws_id], new_resource.timeout)
   end
-  new_resource.updated_by_last_action(true)
 end
 
 action :snapshot do
@@ -79,7 +76,6 @@ action :snapshot do
     snapshot = ec2.create_snapshot(vol[:aws_id],new_resource.description)
     Chef::Log.info("Created snapshot of #{vol[:aws_id]} as #{snapshot[:aws_id]}")
   end
-  new_resource.updated_by_last_action(true)
 end
 
 action :prune do
@@ -98,7 +94,6 @@ action :prune do
         Chef::Log.info "Deleting old snapshot #{die[:aws_id]}"
         ec2.delete_snapshot(die[:aws_id])
       end
-      new_resource.updated_by_last_action(true)
     end
   end
 end

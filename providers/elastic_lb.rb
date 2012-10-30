@@ -5,7 +5,6 @@ action :register do
     Chef::Log.info("Adding node to ELB #{new_resource.name}")
     elb.register_instances_with_load_balancer(new_resource.name, instance_id)
   end
-  new_resource.updated_by_last_action(true)
 end
 
 action :deregister do
@@ -13,7 +12,6 @@ action :deregister do
     Chef::Log.info("Removing node from ELB #{new_resource.name}")
     elb.deregister_instances_with_load_balancer(new_resource.name, instance_id)
   end
-  new_resource.updated_by_last_action(true)
 end
 
 private

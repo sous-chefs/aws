@@ -17,7 +17,6 @@ action :associate do
       Chef::Log.info("Attaching Elastic IP #{new_resource.ip} to the instance")
       attach(new_resource.ip, new_resource.timeout)
     end
-    new_resource.updated_by_last_action(true)
   end
 end
 
@@ -33,7 +32,6 @@ action :disassociate do
       Chef::Log.info("Detaching Elastic IP #{new_resource.ip} from the instance")
       detach(new_resource.ip, new_resource.timeout)
     end
-    new_resource.updated_by_last_action(true)
   end
 end
 
