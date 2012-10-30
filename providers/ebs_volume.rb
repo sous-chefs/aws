@@ -1,5 +1,10 @@
 include Opscode::Aws::Ec2
 
+# Support whyrun
+def whyrun_supported?
+  true
+end
+
 action :create do
   raise "Cannot create a volume with a specific id (EC2 chooses volume ids)" if new_resource.volume_id
   if new_resource.snapshot_id =~ /vol/
@@ -23,14 +28,18 @@ action :create do
       compatible = volume_compatible_with_resource_definition?(attached_volume)
       raise "Volume #{attached_volume[:aws_id]} attached at #{attached_volume[:aws_device]} but does not conform to this resource's specifications" unless compatible
       Chef::Log.debug("The volume matches the resource's definition, so the volume is assumed to be already created")
-      node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume[:aws_id]
+      converge_by("update the node data with volume id: #{attached_volume[:aws_id]}") do
+        node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume[:aws_id]
+        node.save unless Chef::Config[:solo]
+      end
     else
       # If not, create volume and register its id in the node data
-      nvid = create_volume(new_resource.snapshot_id, new_resource.size, new_resource.availability_zone, new_resource.timeout)
-      node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
-      new_resource.updated_by_last_action(true)
+      converge_by("create a volume with id=#{new_resource.snapshot_id} size=#{new_resource.size} availability_zone=#{new_resource.availability_zone} and update the node data with created volume's id") do
+        nvid = create_volume(new_resource.snapshot_id, new_resource.size, new_resource.availability_zone, new_resource.timeout)
+        node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
+        node.save unless Chef::Config[:solo]
+      end
     end
-    node.save unless Chef::Config[:solo]
   end
 end
 
@@ -44,26 +53,29 @@ action :attach do
       Chef::Log.debug("Volume is already attached")
     end
   else
-    # attach the volume and register its id in the node data
-    attach_volume(vol[:aws_id], instance_id, new_resource.device, new_resource.timeout)
-    node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol['aws_id']
-    node.save unless Chef::Config[:solo]
-    new_resource.updated_by_last_action(true)
+    converge_by("attach the volume with aws_id=#{vol[:aws_id]} id=#{instance_id} device=#{new_resource.device} and update the node data with created volume's id") do
+      # attach the volume and register its id in the node data
+      attach_volume(vol[:aws_id], instance_id, new_resource.device, new_resource.timeout)
+      node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol['aws_id']
+      node.save unless Chef::Config[:solo]
+    end
   end
 end
 
 action :detach do
   vol = determine_volume
   return if vol[:aws_instance_id] != instance_id
-  detach_volume(vol[:aws_id], new_resource.timeout)
-  new_resource.updated_by_last_action(true)
+  converge_by("detach volume with id: #{vol[:aws_id]}") do
+    detach_volume(vol[:aws_id], new_resource.timeout)
+  end
 end
 
 action :snapshot do
   vol = determine_volume
-  snapshot = ec2.create_snapshot(vol[:aws_id],new_resource.description)
-  new_resource.updated_by_last_action(true)
-  Chef::Log.info("Created snapshot of #{vol[:aws_id]} as #{snapshot[:aws_id]}")
+  converge_by("would create a snapshot for volume: #{vol[:aws_id]}") do
+    snapshot = ec2.create_snapshot(vol[:aws_id],new_resource.description)
+    Chef::Log.info("Created snapshot of #{vol[:aws_id]} as #{snapshot[:aws_id]}")
+  end
 end
 
 action :prune do
@@ -78,9 +90,10 @@ action :prune do
   end
   if old_snapshots.length > new_resource.snapshots_to_keep 
     old_snapshots[new_resource.snapshots_to_keep, old_snapshots.length].each do |die|
-      Chef::Log.info "Deleting old snapshot #{die[:aws_id]}"
-      ec2.delete_snapshot(die[:aws_id])
-      new_resource.updated_by_last_action(true)
+      converge_by("delete snapshot with id: #{die[:aws_id]}") do
+        Chef::Log.info "Deleting old snapshot #{die[:aws_id]}"
+        ec2.delete_snapshot(die[:aws_id])
+      end
     end
   end
 end

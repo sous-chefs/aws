@@ -10,12 +10,12 @@ action :add do
 
   @new_resource.tags.each do |k,v|
     unless @current_resource.tags.keys.include?(k)
-      ec2.create_tags(resource_id, { k => v })
-      Chef::Log.info("AWS: Added tag '#{k}' with value '#{v}' on resource #{resource_id}")
-      new_resource.updated_by_last_action(true)
+      converge_by("add tag '#{k}' with value '#{v}' on resource #{resource_id}") do
+        ec2.create_tags(resource_id, { k => v })
+        Chef::Log.info("AWS: Added tag '#{k}' with value '#{v}' on resource #{resource_id}")
+      end
     else
       Chef::Log.debug("AWS: Resource #{resource_id} already has a tag with key '#{k}', will not add tag '#{k}' => '#{v}'")
-      new_resource.updated_by_last_action(false)
     end
   end
 end
@@ -29,12 +29,12 @@ action :update do
 
   updated_tags = @current_resource.tags.merge(@new_resource.tags)
   unless updated_tags.eql?(@current_resource.tags)
-    Chef::Log.info("AWS: Updating the following tags for resource #{resource_id}: " + updated_tags.inspect)
-    ec2.create_tags(resource_id, updated_tags)
-    new_resource.updated_by_last_action(true)
+    converge_by("Updating the following tags for resource #{resource_id}: " + updated_tags.inspect) do 
+      Chef::Log.info("AWS: Updating the following tags for resource #{resource_id}: " + updated_tags.inspect)
+      ec2.create_tags(resource_id, updated_tags)
+    end
   else
     Chef::Log.debug("AWS: Tags for resource #{resource_id} are unchanged")
-    new_resource.updated_by_last_action(false)
   end
 end
 
@@ -49,9 +49,10 @@ action :remove do
 
   tags_to_delete.each do |key|
     if @current_resource.tags.keys.include?(key) and @current_resource.tags[key] == @new_resource.tags[key]
-      ec2.delete_tags(resource_id, {key => @new_resource.tags[key]})
-      Chef::Log.info("AWS: Deleted tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'")
-      new_resource.updated_by_last_action(true)
+      converge_by("delete tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'") do
+        ec2.delete_tags(resource_id, {key => @new_resource.tags[key]})
+        Chef::Log.info("AWS: Deleted tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'")
+      end
     end
   end
 end
@@ -65,9 +66,10 @@ action :force_remove do
 
   @new_resource.tags.keys do |key|
     if @current_resource.tags.keys.include?(key)
-      ec2.delete_tags(resource_id, key)
-      Chef::Log.info("AWS: Deleted tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'")
-      new_resource.updated_by_last_action(true)
+      converge_by("AWS: Deleted tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'") do
+        ec2.delete_tags(resource_id, key)
+        Chef::Log.info("AWS: Deleted tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'")
+      end
     end
   end
 end
