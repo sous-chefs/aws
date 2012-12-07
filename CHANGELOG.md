@@ -1,3 +1,8 @@
+## v0.100.4:
+
+* Support why-run mode in LWRPs
+* [COOK-1836] - make `aws_elastic_lb` idempotent
+
 ## v0.100.2:
 
 * [COOK-1568] - switch to chef_gem resource
