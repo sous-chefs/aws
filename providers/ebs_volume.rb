@@ -44,6 +44,8 @@ action :create do
 end
 
 action :attach do
+  # determine_volume returns a Hash, not a Mash, and the keys are
+  # symbols, not strings.
   vol = determine_volume
 
   if vol[:aws_status] == "in-use"
@@ -56,6 +58,7 @@ action :attach do
     converge_by("attach the volume with aws_id=#{vol[:aws_id]} id=#{instance_id} device=#{new_resource.device} and update the node data with created volume's id") do
       # attach the volume and register its id in the node data
       attach_volume(vol[:aws_id], instance_id, new_resource.device, new_resource.timeout)
+      # always use a symbol here, it is a Hash
       node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:aws_id]
       node.save unless Chef::Config[:solo]
     end
