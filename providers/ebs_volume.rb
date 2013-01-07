@@ -56,7 +56,7 @@ action :attach do
     converge_by("attach the volume with aws_id=#{vol[:aws_id]} id=#{instance_id} device=#{new_resource.device} and update the node data with created volume's id") do
       # attach the volume and register its id in the node data
       attach_volume(vol[:aws_id], instance_id, new_resource.device, new_resource.timeout)
-      node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol['aws_id']
+      node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:aws_id]
       node.save unless Chef::Config[:solo]
     end
   end
