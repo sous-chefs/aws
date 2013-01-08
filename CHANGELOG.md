@@ -1,3 +1,8 @@
+## v0.100.6:
+
+* [COOK-2148] - `aws_ebs_volume` attach action saves nil `volume_id`
+  in node
+
 ## v0.100.4:
 
 * Support why-run mode in LWRPs
