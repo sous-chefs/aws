@@ -4,6 +4,7 @@ Description
 This cookbook provides libraries, resources and providers to configure and manage Amazon Web Services components and offerings with the EC2 API. Currently supported resources:
 
 * EBS Volumes (`ebs_volume`)
+* EBS Raid (`ebs_raid`)
 * Elastic IPs (`elastic_ip`)
 * Elastic Load Balancer (`elastic_lb`)
 * AWS Resource Tags (`resource_tag`)
