@@ -17,4 +17,4 @@
 # limitations under the License.
 #
 
-default['aws']['right_aws_version'] = "2.1.0"
+default['aws']['right_aws_version'] = "3.1.4"
