@@ -1,5 +1,7 @@
 actions :create, :attach, :detach, :snapshot, :prune
 
+default_action :create
+
 attribute :aws_access_key,        :kind_of => String
 attribute :aws_secret_access_key, :kind_of => String
 attribute :size,                  :kind_of => Integer
@@ -10,8 +12,3 @@ attribute :volume_id,             :kind_of => String
 attribute :description,           :kind_of => String
 attribute :timeout,               :default => 3*60 # 3 mins, nil or 0 for no timeout
 attribute :snapshots_to_keep,     :default => 2
-
-def initialize(*args)
-  super
-  @action = :create
-end
