@@ -2,8 +2,8 @@ include Opscode::Aws::Ec2
 
 action :register do
   converge_by("add the node #{new_resource.name} to ELB") do
-    target_lb = elb.describe_load_balancers.find {|lb| lb[:load_balancer_name] == new_resource.name }
-    unless target_lb[:instances].include?(instance_id)
+    target_lb = elb.describe_load_balancers.find {|lb| lb['load_balancer_name'] == new_resource.name }
+    unless target_lb['instances'].include?(instance_id)
       Chef::Log.info("Adding node to ELB #{new_resource.name}")
       elb.register_instances_with_load_balancer(new_resource.name, instance_id)
     else
@@ -14,8 +14,8 @@ end
 
 action :deregister do
   converge_by("remove the node #{new_resource.name} from ELB") do
-    target_lb = elb.describe_load_balancers.find {|lb| lb[:load_balancer_name] == new_resource.name }
-    if target_lb[:instances].include?(instance_id) 
+    target_lb = elb.describe_load_balancers.find {|lb| lb['load_balancer_name'] == new_resource.name }
+    if target_lb['instances'].include?(instance_id) 
       Chef::Log.info("Removing node from ELB #{new_resource.name}")
       elb.deregister_instances_with_load_balancer(new_resource.name, instance_id)
     else

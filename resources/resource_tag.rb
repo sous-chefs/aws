@@ -1,9 +1,6 @@
-def initialize(*args)
-  super
-  @action = :update
-end
-
 actions :add, :update, :remove, :force_remove
+
+default_action :update
 
 attribute :aws_access_key, :kind_of => String, :required => true
 attribute :aws_secret_access_key, :kind_of => String, :required => true
