@@ -10,7 +10,7 @@ action :associate do
 
   if addr.nil?
     raise "Elastic IP #{new_resource.ip} does not exist"
-  elsif addr[:instance_id] == instance_id
+  elsif addr['instance_id'] == instance_id
     Chef::Log.debug("Elastic IP #{new_resource.ip} is already attached to the instance")
   else
     converge_by("attach Elastic IP #{new_resource.ip} to the instance") do
@@ -25,7 +25,7 @@ action :disassociate do
 
   if addr.nil?
     Chef::Log.debug("Elastic IP #{new_resource.ip} does not exist, so there is nothing to detach")
-  elsif addr[:instance_id] != instance_id
+  elsif addr['instance_id'] != instance_id
     Chef::Log.debug("Elastic IP #{new_resource.ip} is already detached from the instance")
   else
     converge_by("detach Elastic IP #{new_resource.ip} from the instance") do
@@ -38,7 +38,7 @@ end
 private
 
 def address(ip)
-  ec2.describe_addresses.find{|a| a[:public_ip] == ip}
+  ec2.describe_addresses.find{|a| a['public_ip'] == ip}
 end
 
 def attach(ip, timeout)
@@ -51,11 +51,11 @@ def attach(ip, timeout)
         addr = address(ip)
         if addr.nil?
           raise "Elastic IP has been deleted while waiting for attachment"
-        elsif addr[:instance_id] == instance_id
+        elsif addr['instance_id'] == instance_id
           Chef::Log.debug("Elastic IP is attached to this instance")
           break
         else
-          Chef::Log.debug("Elastic IP is currently attached to #{addr[:instance_id]}")
+          Chef::Log.debug("Elastic IP is currently attached to #{addr['instance_id']}")
         end
         sleep 3
       end
@@ -75,7 +75,7 @@ def detach(ip, timeout)
         addr = address(ip)
         if addr.nil?
           Chef::Log.debug("Elastic IP has been deleted while waiting for detachment")
-        elsif addr[:instance_id] != instance_id
+        elsif addr['instance_id'] != instance_id
           Chef::Log.debug("Elastic IP is detached from this instance")
           break
         else
