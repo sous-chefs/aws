@@ -7,14 +7,14 @@ action :auto_attach do
   end
 
   # Baseline expectations.
-  node[:aws] ||= {}
-  node[:aws][:raid] ||= {}
+  node.set[:aws] ||= {}
+  node.set[:aws][:raid] ||= {}
 
   # Mount point information.
-  node[:aws][:raid][@new_resource.mount_point] ||= {}
+  node.set[:aws][:raid][@new_resource.mount_point] ||= {}
 
   # we're done we successfully located what we needed
-  if !already_mounted(@new_resource.mount_point) && !locate_and_mount(@new_resource.mount_point)
+  if !already_mounted(@new_resource.mount_point) && !locate_and_mount(@new_resource.mount_point, @new_resource.filesystem, @new_resource.filesystem_options)
 
     # If we get here, we couldn't auto attach, nor re-allocate an existing set of disks to ourselves.  Auto create the md devices
     create_raid_disks(@new_resource.mount_point,
@@ -22,6 +22,7 @@ action :auto_attach do
                       @new_resource.disk_size,
                       @new_resource.level,
                       @new_resource.filesystem,
+                      @new_resource.filesystem_options,
                       @new_resource.snapshots,
                       @new_resource.disk_type,
                       @new_resource.disk_piops)
@@ -73,13 +74,13 @@ def md_device_from_mount_point(mount_point)
 end
 
 def update_node_from_md_device(md_device, mount_point)
-  command = "sudo mdadm --misc -D #{md_device} | grep '/dev/s' | awk '{print $7}' | tr '\\n' ' '"
+  command = "mdadm --misc -D #{md_device} | grep '/dev/s' | awk '{print $7}' | tr '\\n' ' '"
   Chef::Log.info("Running #{command}")
   raid_devices = `#{command}`
   Chef::Log.info("already found the mounted device, created from #{raid_devices}")
   
-  node[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//,"")
-  node[:aws][:raid][mount_point][:devices] = raid_devices
+  node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//,"")
+  node.set[:aws][:raid][mount_point][:devices] = raid_devices
   node.save
 end
 
@@ -111,7 +112,7 @@ end
 
 # Attempt to find an unused data bag and mount all the EBS volumes to our system
 # Note: recovery from this assumed state is weakly untested.
-def locate_and_mount(mount_point)
+def locate_and_mount(mount_point, filesystem, filesystem_options)
   
   if node[:aws].nil? || node[:aws][:raid].nil? || node[:aws][:raid][mount_point].nil?
     Chef::Log.info("No mount point found '#{mount_point}' for node")
@@ -135,7 +136,7 @@ def locate_and_mount(mount_point)
   assemble_raid(raid_dev, devices_string)
   
   # Now mount the drive
-  mount_device(raid_dev, mount_point)
+  mount_device(raid_dev, mount_point, filesystem, filesystem_options)
   
   true
 end
@@ -178,7 +179,7 @@ def mount_volumes(device_vol_map)
   end
 
   # Wait until all volumes are mounted
-  ruby_block "wait" do
+  ruby_block "wait_#{new_resource.name}" do
     block do
       count = 0
       begin
@@ -188,7 +189,7 @@ def mount_volumes(device_vol_map)
       end while !device_vol_map.all? {|dev_path| ::File.exists?(dev_path) }
 
       # Accounting to see how often this code actually gets used.
-      node[:aws][:raid][mount_point][:device_attach_delay] = count * 10
+      node.set[:aws][:raid][mount_point][:device_attach_delay] = count * 10
     end
   end
 end
@@ -213,7 +214,7 @@ def assemble_raid(raid_dev, devices_string)
 end
 
 
-def mount_device(raid_dev, mount_point)
+def mount_device(raid_dev, mount_point, filesystem, filesystem_options)
   # Create the mount point
   directory mount_point do
     owner "root"
@@ -223,15 +224,6 @@ def mount_device(raid_dev, mount_point)
     not_if "test -d #{mount_point}"
   end
 
-  # Mount the device -- doesn't work because we have to detect it first
-  # mount mount_point do
-  #   device raid_dev
-  #   fstype "ext4"
-  #   options "rw,noatime,nobootwait"
-  #   action :mount
-  #   #    notifies :run, "ruby_block[setchanged]", :immediately
-  # end
-  
   # Try to figure out the actual device.
   ruby_block "find device" do
     block do
@@ -248,10 +240,8 @@ def mount_device(raid_dev, mount_point)
 
       Chef::Log.info("Found #{md_device}")
 
-      fstype = "ext4"
-      options = "rw,noatime,nobootwait"
-
-      system("mount -t #{fstype} -o #{options} #{md_device} #{mount_point}")
+      # the mountpoint must be determined dynamically, so I can't use the chef mount
+      system("mount -t #{filesystem} -o #{filesystem_options} #{md_device} #{mount_point}")
     end
   end
 end
@@ -260,7 +250,7 @@ end
 def attach_volume(disk_dev, volume_id)
   disk_dev_path = "/dev/#{disk_dev}"
   
-  aws = data_bag_item("aws", "main")
+  aws = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
   
   Chef::Log.info("Attaching existing ebs volume id #{volume_id} for device #{disk_dev_path}")
   
@@ -280,11 +270,12 @@ end
 # Raid size.   The total size of the array
 # Raid level.  The raid level to use.
 # Filesystem.  The file system to create.
+# Filesystem_options The options to pass to mount
 # Snapshots.   The list of snapshots to create the ebs volumes from.
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, num_disks, disk_size,
-                      level, filesystem, snapshots, disk_type, disk_piops)
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops)
   
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
@@ -325,8 +316,12 @@ def create_raid_disks(mount_point, num_disks, disk_size,
     Chef::Log.info("attach dev: #{disk_dev_path}")
   end
 
-  Chef::Log.debug("sleeping 10 seconds to let drives attach")
-  sleep 10
+  ruby_block "sleeping_#{new_resource.name}" do
+    block do
+      Chef::Log.debug("sleeping 10 seconds to let drives attach")
+      sleep 10
+    end
+  end
   
   # Create the raid device strings w/sd => xvd correction
   devices_string = device_map_to_string(devices)
@@ -351,7 +346,13 @@ def create_raid_disks(mount_point, num_disks, disk_size,
         end
         
         Chef::Log.info("Format device found: #{md_device}")
-        system("mke2fs -t #{filesystem} -F #{md_device}")
+        case filesystem
+          when "ext4"
+            system("mke2fs -t #{filesystem} -F #{md_device}")
+          else
+            #TODO fill in details on how to format other filesystems here
+            Chef::Log.info("Can't format filesystem #{filesystem}")
+        end
       end
     end
   else
@@ -360,7 +361,7 @@ def create_raid_disks(mount_point, num_disks, disk_size,
   end
   
   # Mount the device
-  mount_device(raid_dev, mount_point)
+  mount_device(raid_dev, mount_point, filesystem, filesystem_options)
   
   # Not invoked until the volumes have been successfully created and attached
   ruby_block "databagupdate" do
@@ -374,8 +375,8 @@ def create_raid_disks(mount_point, num_disks, disk_size,
       end
       
       # Assemble all the data bag meta data
-      node[:aws][:raid][mount_point][:raid_dev] = raid_dev
-      node[:aws][:raid][mount_point][:device_map] = devices      
+      node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
+      node.set[:aws][:raid][mount_point][:device_map] = devices      
       node.save
     end
   end
