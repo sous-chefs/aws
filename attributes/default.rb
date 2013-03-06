@@ -17,6 +17,6 @@
 # limitations under the License.
 #
 
-default['aws']['right_aws_version'] = "3.1.4"
+default['aws']['right_aws_version'] = "3.0.5"
 default['aws']['databag_name'] = "aws"
 default['aws']['databag_entry'] = "main"
