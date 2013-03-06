@@ -225,7 +225,7 @@ def mount_device(raid_dev, mount_point, filesystem, filesystem_options)
   end
 
   # Try to figure out the actual device.
-  ruby_block "find device" do
+  ruby_block "find md device in #{new_resource.name}" do
     block do
       if ::File.exists?(mount_point)
         Chef::Log.info("Already mounted: #{mount_point}")
@@ -336,7 +336,7 @@ def create_raid_disks(mount_point, num_disks, disk_size,
   
     # NOTE: must be a better way.
     # Try to figure out the actual device.
-    ruby_block "formatting device" do
+    ruby_block "formatting md device in #{new_resource.name}" do
       block do
         # For some silly reason we can't call the function.
         md_device = nil
