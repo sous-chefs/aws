@@ -35,7 +35,12 @@ action :create do
     else
       # If not, create volume and register its id in the node data
       converge_by("create a volume with id=#{new_resource.snapshot_id} size=#{new_resource.size} availability_zone=#{new_resource.availability_zone} and update the node data with created volume's id") do
-        nvid = create_volume(new_resource.snapshot_id, new_resource.size, new_resource.availability_zone, new_resource.timeout)
+      nvid = create_volume(new_resource.snapshot_id,
+                           new_resource.size,
+                           new_resource.availability_zone,
+                           new_resource.timeout,
+                           new_resource.volume_type,
+                           new_resource.piops)
         node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
         node.save unless Chef::Config[:solo]
       end
@@ -145,9 +150,27 @@ def volume_compatible_with_resource_definition?(volume)
 end
 
 # Creates a volume according to specifications and blocks until done (or times out)
-def create_volume(snapshot_id, size, availability_zone, timeout)
+def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, piops)
   availability_zone ||= instance_availability_zone
-  nv = ec2.create_volume(snapshot_id, size, availability_zone)
+
+  # Sanity checks so we don't shoot ourselves.
+  raise "Invalid volume type: #{volume_type}" unless ['standard', 'io1'].include?(volume_type)
+
+  # PIOPs requested. Must specify an iops param and probably won't be "low".
+  if volume_type == 'io1'
+    raise 'IOPS value not specified.' unless piops > 100
+  end
+
+  # Shouldn't see non-zero piops param without appropriate type.
+  if piops > 0
+    raise 'IOPS param without piops volume type.' unless volume_type == 'io1'
+  end
+
+  create_volume_opts = { :volume_type => volume_type }
+  # TODO: this may have to be casted to a string.  rightaws vs aws doc discrepancy.
+  create_volume_opts[:iops] = piops if volume_type == 'io1'
+
+  nv = ec2.create_volume(snapshot_id, size, availability_zone, create_volume_opts)
   Chef::Log.debug("Created new volume #{nv[:aws_id]}#{snapshot_id ? " based on #{snapshot_id}" : ""}")
 
   # block until created
@@ -237,3 +260,5 @@ def detach_volume(volume_id, timeout)
     raise "Timed out waiting for volume detachment after #{timeout} seconds"
   end
 end
+
+
