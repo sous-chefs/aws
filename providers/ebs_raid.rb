@@ -1,10 +1,11 @@
 include Opscode::Aws::Ec2
 
 action :auto_attach do
-  
-  package "mdadm" do
-    action :install
-  end
+
+  ["xfsprogs", "xfsdump", "xfslibs-dev", "mdadm"].each{ |i| package i do
+            action :install
+        end
+  }
 
   # Baseline expectations.
   node.set[:aws] ||= {}
@@ -292,7 +293,7 @@ def create_raid_disks(mount_point, num_disks, disk_size,
     
     disk_dev_path = "#{disk_dev}#{i}"
     
-    aws = data_bag_item("aws", "main")
+    aws = Chef::EncryptedDataBagItem.load("aws", "main")
    
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     aws_ebs_volume "#{disk_dev_path}" do
@@ -349,6 +350,8 @@ def create_raid_disks(mount_point, num_disks, disk_size,
         case filesystem
           when "ext4"
             system("mke2fs -t #{filesystem} -F #{md_device}")
+          when "xfs"
+            system("mkfs.xfs #{md_device}")
           else
             #TODO fill in details on how to format other filesystems here
             Chef::Log.info("Can't format filesystem #{filesystem}")
