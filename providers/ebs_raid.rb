@@ -292,7 +292,7 @@ def create_raid_disks(mount_point, num_disks, disk_size,
     
     disk_dev_path = "#{disk_dev}#{i}"
     
-    aws = data_bag_item("aws", "main")
+    aws = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
    
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     aws_ebs_volume "#{disk_dev_path}" do
