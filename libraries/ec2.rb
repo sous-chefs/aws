@@ -11,9 +11,14 @@ require 'open-uri'
 module Opscode
   module Aws
     module Ec2
-      def find_snapshot_id(volume_id="")
-        snapshot_id = nil 
-        ec2.describe_snapshots.sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }.each do |snapshot|
+      def find_snapshot_id(volume_id="", find_most_recent=false)
+        snapshot_id = nil
+        snapshots = if find_most_recent
+          ec2.describe_snapshots.sort { |a,b| a[:aws_started_at] <=> b[:aws_started_at] }
+        else
+          ec2.describe_snapshots.sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }
+        end
+        snapshots.each do |snapshot|
           if snapshot[:aws_volume_id] == volume_id
             snapshot_id = snapshot[:aws_id]
           end

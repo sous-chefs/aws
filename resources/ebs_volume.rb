@@ -4,6 +4,7 @@ attribute :aws_access_key,        :kind_of => String
 attribute :aws_secret_access_key, :kind_of => String
 attribute :size,                  :kind_of => Integer
 attribute :snapshot_id,           :kind_of => String
+attribute :most_recent_snapshot,  :kind_of => [TrueClass, FalseClass], :default => false
 attribute :availability_zone,     :kind_of => String
 attribute :device,                :kind_of => String
 attribute :volume_id,             :kind_of => String

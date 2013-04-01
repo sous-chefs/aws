@@ -87,6 +87,7 @@ Attribute Parameters:
 * `aws_secret_access_key`, `aws_access_key` - passed to `Opscode::AWS:Ec2` to authenticate, required.
 * `size` - size of the volume in gigabytes.
 * `snapshot_id` - snapshot to build EBS volume from.
+*  most_recent_snapshot - use the most recent snapshot when creating a volume from an existing volume (defaults to false)
 * `availability_zone` - EC2 region, and is normally automatically detected.
 * `device` - local block device to attach the volume to, e.g. `/dev/sdi` but no default value, required.
 * `volume_id` - specify an ID to attach, cannot be used with action `:create` because AWS assigns new volume IDs
