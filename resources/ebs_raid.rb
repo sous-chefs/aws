@@ -10,3 +10,7 @@ attribute :snapshots,          :default => []
 attribute :disk_type,          :kind_of => String, :default => 'standard'
 attribute :disk_piops,         :kind_of => Integer, :default => 0
 
+def initialize(*args)
+  super
+  @action = :auto_attach
+end
