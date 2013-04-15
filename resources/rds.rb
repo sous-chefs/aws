@@ -19,7 +19,7 @@ attribute :db_parameter_group,           :kind_of => String
 attribute :engine_version,               :kind_of => String
 attribute :auto_minor_version_upgrade,   :kind_of => [TrueClass, FalseClass], :default => false
 attribute :license_model,                :kind_of => ['bring-your-own-license', 'license-included', 'general-public-license'], :default => 'general-public-license'
-attribute :timeout,                      :kind_of => Integer, :default => 10*60 # 3 mins, nil or 0 for no timeout
+attribute :timeout,                      :kind_of => Integer, :default => 10*60 # 10 mins, nil or 0 for no timeout
 
 def initialize(*args)
   super
