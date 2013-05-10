@@ -29,8 +29,10 @@ action :update do
 
   updated_tags = @current_resource.tags.merge(@new_resource.tags)
   unless updated_tags.eql?(@current_resource.tags)
-    converge_by("Updating the following tags for resource #{resource_id}: " + updated_tags.inspect) do 
-      Chef::Log.info("AWS: Updating the following tags for resource #{resource_id}: " + updated_tags.inspect)
+    # tags that begin with "aws" are reserved
+    converge_by("Updating the following tags for resource #{resource_id} (skipping AWS tags): " + updated_tags.inspect) do 
+      Chef::Log.info("AWS: Updating the following tags for resource #{resource_id} (skipping AWS tags): " + updated_tags.inspect)
+      updated_tags.delete_if { |key, value| key.to_s.match /^aws/ }
       ec2.create_tags(resource_id, updated_tags)
     end
   else
