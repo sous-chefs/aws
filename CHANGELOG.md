@@ -1,3 +1,28 @@
+## v0.101.0
+
+### Bug
+
+- [COOK-1355]: AWS::ElasticIP recipe uses an old RightAWS API to
+  associate an elastic ip address to an EC2 instance
+- [COOK-2659]: `volume_compatible_with_resource_definition` fails on
+  valid `snapshot_id` configurations
+- [COOK-2670]: AWS cookbook doesn't use `node[:aws][:databag_name]`,
+  etc. in `create_raid_disks`
+- [COOK-2693]: exclude AWS reserved tags from tag update
+- [COOK-2914]: Foodcritic failures in Cookbooks
+
+### Improvement
+
+- [COOK-2587]: Resource attribute for using most recent snapshot
+  instead of earliest
+- [COOK-2605]: "WARN: Missing gem '`right_aws`'" always prints when
+  including 'aws' in metadata
+
+### New Feature
+
+- [COOK-2503]: add EBS raid volumes and provisioned IOPS support for
+  AWS
+
 ## v0.100.6:
 
 * [COOK-2148] - `aws_ebs_volume` attach action saves nil `volume_id`
