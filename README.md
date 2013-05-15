@@ -94,7 +94,7 @@ Attribute Parameters:
 * `timeout` - connection timeout for EC2 API.
 * `snapshots_to_keep` - used with action `:prune` for number of snapshots to maintain.
 * `description` - used to set the description of an EBS snapshot
-* `volume_type` - standard or io1
+* `volume_type` - "standard" or "io1" (io1 is the type for IOPS volume)
 * `piops` - number of Provisioned IOPS to provision, must be > 100
 
 `ebs_raid.rb`
@@ -110,7 +110,7 @@ Attribute Parameters:
 * `level` - RAID level (default 10)
 * `filesystem` - filesystem to format raid array (default ext4)
 * `snapshots` - array of EBS snapshots to restore.  Snapshots must be taken using an ec2 consistent snapshot tool, and tagged with a number that indicates how many devices are in the array being backed up (e.g. "Logs Backup [0-4]" for a four-volume raid array snapshot)
-* `disk_type` - standard or io1
+* `disk_type` - "standard" or "io1" (io1 is the type for IOPS volume)
 * `disk_piops` - number of Provisioned IOPS to provision per disk, must be > 100
 
 `elastic_ip.rb`
