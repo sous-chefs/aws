@@ -7,7 +7,7 @@ action :auto_attach do
   end
 
   # Baseline expectations.
-  node.set[:aws] ||= {}
+  node.set['aws'] ||= {}
   node.set[:aws][:raid] ||= {}
 
   # Mount point information.
@@ -114,23 +114,23 @@ end
 # Note: recovery from this assumed state is weakly untested.
 def locate_and_mount(mount_point, filesystem, filesystem_options)
   
-  if node[:aws].nil? || node[:aws][:raid].nil? || node[:aws][:raid][mount_point].nil?
+  if node['aws'].nil? || node['aws']['raid'].nil? || node['aws']['raid'][mount_point].nil?
     Chef::Log.info("No mount point found '#{mount_point}' for node")
     return false
   end
 
-  if node[:aws][:raid][mount_point][:raid_dev].nil? || node[:aws][:raid][mount_point][:device_map].nil?
+  if node['aws']['raid'][mount_point]['raid_dev'].nil? || node['aws']['raid'][mount_point]['device_map'].nil?
     Chef::Log.info("No raid device found for mount point '#{mount_point}' for node")
     return false
   end
   
-  raid_dev = node[:aws][:raid][mount_point][:raid_dev]
-  devices_string = device_map_to_string(node[:aws][:raid][mount_point][:device_map])
+  raid_dev = node['aws']['raid'][mount_point]['raid_dev']
+  devices_string = device_map_to_string(node['aws']['raid'][mount_point]['device_map'])
 
   Chef::Log.info("Raid device is #{raid_dev} and mount path is #{mount_point}")
   
   # Mount volumes
-  mount_volumes(node[:aws][:raid][mount_point][:device_map])
+  mount_volumes(node['aws']['raid'][mount_point]['device_map'])
 
   # Assemble raid device.
   assemble_raid(raid_dev, devices_string)
@@ -254,7 +254,7 @@ def attach_volume(disk_dev, volume_id)
   
   Chef::Log.info("Attaching existing ebs volume id #{volume_id} for device #{disk_dev_path}")
   
-  aws_ebs_volume "#{disk_dev_path}" do
+  aws_ebs_volume disk_dev_path do
     aws_access_key          aws['aws_access_key_id']
     aws_secret_access_key   aws['aws_secret_access_key']
     device                  disk_dev_path
@@ -295,7 +295,7 @@ def create_raid_disks(mount_point, num_disks, disk_size,
     aws = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
    
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
-    aws_ebs_volume "#{disk_dev_path}" do
+    aws_ebs_volume disk_dev_path do
       aws_access_key          aws['aws_access_key_id']
       aws_secret_access_key   aws['aws_secret_access_key']
       size                    disk_size
@@ -369,7 +369,7 @@ def create_raid_disks(mount_point, num_disks, disk_size,
       Chef::Log.info("finished creating disks")
       
       devices.each_pair do |key, value|
-        value = node[:aws][:ebs_volume][key][:volume_id]
+        value = node['aws']['ebs_volume'][key]['volume_id']
         devices[key] =  value
         Chef::Log.info("value is #{value}")
       end
