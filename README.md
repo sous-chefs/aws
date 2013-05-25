@@ -9,6 +9,11 @@ This cookbook provides libraries, resources and providers to configure and manag
 * Elastic Load Balancer (`elastic_lb`)
 * AWS Resource Tags (`resource_tag`)
 
+Unsupported AWS resources that have other cookbooks include but are
+not limited to::
+
+* [Route53](http://community.opscode.com/cookbooks/route53)
+
 Requirements
 ============
 
