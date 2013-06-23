@@ -25,7 +25,8 @@ action :auto_attach do
                       @new_resource.filesystem_options,
                       @new_resource.snapshots,
                       @new_resource.disk_type,
-                      @new_resource.disk_piops)
+                      @new_resource.disk_piops,
+                      @new_resource.existing_raid)
     
     @new_resource.updated_by_last_action(true)
   end
@@ -275,7 +276,8 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, num_disks, disk_size,
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops)
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops,
+                      existing_raid)
   
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
@@ -327,11 +329,11 @@ def create_raid_disks(mount_point, num_disks, disk_size,
   devices_string = device_map_to_string(devices)
   Chef::Log.info("finished sorting devices #{devices_string}")
 
-  if not creating_from_snapshot
+  if not creating_from_snapshot and not existing_raid
     # Create the raid device on our system
     execute "creating raid device" do
       Chef::Log.info("creating raid device /dev/#{raid_dev} with raid devices #{devices_string}")
-      command "mdadm --create /dev/#{raid_dev} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
+      command "[ -b /dev/#{raid_dev} ] && mdadm --stop /dev/#{raid_dev} ; yes | mdadm --create /dev/#{raid_dev} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
     end
   
     # NOTE: must be a better way.
