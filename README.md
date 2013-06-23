@@ -151,6 +151,8 @@ Attribute Parameters:
 * `disk_type` - "standard" or "io1" (io1 is the type for IOPS volume)
 * `disk_piops` - number of Provisioned IOPS to provision per disk,
   must be > 100
+* `existing_raid` - whether or not to assume the raid was already
+  assembled in the past on existing volumes (default no)
 
 ## elastic_ip.rb
 
