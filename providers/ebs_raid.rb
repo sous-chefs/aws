@@ -18,6 +18,9 @@ action :auto_attach do
 
     # If we get here, we couldn't auto attach, nor re-allocate an existing set of disks to ourselves.  Auto create the md devices
     create_raid_disks(@new_resource.mount_point,
+                      @new_resource.mount_point_owner,
+                      @new_resource.mount_point_group,
+                      @new_resource.mount_point_mode,
                       @new_resource.disk_count,
                       @new_resource.disk_size,
                       @new_resource.level,
@@ -112,7 +115,7 @@ end
 
 # Attempt to find an unused data bag and mount all the EBS volumes to our system
 # Note: recovery from this assumed state is weakly untested.
-def locate_and_mount(mount_point, filesystem, filesystem_options)
+def locate_and_mount(mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
   
   if node['aws'].nil? || node['aws']['raid'].nil? || node['aws']['raid'][mount_point].nil?
     Chef::Log.info("No mount point found '#{mount_point}' for node")
@@ -136,7 +139,7 @@ def locate_and_mount(mount_point, filesystem, filesystem_options)
   assemble_raid(raid_dev, devices_string)
   
   # Now mount the drive
-  mount_device(raid_dev, mount_point, filesystem, filesystem_options)
+  mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
   
   true
 end
@@ -214,12 +217,12 @@ def assemble_raid(raid_dev, devices_string)
 end
 
 
-def mount_device(raid_dev, mount_point, filesystem, filesystem_options)
+def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
   # Create the mount point
   directory mount_point do
-    owner "root"
-    group "root"
-    mode 0755
+    owner mount_point_owner
+    group mount_point_group
+    mode mount_point_mode
     action    :create
     not_if "test -d #{mount_point}"
   end
@@ -274,7 +277,7 @@ end
 # Snapshots.   The list of snapshots to create the ebs volumes from.
 #              If it's not nil, must have exactly <num_disks> elements
 
-def create_raid_disks(mount_point, num_disks, disk_size,
+def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
                       level, filesystem, filesystem_options, snapshots, disk_type, disk_piops)
   
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
@@ -361,7 +364,7 @@ def create_raid_disks(mount_point, num_disks, disk_size,
   end
   
   # Mount the device
-  mount_device(raid_dev, mount_point, filesystem, filesystem_options)
+  mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
   
   # Not invoked until the volumes have been successfully created and attached
   ruby_block "databagupdate" do
