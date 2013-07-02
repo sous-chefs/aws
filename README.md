@@ -140,6 +140,9 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 Attribute Parameters:
 
 * `mount_point` - where to mount the RAID volume
+* `mount_point_owner` - the owner of the mount point (default root)
+* `mount_point_group` - the group of the mount point (default root)
+* `mount_point_mode` - the file mode of the mount point (default 0755)
 * `disk_count` - number of EBS volumes to raid
 * `disk_size` - size of EBS volumes to raid
 * `level` - RAID level (default 10)
