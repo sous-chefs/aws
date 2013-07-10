@@ -14,7 +14,7 @@ action :auto_attach do
   node.set[:aws][:raid][@new_resource.mount_point] ||= {}
 
   # we're done we successfully located what we needed
-  if !already_mounted(@new_resource.mount_point) && !locate_and_mount(@new_resource.mount_point, @new_resource.filesystem, @new_resource.filesystem_options)
+  if !already_mounted(@new_resource.mount_point) && !locate_and_mount(@new_resource.mount_point, @new_resource.mount_point_owner, @new_resource.mount_point_group, @new_resource.mount_point_mode, @new_resource.filesystem, @new_resource.filesystem_options)
 
     # If we get here, we couldn't auto attach, nor re-allocate an existing set of disks to ourselves.  Auto create the md devices
     create_raid_disks(@new_resource.mount_point,
