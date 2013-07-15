@@ -83,7 +83,7 @@ def md_device_from_mount_point(mount_point)
 end
 
 def update_node_from_md_device(md_device, mount_point)
-  command = "mdadm --misc -D #{md_device} | grep '/dev/s' | awk '{print $7}' | tr '\\n' ' '"
+  command = "mdadm --misc -D #{md_device} | grep '/dev/s\\|/xv' | awk '{print $7}' | tr '\\n' ' '" 
   Chef::Log.info("Running #{command}")
   raid_devices = `#{command}`
   Chef::Log.info("already found the mounted device, created from #{raid_devices}")
