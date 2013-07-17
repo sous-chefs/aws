@@ -1,4 +1,6 @@
 
+require 'right_aws'
+
 def whyrun_supported?
   true
 end
@@ -21,13 +23,14 @@ end
 
 def do_s3_file(resource_action)
   remote_path = new_resource.remote_path
-  remote_path = "/#{remote_path}" unless remote_path.chars.first == '/'
-  s3file = S3UrlGenerator.new(new_resource.bucket, remote_path, new_resource.aws_access_key_id, new_resource.aws_secret_access_key)
+  remote_path.sub!(/^\/*/, "")
+
+  s3url = RightAws::S3Interface.new(new_resource.aws_access_key_id, new_resource.aws_secret_access_key).get_link(new_resource.bucket, remote_path)
 
   r = remote_file new_resource.name do
     path new_resource.path
-    source s3file.url
-    headers s3file.headers
+    source s3url
+    headers new_resource.headers
     owner new_resource.owner
     group new_resource.group
     mode new_resource.mode
@@ -36,6 +39,7 @@ def do_s3_file(resource_action)
     use_last_modified new_resource.use_last_modified
     backup new_resource.backup
     inherits new_resource.inherits if Platform.windows?
+    rights new_resource.rights if Platform.windows?
     atomic_update new_resource.atomic_update
     force_unlink new_resource.force_unlink
     manage_symlink_source new_resource.manage_symlink_source
