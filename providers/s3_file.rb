@@ -38,8 +38,10 @@ def do_s3_file(resource_action)
     use_etag new_resource.use_etag
     use_last_modified new_resource.use_last_modified
     backup new_resource.backup
-    inherits new_resource.inherits if Platform.windows?
-    rights new_resource.rights if Platform.windows?
+    if RUBY_PLATFORM =~ /mswin|mingw|windows/
+      inherits new_resource.inherits
+      rights new_resource.rights
+    end
     atomic_update new_resource.atomic_update
     force_unlink new_resource.force_unlink
     manage_symlink_source new_resource.manage_symlink_source
