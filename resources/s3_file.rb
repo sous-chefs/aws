@@ -12,7 +12,7 @@ attribute :backup, :kind_of => [Integer, FalseClass], :default => 5
 attribute :use_etag, :kind_of => [TrueClass, FalseClass], :default => true
 attribute :use_last_modified, :kind_of => [TrueClass, FalseClass], :default => true
 attribute :headers, :kind_of => Hash, :default => nil
-if RUBY_PLATFORM =~ /mswin|mingw|windows/
+if node['platform_family'] == "windows"
   attribute :inherits, :kind_of => [TrueClass, FalseClass], :default => true
   attribute :rights, :kind_of => Hash, :default => nil
 end

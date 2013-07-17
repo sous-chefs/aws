@@ -38,7 +38,7 @@ def do_s3_file(resource_action)
     use_etag new_resource.use_etag
     use_last_modified new_resource.use_last_modified
     backup new_resource.backup
-    if RUBY_PLATFORM =~ /mswin|mingw|windows/
+    if node['platform_family'] == "windows"
       inherits new_resource.inherits
       rights new_resource.rights
     end
