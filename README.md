@@ -155,6 +155,16 @@ Attribute Parameters:
 * `disk_piops` - number of Provisioned IOPS to provision per disk,
   must be > 100
 
+#### Encryption 
+Encryption of EBS RAID's is supported with Luks encryption only. To enable, set the `encrypted` resource to true,
+and provide the `encryption_passwd`. The password is called during partition creation and then again required each time
+device mapper `'/dev/mapper/#{dm_name}'` is mounted. `encryption_passwd` is piped to cryptsetup on stdin, therefore never stored
+on disk in plain-text.
+
+* `encrypted` - Sets up encryption with cryptsetup/dm-crypt via device-mapper using Luks. (Default: false)
+* `encryption_passwd` - Password need to encrypt the partition. (Default: nil)
+* `dm_name` - The device mapper friendly alias, which maps to '/dev/mapper/#{dm_name}' (Default: 'secure')
+
 ## elastic_ip.rb
 
 Actions:
