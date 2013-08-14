@@ -128,9 +128,18 @@ def udev(cmd, log)
 end
 
 def update_initramfs()
+  case node["platform"]
+    when "debian", "ubuntu" then
+      initramfs = "update-initramfs -u"
+    when "centos", "redhat", "amazon", "scientific" then
+      initramfs = "dracut --mdadmconf --force /boot/initramfs-#{node['os_version']}.img #{node['os_version']}"
+    else
+      Chef::Log.warn("Unsupported platform. initramfs will not be updated.") 
+  end
   execute "updating initramfs" do
     Chef::Log.debug("updating initramfs to ensure RAID config persists reboots")
-    command "update-initramfs -u"
+    command initramfs
+    only_if { defined? initramfs }
   end
 end
 
@@ -337,12 +346,10 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
     disk_dev_path = "#{disk_dev}#{i}"
 
-    aws = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
-
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     aws_ebs_volume disk_dev_path do
-      aws_access_key          aws['aws_access_key_id']
-      aws_secret_access_key   aws['aws_secret_access_key']
+      aws_access_key          new_resource.aws_access_key
+      aws_secret_access_key   new_resource.aws_secret_access_key
       size                    disk_size
       volume_type             disk_type
       piops                   disk_piops
