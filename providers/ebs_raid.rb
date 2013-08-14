@@ -339,8 +339,8 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     aws_ebs_volume disk_dev_path do
-      aws_access_key          "#{new_resource.aws_access_key}"
-      aws_secret_access_key   "#{new_resource.aws_secret_access_key}"
+      aws_access_key          new_resource.aws_access_key
+      aws_secret_access_key   new_resource.aws_secret_access_key
       size                    disk_size
       volume_type             disk_type
       piops                   disk_piops
