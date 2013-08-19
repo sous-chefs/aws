@@ -90,7 +90,7 @@ def update_node_from_md_device(md_device, mount_point)
 
   node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//,"")
   node.set[:aws][:raid][mount_point][:devices] = raid_devices
-  node.save
+  node.save unless Chef::Config[:solo]
 end
 
 # Dumb way to look for mounted raid devices.  Assumes that the machine
@@ -428,7 +428,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       # Assemble all the data bag meta data
       node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
       node.set[:aws][:raid][mount_point][:device_map] = devices
-      node.save
+      node.save unless Chef::Config[:solo]
     end
   end
 
