@@ -1,6 +1,4 @@
 
-require 'right_aws'
-
 def whyrun_supported?
   true
 end
