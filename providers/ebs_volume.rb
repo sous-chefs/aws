@@ -232,7 +232,10 @@ end
 # Detaches the volume and blocks until done (or times out)
 def detach_volume(volume_id, timeout)
   vol = volume_by_id(volume_id)
-  return if vol[:aws_instance_id] != instance_id
+  if vol[:aws_instance_id] != instance_id
+    Chef::Log.debug("EBS Volume #{volume_id} is not attached to this instance (attached to #{vol[:aws_instance_id]}). Skipping...")
+    return
+  end
   Chef::Log.debug("Detaching #{volume_id}")
   orig_instance_id = vol[:aws_instance_id]
   ec2.detach_volume(volume_id)
