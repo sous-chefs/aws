@@ -3,6 +3,11 @@ aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
 
+v0.101.6
+--------
+### Bug
+- **[COOK-3475](https://tickets.opscode.com/browse/COOK-3475)** - Fix an issuw were invoking action detach in the `ebs_volume `provider when the volume is already detached resulted in a failure
+
 v0.101.4
 --------
 ### Improvement
