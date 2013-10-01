@@ -6,6 +6,12 @@ action :auto_attach do
     action :install
   end
 
+  if @new_resource.encrypted
+    package "cryptsetup" do
+      action :install
+    end
+  end
+
   # Baseline expectations.
   node.set['aws'] ||= {}
   node.set[:aws][:raid] ||= {}
@@ -13,10 +19,15 @@ action :auto_attach do
   # Mount point information.
   node.set[:aws][:raid][@new_resource.mount_point] ||= {}
 
+  # Encryption information
+  node.set[:aws][:raid][:encrypted] ||= {}
+
   # we're done we successfully located what we needed
-  if !already_mounted(@new_resource.mount_point) && !locate_and_mount(@new_resource.mount_point, @new_resource.mount_point_owner,
-                                                                      @new_resource.mount_point_group, @new_resource.mount_point_mode,
-                                                                      @new_resource.filesystem, @new_resource.filesystem_options)
+  if !already_mounted(@new_resource.mount_point, @new_resource.encrypted, @new_resource.dm_name) && !locate_and_mount(@new_resource.mount_point, @new_resource.mount_point_owner,
+                                                                                                                      @new_resource.mount_point_group, @new_resource.mount_point_mode,
+                                                                                                                      @new_resource.filesystem, @new_resource.filesystem_options,
+                                                                                                                      @new_resource.encrypted, @new_resource.encryption_passwd,
+                                                                                                                      @new_resource.dm_name)
 
     # If we get here, we couldn't auto attach, nor re-allocate an existing set of disks to ourselves.  Auto create the md devices
 
@@ -34,7 +45,10 @@ action :auto_attach do
                       @new_resource.filesystem_options,
                       @new_resource.snapshots,
                       @new_resource.disk_type,
-                      @new_resource.disk_piops)
+                      @new_resource.disk_piops,
+                      @new_resource.encrypted,
+                      @new_resource.encryption_passwd,
+                      @new_resource.dm_name)
 
     @new_resource.updated_by_last_action(true)
   end
@@ -57,6 +71,16 @@ def find_free_volume_device_prefix
   vol_dev
 end
 
+def find_free_dm_device
+  number=0
+  begin
+    dir = "/dev/dm-#{number}"
+    number +=1
+  end while ::File.exists?(dir)
+
+  dir[5, dir.length]
+end
+
 def find_free_md_device_name
   number=0
   #TODO, this won't work with more than 10 md devices
@@ -69,17 +93,38 @@ def find_free_md_device_name
   dir[5, dir.length]
 end
 
-def md_device_from_mount_point(mount_point)
-  md_device = ""
-  Dir.glob("/dev/md[0-9]*").each do |dir|
-    # Look at the mount point directory and see if containing device
-    # is the same as the md device.
+def verify_dm_device_from_mp(mount_point, dm_name)
+  devices = {}
+  Dir.glob("/dev/dm-[0-9]*").each do |dir|
+    # First we check that the private crypsetup device lstat matches our mount point
     if ::File.lstat(dir).rdev == ::File.lstat(mount_point).dev
-      md_device = dir
+      devices['dm'] = dir.gsub("\n","")
+
+      Chef::Log.info("Verified #{devices['dm']} lstat link to #{mount_point}")
+
+      # Next we sanity check the md device of what crypsetup is using
+      md = `cryptsetup status #{dm_name}|grep device|awk '{print $2}'`
+      devices['md'] = md.gsub("\n", "")
+
+      Chef::Log.info("Verified /dev/mapper/#{dm_name} crypsetup relationship to #{devices['md']}")
+      return devices
       break
     end
   end
-  md_device
+end
+
+def verify_md_device_from_mp(mount_point)
+  device = {}
+  Dir.glob("/dev/md[0-9]*").each do |dir|
+    # Look at the mount point directory and see if containing device
+    # is the same as the md device by comparing lstat ID's.
+    if ::File.lstat(dir).rdev == ::File.lstat(mount_point).dev
+      device['md'] = dir.gsub("\n", "")
+      Chef::Log.info("Verified #{device['md']} linked to #{mount_point}") unless device.nil?
+      break
+    end
+  end
+  device
 end
 
 def update_node_from_md_device(md_device, mount_point)
@@ -88,33 +133,39 @@ def update_node_from_md_device(md_device, mount_point)
   raid_devices = `#{command}`
   Chef::Log.info("already found the mounted device, created from #{raid_devices}")
 
+  Chef::Log.info("Updating node attributes for md device '#{md_device}' and disks '#{raid_devices}'")
   node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//,"")
   node.set[:aws][:raid][mount_point][:devices] = raid_devices
   node.save
 end
 
-# Dumb way to look for mounted raid devices.  Assumes that the machine
-# will only create one.
-def find_md_device
-  md_device = nil
-  Dir.glob("/dev/md[0-9]*").each do |dir|
-    Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
-    md_device = dir
-  end
-  md_device
-end
-
-def already_mounted(mount_point)
+def already_mounted(mount_point, encrypted, dm_name)
   if !::File.exists?(mount_point)
     return false
   end
 
-  md_device = md_device_from_mount_point(mount_point)
-  if !md_device || md_device == ""
-    return false
-  end
+  if encrypted
+    dm = verify_dm_device_from_mp(mount_point, dm_name)
+    if dm.empty? || ! dm.has_key?('dm') || dm['dm'].nil? || ! dm.has_key?('md') || dm['md'].empty?
+      Chef::Log.info("Could not map a working md or device mapper to the mount point: #{mount_point}")
+      return false
+    end
 
-  update_node_from_md_device(md_device, mount_point)
+    node.set[:aws][:raid][:encrypted][:dm_device] = dm['dm'].sub(/\/dev\//,"")
+    Chef::Log.info("Updating node attribute dm_device to #{dm['dm']}")
+
+    update_node_from_md_device(dm['md'], mount_point)
+
+  else
+    devices = verify_md_device_from_mp(mount_point)
+
+    if devices.empty? || ! devices.has_key?('md') || devices['md'].empty?
+      Chef::Log.info("Could not map a working device from the mount point: #{mount_point}")
+      return false
+    end
+
+    update_node_from_md_device(devices['md'], mount_point)
+  end
 
   return true
 end
@@ -146,22 +197,30 @@ end
 
 # Attempt to find an unused data bag and mount all the EBS volumes to our system
 # Note: recovery from this assumed state is weakly untested.
-def locate_and_mount(mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
+def locate_and_mount(mount_point, mount_point_owner, mount_point_group,
+                     mount_point_mode, filesystem, filesystem_options,
+                     encrypted, encryption_passwd, dm_name)
 
   if node['aws'].nil? || node['aws']['raid'].nil? || node['aws']['raid'][mount_point].nil?
     Chef::Log.info("No mount point found '#{mount_point}' for node")
     return false
   end
 
-  if node['aws']['raid'][mount_point]['raid_dev'].nil? || node['aws']['raid'][mount_point]['device_map'].nil?
-    Chef::Log.info("No raid device found for mount point '#{mount_point}' for node")
-    return false
+  if encrypted
+    if node['aws']['raid']['encrypted']['dm_device'].nil? || node['aws']['raid'][mount_point]['raid_dev'].nil? || node['aws']['raid'][mount_point]['device_map'].nil?
+
+      Chef::Log.info("No dm mapper or RAID device found for encrypted mount point /dev/mapper/#{dm_name} for node")
+      return false
+    end
+  else
+    if node['aws']['raid'][mount_point]['raid_dev'].nil? || node['aws']['raid'][mount_point]['device_map'].nil?
+      Chef::Log.info("No raid device found for mount point '#{mount_point}' for node")
+      return false
+    end
   end
 
   raid_dev = node['aws']['raid'][mount_point]['raid_dev']
   devices_string = device_map_to_string(node['aws']['raid'][mount_point]['device_map'])
-
-  Chef::Log.info("Raid device is #{raid_dev} and mount path is #{mount_point}")
 
   # Stop udev
   manage_udev("stop")
@@ -172,8 +231,24 @@ def locate_and_mount(mount_point, mount_point_owner, mount_point_group, mount_po
   # Assemble raid device.
   assemble_raid(raid_dev, devices_string)
 
+  if encrypted
+    dm_device = node['aws']['raid']['encrypted']['dm_device']
+    dm_name = node['aws']['raid']['encrypted']['dm_name']
+
+    Chef::Log.info("Encrypted raid. Mapping #{dm_device} to RAID device #{raid_dev}.")
+    Chef::Log.info("dm-crypt mapping /dev/mapper/#{dm_name} to mount point #{mount_point}")
+
+    execute "unlocking encrypted partition" do
+      command "echo '#{encryption_passwd}' | cryptsetup -q luksOpen /dev/#{raid_dev} #{dm_name} --key-file=-"
+    end
+  else
+    Chef::Log.info("Raid device is #{raid_dev} and mount path is #{mount_point}")
+  end
+
   # Now mount the drive
-  mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
+  mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group,
+               mount_point_mode, filesystem, filesystem_options,
+               encrypted, dm_name)
 
   # update initramfs to ensure RAID config persists reboots
   update_initramfs()
@@ -259,7 +334,10 @@ def assemble_raid(raid_dev, devices_string)
   end
 end
 
-def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
+def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group,
+                 mount_point_mode, filesystem, filesystem_options,
+                 encrypted, dm_name)
+
   # Create the mount point
   directory mount_point do
     owner mount_point_owner
@@ -276,17 +354,21 @@ def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mo
         Chef::Log.info("Already mounted: #{mount_point}")
       end
 
-      # For some silly reason we can't call the function.
       md_device = nil
       Dir.glob("/dev/md[0-9]*").each do |dir|
         Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
         md_device = dir
       end
 
-      Chef::Log.info("Found #{md_device}")
+      if encrypted
+        Chef::log.fatal("dm_name must exist to mount volumes") if dm_name.nil?
+        device = "/dev/mapper/#{dm_name}"
+      else
+        device = md_device
+      end
 
-      # the mountpoint must be determined dynamically, so I can't use the chef mount
-      system("mount -t #{filesystem} -o #{filesystem_options} #{md_device} #{mount_point}")
+      Chef::Log.info("Attempting to mount #{mount_point} to #{device}")
+      system("mount -t #{filesystem} -o #{filesystem_options} #{device} #{mount_point}")
     end
   end
 end
@@ -319,8 +401,9 @@ end
 # Snapshots.   The list of snapshots to create the ebs volumes from.
 #              If it's not nil, must have exactly <num_disks> elements
 
-def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops)
+def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode,
+                      num_disks, disk_size, level, filesystem, filesystem_options,
+                      snapshots, disk_type, disk_piops, encrypted, encryption_passwd, dm_name)
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
@@ -328,7 +411,12 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   Chef::Log.debug("vol device prefix is #{disk_dev}")
 
   raid_dev = find_free_md_device_name
-  Chef::Log.debug("target raid device is #{raid_dev}")
+  Chef::Log.debug("target raid device is /dev/#{raid_dev}")
+
+  if encrypted
+    dm_device = find_free_dm_device
+    Chef::Log.info("Device mapper is /dev/#{dm_device}")
+  end
 
   devices = {}
 
@@ -379,21 +467,34 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       command "mdadm --create /dev/#{raid_dev} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
     end
 
+    if encrypted
+      execute "creating luks encrypted partition" do
+        command "echo '#{encryption_passwd}' | cryptsetup -v -q luksFormat /dev/#{raid_dev} --key-file=-"
+      end
+
+      execute "unlocking encrypted partition" do
+        command "echo '#{encryption_passwd}' | cryptsetup -q luksOpen /dev/#{raid_dev} #{dm_name} --key-file=-"
+      end
+    end
+
     # NOTE: must be a better way.
     # Try to figure out the actual device.
     ruby_block "formatting md device in #{new_resource.name}" do
       block do
-        # For some silly reason we can't call the function.
-        md_device = nil
-        Dir.glob("/dev/md[0-9]*").each do |dir|
-          Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
-          md_device = dir
+        if encrypted
+          device = "/dev/mapper/#{dm_name}"
+        else
+          device = nil
+          Dir.glob("/dev/md[0-9]*").each do |dir|
+            Chef::Log.error("More than one /dev/mdX found.") unless device.nil?
+            device = dir
+          end
         end
 
-        Chef::Log.info("Format device found: #{md_device}")
+        Chef::Log.info("Format device found: #{device}")
         case filesystem
           when "ext4"
-            system("mke2fs -t #{filesystem} -F #{md_device}")
+            system("mke2fs -t #{filesystem} -F #{device}")
           else
             #TODO fill in details on how to format other filesystems here
             Chef::Log.info("Can't format filesystem #{filesystem}")
@@ -403,13 +504,21 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   else
     # Reassembling the raid device on our system
     assemble_raid("/dev/#{raid_dev}", devices_string)
+
+    if encrypted
+      execute "unlocking encrypted partition" do
+        command "echo '#{encryption_passwd}' | cryptsetup -q luksOpen /dev/#{raid_dev} #{dm_name} --key-file=-"
+      end
+    end
   end
 
   # start udev
   manage_udev("start")
 
   # Mount the device
-  mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
+  mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group,
+               mount_point_mode, filesystem, filesystem_options,
+               encrypted, dm_name)
 
   # update initramfs to ensure RAID config persists reboots
   update_initramfs()
@@ -429,7 +538,13 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
       node.set[:aws][:raid][mount_point][:device_map] = devices
       node.save
+
+      if encrypted
+        node.set[:aws][:raid][:encrypted][:dm_device] = dm_device
+        node.set[:aws][:raid][:encrypted][:dm_name] = dm_name
+        node.save
+      end
+
     end
   end
-
 end
