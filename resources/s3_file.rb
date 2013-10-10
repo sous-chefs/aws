@@ -4,6 +4,7 @@ attribute :remote_path, :kind_of => String
 attribute :bucket, :kind_of => String
 attribute :aws_access_key_id, :kind_of => String
 attribute :aws_secret_access_key, :kind_of => String
+attribute :iam_role, :kind_of => String
 attribute :owner, :regex => Chef::Config[:user_valid_regex]
 attribute :group, :regex => Chef::Config[:group_valid_regex]
 attribute :mode, :kind_of => [String, NilClass], :default => nil
