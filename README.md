@@ -115,6 +115,8 @@ Actions:
 Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
+* `iam_role` - alternative to using `aws_secret_access_key` and
+  `aws_access_key`. Uses the instance credentials for the associated IAM role.
   `Opscode::AWS:Ec2` to authenticate, required.
 * `size` - size of the volume in gigabytes.
 * `snapshot_id` - snapshot to build EBS volume from.
@@ -166,6 +168,8 @@ Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
   `Opscode::AWS:Ec2` to authenticate, required.
+* `iam_role` - alternative to using `aws_secret_access_key` and
+  `aws_access_key`. Uses the instance credentials for the associated IAM role.
 * `ip` - the IP address.
 * `timeout` - connection timeout for EC2 API.
 
@@ -180,6 +184,8 @@ Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
   `Opscode::AWS:Ec2` to authenticate, required.
+* `iam_role` - alternative to using `aws_secret_access_key` and
+  `aws_access_key`. Uses the instance credentials for the associated IAM role.
 * `name` - the name of the LB, required.
 
 ## resource_tag.rb
@@ -198,6 +204,8 @@ Attribute Parameters
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
   `Opscode::AWS:Ec2` to authenticate, required.
+* `iam_role` - alternative to using `aws_secret_access_key` and
+  `aws_access_key`. Uses the instance credentials for the associated IAM role.
 * `tags` - a hash of key value pairs to be used as resource tags,
   (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment
   }`,) required.

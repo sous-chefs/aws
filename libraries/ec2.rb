@@ -48,7 +48,13 @@ module Opscode
 
         region = instance_availability_zone
         region = region[0, region.length-1]
-        @@ec2 ||= RightAws::Ec2.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, { :logger => Chef::Log, :region => region })
+        if !new_resource.aws_access_key and new_resource.iam_role
+          creds = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/#{new_resource.iam_role}"){|f| JSON.parse(f.string)}
+          Chef::Log.debug("Retrieved instance credentials for IAM role #{new_resource.iam_role}")
+          @@ec2 ||= RightAws::Ec2.new(creds['AccessKeyId'], creds['SecretAccessKey'], { :logger => Chef::Log, :region => region, :token => creds['Token']})
+        else
+          @@ec2 ||= RightAws::Ec2.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, { :logger => Chef::Log, :region => region })
+        end
       end
 
       def instance_id
