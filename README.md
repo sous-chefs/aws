@@ -155,6 +155,25 @@ Attribute Parameters:
 * `disk_piops` - number of Provisioned IOPS to provision per disk,
   must be > 100
 
+
+AWS credentials:
+
+`ebs_raid` will load Amazon key from the databag item specified by:
+`node['aws']['databag_name']` and `node['aws']['databag_entry']`.
+
+If `node['aws']['databag_name']` is an encrypted databag, set `node['aws']['databag_is_encrypted'] = true`.
+An optional path to the secret key can be specified with `node['aws']['databag_secretpath']`.
+
+
+Defaults are:
+```ruby
+default['aws']['databag_name'] = "aws"
+default['aws']['databag_entry'] = "main"
+default['aws']['databag_is_encrypted'] = false
+default['aws']['databag_secretpath'] = nil
+```
+
+
 ## elastic_ip.rb
 
 Actions:
