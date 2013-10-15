@@ -3,6 +3,11 @@ aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
 
+v0.???
+--------
+### Feature
+- **[COOK-3467](https://tickets.opscode.com/browse/COOK-3467)** - Support IAM roles
+
 v0.101.6
 --------
 ### Bug
