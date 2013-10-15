@@ -2,8 +2,8 @@ actions :auto_attach
 
 default_action :auto_attach
 
-attribute :aws_access_key,        :kind_of => String, :required => true
-attribute :aws_secret_access_key, :kind_of => String, :required => true
+attribute :aws_access_key,        :kind_of => String
+attribute :aws_secret_access_key, :kind_of => String
 attribute :mount_point,           :kind_of => String
 attribute :mount_point_owner,     :kind_of => String, :default => 'root'
 attribute :mount_point_group,     :kind_of => String, :default => 'root'
