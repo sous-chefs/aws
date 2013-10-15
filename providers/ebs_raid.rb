@@ -58,15 +58,8 @@ def find_free_volume_device_prefix
 end
 
 def find_free_md_device_name
-  number=0
-  #TODO, this won't work with more than 10 md devices
-  begin
-    dir = "/dev/md#{number}"
-    Chef::Log.info("md pre trim #{dir}")
-    number +=1
-  end while ::File.exists?(dir)
-
-  dir[5, dir.length]
+  max = Dir['/dev/md*'].map {|d| d.gsub('/dev/md','').to_i}.sort.last || -1
+  "md#{max+1}"
 end
 
 def md_device_from_mount_point(mount_point)
