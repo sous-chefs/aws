@@ -48,7 +48,14 @@ module Opscode
 
         region = instance_availability_zone
         region = region[0, region.length-1]
-        @@ec2 ||= RightAws::Ec2.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, { :logger => Chef::Log, :region => region })
+
+        if new_resource.aws_access_key and new_resource.aws_secret_access_key
+          @@ec2 ||= RightAws::Ec2.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, {:logger => Chef::Log, :region => region})
+        else
+          creds = query_role_credentials
+          @@ec2 ||= RightAws::Ec2.new(creds['AccessKeyId'], creds['SecretAccessKey'], {:logger => Chef::Log, :region => region, :token => creds['Token']})
+        end
+
       end
 
       def instance_id
@@ -60,6 +67,18 @@ module Opscode
       end
 
       private
+
+      def query_role
+        r = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/").readlines.first
+        r
+      end
+
+      def query_role_credentials(role = query_role)
+        fail "Instance has no IAM role." unless role.to_s.empty?
+        creds = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/#{role}"){|f| JSON.parse(f.string)}
+        Chef::Log.debug("Retrieved instance credentials for IAM role #{role}")
+        creds
+      end
 
       def query_instance_id
         instance_id = open('http://169.254.169.254/latest/meta-data/instance-id'){|f| f.gets}
