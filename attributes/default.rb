@@ -20,3 +20,5 @@
 default['aws']['right_aws_version'] = "3.0.5"
 default['aws']['databag_name'] = "aws"
 default['aws']['databag_entry'] = "main"
+default['aws']['databag_is_encrypted'] = false
+default['aws']['databag_secretpath'] = nil

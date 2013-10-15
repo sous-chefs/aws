@@ -3,6 +3,11 @@ aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
 
+v0.102.0
+--------
+### Feature
+- support encrypted data bag for AWS key
+
 v0.101.6
 --------
 ### Bug

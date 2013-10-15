@@ -58,15 +58,8 @@ def find_free_volume_device_prefix
 end
 
 def find_free_md_device_name
-  number=0
-  #TODO, this won't work with more than 10 md devices
-  begin
-    dir = "/dev/md#{number}"
-    Chef::Log.info("md pre trim #{dir}")
-    number +=1
-  end while ::File.exists?(dir)
-
-  dir[5, dir.length]
+  max = Dir['/dev/md*'].map {|d| d.gsub('/dev/md','').to_i}.sort.last || -1
+  "md#{max+1}"
 end
 
 def md_device_from_mount_point(mount_point)
@@ -295,7 +288,7 @@ end
 def attach_volume(disk_dev, volume_id)
   disk_dev_path = "/dev/#{disk_dev}"
 
-  aws = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
+  aws = load_data_bag_item
 
   Chef::Log.info("Attaching existing ebs volume id #{volume_id} for device #{disk_dev_path}")
 
@@ -337,7 +330,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
     disk_dev_path = "#{disk_dev}#{i}"
 
-    aws = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
+    aws = load_data_bag_item
 
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     aws_ebs_volume disk_dev_path do
@@ -432,4 +425,14 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     end
   end
 
+end
+
+
+def load_data_bag_item
+  if node['aws']['databag_is_encrypted']
+    secret = Chef::EncryptedDataBagItem.load_secret node['aws']['databag_secretpath'] if node['aws']['databag_secretpath']
+    Chef::EncryptedDataBagItem.load(node['aws']['databag_name'], node['aws']['databag_entry'], secret)
+  else
+    Chef::DataBagItem.load(node['aws']['databag_name'], node['aws']['databag_entry'])
+  end
 end
