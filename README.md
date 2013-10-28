@@ -139,6 +139,8 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 
 Attribute Parameters:
 
+* `aws_secret_access_key`, `aws_access_key` - passed to
+  `Opscode::AWS:Ec2` to authenticate, required.
 * `mount_point` - where to mount the RAID volume
 * `mount_point_owner` - the owner of the mount point (default root)
 * `mount_point_group` - the group of the mount point (default root)
