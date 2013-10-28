@@ -434,10 +434,10 @@ end
 
 def aws_creds
   h = {}
-  if new_resource.aws_access_key and new_resource.aws_secret_access_key
+  if new_resource.aws_access_key && new_resource.aws_secret_access_key
     h['aws_access_key_id'] = new_resource.aws_access_key
     h['aws_secret_access_key'] = new_resource.aws_secret_access_key
-  elsif node['aws']['databag_name'] and node['aws']['databag_entry']
+  elsif node['aws']['databag_name'] && node['aws']['databag_entry']
     Chef::Log.warning "DEPRECATED: node['aws']['databag_name'] and node['aws']['databag_entry'] are deprecated. Use LWRP parameters instead."
     h = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
   end
