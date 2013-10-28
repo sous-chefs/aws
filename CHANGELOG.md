@@ -3,6 +3,13 @@ aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
 
+v1.0.0
+------
+### Improvement
+- [COOK-2829] -Expose AWS credentials for ebs_raid LWRP as parameters
+- Changing attribute defaults begs a major version bump
+
+
 v0.101.6
 --------
 ### Bug
