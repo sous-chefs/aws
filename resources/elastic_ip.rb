@@ -1,5 +1,9 @@
 actions :associate, :disassociate
 
+state_attrs :aws_access_key,
+            :ip,
+            :timeout
+
 attribute :aws_access_key,        :kind_of => String
 attribute :aws_secret_access_key, :kind_of => String
 attribute :ip,                    :kind_of => String
