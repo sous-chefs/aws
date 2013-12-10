@@ -72,7 +72,6 @@ end
 
 action :detach do
   vol = determine_volume
-  return if vol[:aws_instance_id] != instance_id
   converge_by("detach volume with id: #{vol[:aws_id]}") do
     detach_volume(vol[:aws_id], new_resource.timeout)
   end
@@ -94,9 +93,9 @@ action :prune do
     if snapshot[:aws_volume_id] == vol[:aws_id]
       Chef::Log.info "Found old snapshot #{snapshot[:aws_id]} (#{snapshot[:aws_volume_id]}) #{snapshot[:aws_started_at]}"
       old_snapshots << snapshot
-    end 
+    end
   end
-  if old_snapshots.length > new_resource.snapshots_to_keep 
+  if old_snapshots.length > new_resource.snapshots_to_keep
     old_snapshots[new_resource.snapshots_to_keep, old_snapshots.length].each do |die|
       converge_by("delete snapshot with id: #{die[:aws_id]}") do
         Chef::Log.info "Deleting old snapshot #{die[:aws_id]}"
@@ -232,8 +231,12 @@ end
 
 # Detaches the volume and blocks until done (or times out)
 def detach_volume(volume_id, timeout)
-  Chef::Log.debug("Detaching #{volume_id}")
   vol = volume_by_id(volume_id)
+  if vol[:aws_instance_id] != instance_id
+    Chef::Log.debug("EBS Volume #{volume_id} is not attached to this instance (attached to #{vol[:aws_instance_id]}). Skipping...")
+    return
+  end
+  Chef::Log.debug("Detaching #{volume_id}")
   orig_instance_id = vol[:aws_instance_id]
   ec2.detach_volume(volume_id)
 

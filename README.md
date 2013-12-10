@@ -139,6 +139,8 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 
 Attribute Parameters:
 
+* `aws_secret_access_key`, `aws_access_key` - passed to
+  `Opscode::AWS:Ec2` to authenticate, required.
 * `mount_point` - where to mount the RAID volume
 * `mount_point_owner` - the owner of the mount point (default root)
 * `mount_point_group` - the group of the mount point (default root)
@@ -318,6 +320,18 @@ disk set:
       resource_id [ "vol-d0518cb2", "vol-fad31a9a", "vol-fb106a9f", "vol-74ed3b14" ]
       tags({"Name" => "My awesome RAID disk set",
             "Environment" => node.chef_environment})
+    end
+
+## aws_s3_file
+
+`s3_file` can be used to download a file from s3 that requires aws authorization.  This
+is a wrapper around `remote_file` and supports the same resource attributes as `remote_file`.
+
+    aws_s3_file "/tmp/foo" do
+      bucket "i_haz_an_s3_buckit"
+      remote_path "path/in/s3/bukket/to/foo"
+      aws_access_key_id aws['aws_access_key_id']
+      aws_secret_access_key aws['aws_secret_access_key']
     end
 
 
