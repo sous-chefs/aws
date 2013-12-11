@@ -74,7 +74,7 @@ module Opscode
       end
 
       def query_role_credentials(role = query_role)
-        fail "Instance has no IAM role." unless role.to_s.empty?
+        fail "Instance has no IAM role." if role.to_s.empty?
         creds = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/#{role}"){|f| JSON.parse(f.string)}
         Chef::Log.debug("Retrieved instance credentials for IAM role #{role}")
         creds

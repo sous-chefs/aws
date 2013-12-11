@@ -72,7 +72,7 @@ And to access the values:
 
 We'll look at specific usage below.
 
-## Usin IAM instance role
+## Using IAM instance role
 
 If your instance has an IAM role, then the credentials can be automatically resolved by the cookbook
 using Amazon instance metadata API.
@@ -176,7 +176,7 @@ Actions:
 Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
-  `Opscode::AWS:Ec2` to authenticate, optional if an IAM role is assigned to the instance.
+  `Opscode::AWS:Ec2` to authenticate required, unless using IAM roles for authentication.
 * `size` - size of the volume in gigabytes.
 * `snapshot_id` - snapshot to build EBS volume from.
 * most_recent_snapshot - use the most recent snapshot when creating a
@@ -226,7 +226,7 @@ Actions:
 Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
-  `Opscode::AWS:Ec2` to authenticate, optional if an IAM role is assigned to the instance.
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `ip` - the IP address.
 * `timeout` - connection timeout for EC2 API.
 
@@ -240,7 +240,7 @@ Actions:
 Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
-  `Opscode::AWS:Ec2` to authenticate, optional if an IAM role is assigned to the instance.
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `name` - the name of the LB, required.
 
 ## resource_tag.rb
@@ -258,7 +258,7 @@ Actions:
 Attribute Parameters
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
-  `Opscode::AWS:Ec2` to authenticate, optional if an IAM role is assigned to the instance.
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `tags` - a hash of key value pairs to be used as resource tags,
   (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment
   }`,) required.
