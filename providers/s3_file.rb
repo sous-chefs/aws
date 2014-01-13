@@ -43,7 +43,6 @@ def do_s3_file(resource_action)
       inherits new_resource.inherits
       rights new_resource.rights
     end
-    action resource_action
 
     if version.major > 11 || (version.major == 11 && version.minor >= 6)
       headers new_resource.headers
@@ -54,5 +53,7 @@ def do_s3_file(resource_action)
       manage_symlink_source new_resource.manage_symlink_source
     end
   end
+  r.run_action(resource_action)
+
   new_resource.updated_by_last_action(r.updated_by_last_action?)
 end
