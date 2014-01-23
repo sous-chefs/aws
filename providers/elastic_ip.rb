@@ -42,7 +42,12 @@ def address(ip)
 end
 
 def attach(ip, timeout)
-  ec2.associate_address(instance_id, {:public_ip => ip})
+  addr = address(ip)
+  if addr[:domain] == 'vpc'
+    ec2.associate_address(instance_id, {:allocation_id => addr[:allocation_id]})
+  else
+    ec2.associate_address(instance_id, {:public_ip => addr[:public_ip]})
+  end
 
   # block until attached
   begin
