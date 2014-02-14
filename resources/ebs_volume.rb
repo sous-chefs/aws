@@ -1,5 +1,18 @@
 actions :create, :attach, :detach, :snapshot, :prune
 
+state_attrs :availability_zone,
+            :aws_access_key,
+            :description,
+            :device,
+            :most_recent_snapshot,
+            :piops,
+            :size,
+            :snapshot_id,
+            :snapshots_to_keep,
+            :timeout,
+            :volume_id,
+            :volume_type
+
 attribute :aws_access_key,        :kind_of => String
 attribute :aws_secret_access_key, :kind_of => String
 attribute :size,                  :kind_of => Integer
