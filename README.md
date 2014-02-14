@@ -131,7 +131,7 @@ Attribute Parameters:
   snapshots to maintain.
 * `description` - used to set the description of an EBS snapshot
 * `volume_type` - "standard" or "io1" (io1 is the type for IOPS volume)
-* `piops` - number of Provisioned IOPS to provision, must be > 100
+* `piops` - number of Provisioned IOPS to provision, must be >= 100
 
 ## ebs_raid.rb
 
