@@ -1,4 +1,15 @@
 actions :create, :create_if_missing, :touch, :delete
+
+state_attrs :aws_access_key_id,
+            :backup,
+            :bucket,
+            :checksum,
+            :group,
+            :mode,
+            :owner,
+            :path,
+            :remote_path
+
 attribute :path, :kind_of => String, :name_attribute => true
 attribute :remote_path, :kind_of => String
 attribute :bucket, :kind_of => String

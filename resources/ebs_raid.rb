@@ -2,6 +2,21 @@ actions :auto_attach
 
 default_action :auto_attach
 
+state_attrs :aws_access_key,
+            :disk_count,
+            :disk_piops,
+            :disk_size,
+            :disk_type,
+            :filesystem,
+            :filesystem_options,
+            :level,
+            :mount_point,
+            :mount_point_group,
+            :mount_point_mode,
+            :mount_point_owner,
+            :snapshots
+
+
 attribute :aws_access_key,        :kind_of => String
 attribute :aws_secret_access_key, :kind_of => String
 attribute :mount_point,           :kind_of => String
