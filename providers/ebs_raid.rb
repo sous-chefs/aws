@@ -90,7 +90,7 @@ def update_node_from_md_device(md_device, mount_point)
 
   node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//,"")
   node.set[:aws][:raid][mount_point][:devices] = raid_devices
-  node.save
+  node.save unless Chef::Config[:solo]
 end
 
 # Dumb way to look for mounted raid devices.  Assumes that the machine
@@ -221,18 +221,15 @@ def mount_volumes(device_vol_map)
     attach_volume(dev_device, device_vol_map[dev_device])
   end
 
+  correct_devices = correct_device_map(device_vol_map).keys.map { |dev| "/dev/#{dev}" }
+
   # Wait until all volumes are mounted
   ruby_block "wait_#{new_resource.name}" do
     block do
-      count = 0
-      begin
-        Chef::Log.info("sleeping 10 seconds until EBS volumes have re-attached")
-        sleep 10
-        count += 1
-      end while !device_vol_map.all? {|dev_path| ::File.exists?(dev_path) }
-
-      # Accounting to see how often this code actually gets used.
-      node.set[:aws][:raid][mount_point][:device_attach_delay] = count * 10
+      while not correct_devices.all? { |dev_path| ::File.exists?(dev_path) }
+        Chef::Log.info("sleeping 3 seconds until EBS volumes have re-attached")
+        sleep 3
+      end
     end
   end
 end
@@ -426,7 +423,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       # Assemble all the data bag meta data
       node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
       node.set[:aws][:raid][mount_point][:device_map] = devices
-      node.save
+      node.save unless Chef::Config[:solo]
     end
   end
 
@@ -438,7 +435,7 @@ def aws_creds
     h['aws_access_key_id'] = new_resource.aws_access_key
     h['aws_secret_access_key'] = new_resource.aws_secret_access_key
   elsif node['aws']['databag_name'] && node['aws']['databag_entry']
-    Chef::Log.warning "DEPRECATED: node['aws']['databag_name'] and node['aws']['databag_entry'] are deprecated. Use LWRP parameters instead."
+    Chef::Log.warn("DEPRECATED: node['aws']['databag_name'] and node['aws']['databag_entry'] are deprecated. Use LWRP parameters instead.")
     h = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
   end
   h
