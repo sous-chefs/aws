@@ -39,9 +39,17 @@ AWS Credentials
 ===============
 
 In order to manage AWS components, authentication credentials need to
-be available to the node. There are a number of ways to handle this,
-such as node attributes or roles. We recommend storing these in a
-databag (Chef 0.8+), and loading them in the recipe where the
+be available to the node. There are 2 way to handle this:
+1. explicitly pass credentials parameter to the resource
+2. or let the resource pick up credentials from the IAM role assigned to the instance
+
+
+## Using resource parameters
+
+To pass the credentials to the resource, credentials should be available to the node.
+There are a number of ways to handle this, such as node attributes or Chef roles.
+
+We recommend storing these in a databag (Chef 0.8+), and loading them in the recipe where the
 resources are needed.
 
 DataBag recommendation:
@@ -63,6 +71,59 @@ And to access the values:
     aws['aws_secret_access_key']
 
 We'll look at specific usage below.
+
+## Using IAM instance role
+
+If your instance has an IAM role, then the credentials can be automatically resolved by the cookbook
+using Amazon instance metadata API.
+
+You can then omit the resource parameters `aws_secret_access_key` and `aws_access_key`.
+
+Of course, the instance role must have the required policies. Here is a sample policy for EBS volume
+management:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "ec2:AttachVolume",
+        "ec2:CreateVolume",
+        "ec2:ModifyVolumeAttribute",
+        "ec2:DescribeVolumeAttribute",
+        "ec2:DescribeVolumeStatus",
+        "ec2:DescribeVolumes",
+        "ec2:DetachVolume",
+        "ec2:EnableVolumeIO"
+      ],
+      "Sid": "Stmt1381536011000",
+      "Resource": [
+        "*"
+      ],
+      "Effect": "Allow"
+    }
+  ]
+}
+```
+
+For resource tags:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "ec2:CreateTags"
+      ],
+      "Sid": "Stmt1381536708000",
+      "Resource": [
+        "*"
+      ],
+      "Effect": "Allow"
+    }
+  ]
+}
+```
 
 Recipes
 =======
@@ -115,7 +176,7 @@ Actions:
 Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
-  `Opscode::AWS:Ec2` to authenticate, required.
+  `Opscode::AWS:Ec2` to authenticate required, unless using IAM roles for authentication.
 * `size` - size of the volume in gigabytes.
 * `snapshot_id` - snapshot to build EBS volume from.
 * most_recent_snapshot - use the most recent snapshot when creating a
@@ -167,7 +228,7 @@ Actions:
 Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
-  `Opscode::AWS:Ec2` to authenticate, required.
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `ip` - the IP address.
 * `timeout` - connection timeout for EC2 API.
 
@@ -181,7 +242,7 @@ Actions:
 Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
-  `Opscode::AWS:Ec2` to authenticate, required.
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `name` - the name of the LB, required.
 
 ## resource_tag.rb
@@ -199,7 +260,7 @@ Actions:
 Attribute Parameters
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
-  `Opscode::AWS:Ec2` to authenticate, required.
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `tags` - a hash of key value pairs to be used as resource tags,
   (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment
   }`,) required.
