@@ -157,7 +157,7 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
 
   # PIOPs requested. Must specify an iops param and probably won't be "low".
   if volume_type == 'io1'
-    raise 'IOPS value not specified.' unless piops > 100
+    raise 'IOPS value not specified.' unless piops >= 100
   end
 
   # Shouldn't see non-zero piops param without appropriate type.
