@@ -34,7 +34,8 @@ action :auto_attach do
                       @new_resource.filesystem_options,
                       @new_resource.snapshots,
                       @new_resource.disk_type,
-                      @new_resource.disk_piops)
+                      @new_resource.disk_piops,
+                      @new_resource.disk_existing_raid)
 
     @new_resource.updated_by_last_action(true)
   end
@@ -90,7 +91,7 @@ def update_node_from_md_device(md_device, mount_point)
 
   node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//,"")
   node.set[:aws][:raid][mount_point][:devices] = raid_devices
-  node.save
+  node.save unless Chef::Config[:solo]
 end
 
 # Dumb way to look for mounted raid devices.  Assumes that the machine
@@ -221,18 +222,15 @@ def mount_volumes(device_vol_map)
     attach_volume(dev_device, device_vol_map[dev_device])
   end
 
+  correct_devices = correct_device_map(device_vol_map).keys.map { |dev| "/dev/#{dev}" }
+
   # Wait until all volumes are mounted
   ruby_block "wait_#{new_resource.name}" do
     block do
-      count = 0
-      begin
-        Chef::Log.info("sleeping 10 seconds until EBS volumes have re-attached")
-        sleep 10
-        count += 1
-      end while !device_vol_map.all? {|dev_path| ::File.exists?(dev_path) }
-
-      # Accounting to see how often this code actually gets used.
-      node.set[:aws][:raid][mount_point][:device_attach_delay] = count * 10
+      while not correct_devices.all? { |dev_path| ::File.exists?(dev_path) }
+        Chef::Log.info("sleeping 3 seconds until EBS volumes have re-attached")
+        sleep 3
+      end
     end
   end
 end
@@ -319,7 +317,7 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops)
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid )
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
@@ -370,11 +368,11 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   devices_string = device_map_to_string(devices)
   Chef::Log.info("finished sorting devices #{devices_string}")
 
-  if not creating_from_snapshot
+  if not creating_from_snapshot and not existing_raid
     # Create the raid device on our system
     execute "creating raid device" do
       Chef::Log.info("creating raid device /dev/#{raid_dev} with raid devices #{devices_string}")
-      command "mdadm --create /dev/#{raid_dev} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
+      command "[ -b /dev/#{raid_dev} ] && mdadm --stop /dev/#{raid_dev} ; yes | mdadm --create /dev/#{raid_dev} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
     end
 
     # NOTE: must be a better way.
@@ -426,7 +424,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       # Assemble all the data bag meta data
       node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
       node.set[:aws][:raid][mount_point][:device_map] = devices
-      node.save
+      node.save unless Chef::Config[:solo]
     end
   end
 
@@ -438,7 +436,7 @@ def aws_creds
     h['aws_access_key_id'] = new_resource.aws_access_key
     h['aws_secret_access_key'] = new_resource.aws_secret_access_key
   elsif node['aws']['databag_name'] && node['aws']['databag_entry']
-    Chef::Log.warning "DEPRECATED: node['aws']['databag_name'] and node['aws']['databag_entry'] are deprecated. Use LWRP parameters instead."
+    Chef::Log.warn("DEPRECATED: node['aws']['databag_name'] and node['aws']['databag_entry'] are deprecated. Use LWRP parameters instead.")
     h = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
   end
   h

@@ -1,4 +1,6 @@
 
+use_inline_resources if defined?(use_inline_resources)
+
 def whyrun_supported?
   true
 end
@@ -31,7 +33,7 @@ def do_s3_file(resource_action)
 
   s3url = RightAws::S3Interface.new(new_resource.aws_access_key_id, new_resource.aws_secret_access_key).get_link(new_resource.bucket, remote_path)
 
-  r = remote_file new_resource.name do
+  remote_file new_resource.name do
     path new_resource.path
     source s3url
     owner new_resource.owner
@@ -54,5 +56,4 @@ def do_s3_file(resource_action)
       manage_symlink_source new_resource.manage_symlink_source
     end
   end
-  new_resource.updated_by_last_action(r.updated_by_last_action?)
 end
