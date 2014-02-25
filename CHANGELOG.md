@@ -3,6 +3,12 @@ aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
 
+v2.1.0 (2014-02-25)
+-------------------
+### Improvement
+- **[COOK-4008](https://tickets.opscode.com/browse/COOK-4008)** - Add name property for aws_elastic_ip LWRP
+
+
 v2.0.0 (2014-02-19)
 -------------------
 [COOK-2755] Add allocate action to the elastic ip resource
