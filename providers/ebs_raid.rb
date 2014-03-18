@@ -35,7 +35,7 @@ action :auto_attach do
                       @new_resource.snapshots,
                       @new_resource.disk_type,
                       @new_resource.disk_piops,
-                      @new_resource.disk_existing_raid)
+                      @new_resource.existing_raid)
 
     @new_resource.updated_by_last_action(true)
   end
