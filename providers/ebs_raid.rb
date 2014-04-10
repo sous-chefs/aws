@@ -391,7 +391,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
           when "ext4"
             system("mke2fs -t #{filesystem} -F #{md_device}")
           when "xfs"
-            include_recipe 'xfs'
+            run_context.include_recipe 'xfs'
             system("mkfs -t #{filesystem} #{md_device}")
           else
             #TODO fill in details on how to format other filesystems here
