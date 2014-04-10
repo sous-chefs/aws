@@ -390,9 +390,12 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
         case filesystem
           when "ext4"
             system("mke2fs -t #{filesystem} -F #{md_device}")
+          when "xfs"
+            include_recipe 'xfs'
+            system("mkfs -t #{filesystem} -F #{md_device}")
           else
             #TODO fill in details on how to format other filesystems here
-            Chef::Log.info("Can't format filesystem #{filesystem}")
+            Chef::Log.info("Can't format filesystem #{filesystem}. Only ext4 or xfs currently supported.")
         end
       end
     end

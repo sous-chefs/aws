@@ -199,6 +199,10 @@ Attribute Parameters:
 
 Manage Elastic Block Store (EBS) raid devices with this resource.
 
+Actions:
+
+* `auto_attach` - creates RAID device and attaches.
+
 Attribute Parameters:
 
 * `aws_secret_access_key`, `aws_access_key` - passed to
@@ -210,7 +214,8 @@ Attribute Parameters:
 * `disk_count` - number of EBS volumes to raid
 * `disk_size` - size of EBS volumes to raid
 * `level` - RAID level (default 10)
-* `filesystem` - filesystem to format raid array (default ext4)
+* `filesystem` - filesystem to format raid array. 'ext4' or 'xfs'
+  currently supported.
 * `snapshots` - array of EBS snapshots to restore. Snapshots must be
   taken using an ec2 consistent snapshot tool, and tagged with a
   number that indicates how many devices are in the array being backed
