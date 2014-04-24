@@ -3,6 +3,11 @@ aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
 
+v2.2.0 (2014-04-23)
+-------------------
+- [COOK-4500] Support IAM roles for ELB
+
+
 v2.1.1 (2014-03-18)
 -------------------
 - [COOK-4415] disk_existing_raid resource name inconsistency
