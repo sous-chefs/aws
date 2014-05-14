@@ -1,3 +1,5 @@
+require File.join(File.dirname(__FILE__), 'ec2')
+
 module Opscode
   module Aws
     module Elb
