@@ -3,6 +3,11 @@ aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
 
+v2.2.2 (2014-05-19)
+-------------------
+- [COOK-4655] - Require ec2 gem
+
+
 v2.2.0 (2014-04-23)
 -------------------
 - [COOK-4500] Support IAM roles for ELB
