@@ -79,9 +79,24 @@ end
 
 action :snapshot do
   vol = determine_volume
-  converge_by("would create a snapshot for volume: #{vol[:aws_id]}") do
-    snapshot = ec2.create_snapshot(vol[:aws_id],new_resource.description)
-    Chef::Log.info("Created snapshot of #{vol[:aws_id]} as #{snapshot[:aws_id]}")
+
+  old_snapshots = Array.new
+  Chef::Log.info "Checking for old snapshots"
+  ec2.describe_snapshots.sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }.each do |snapshot|
+    if snapshot[:aws_volume_id] == vol[:aws_id]
+      Chef::Log.info "Found old snapshot #{snapshot[:aws_id]} (#{snapshot[:aws_volume_id]}) #{snapshot[:aws_started_at]}"
+      old_snapshots << snapshot
+    end
+  end
+
+  if !old_snapshots.empty? && old_snapshots.first[:aws_status] == 'pending'
+    snap = old_snapshots.first
+    Chef::Log.info "Found a snapshot still #{snap[:aws_progress]} pending: #{snap[:aws_id]} (#{snap[:aws_volume_id]}) #{snap[:aws_started_at]}"
+  else
+    converge_by("would create a snapshot for volume: #{vol[:aws_id]}") do
+      snapshot = ec2.create_snapshot(vol[:aws_id],new_resource.description)
+      Chef::Log.info("Created snapshot of #{vol[:aws_id]} as #{snapshot[:aws_id]}")
+    end
   end
 end
 
