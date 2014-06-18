@@ -48,9 +48,8 @@ private
 # Returns the 3-letter dev name (no trailing digit for hvm compat).
 # However, we test for an existing dev file both with and without a
 # trailing '1' just in case.
-def find_free_volume_device_prefix
-  # Specific to ubuntu 11./12.
-  vol_dev = "sde"
+def find_free_volume_device_prefix(vol_dev="sde")
+  # "sd" dev name specific to ubuntu 11./12.
 
   begin
     vol_dev = vol_dev.next
@@ -328,12 +327,13 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   Chef::Log.debug("target raid device is #{raid_dev}")
 
   devices = {}
+  disk_dev_path = "sde"
 
   # For each volume add information to the mount metadata
   (1..num_disks).each do |i|
 
-    disk_dev_path = find_free_volume_device_prefix
-    Chef::Log.debug("vol device prefix is #{disk_dev}")
+    disk_dev_path = find_free_volume_device_prefix(disk_dev_path)
+    Chef::Log.debug("vol device prefix is #{disk_dev_path}")
 
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     creds = aws_creds() # cannot be invoked inside the block
