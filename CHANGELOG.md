@@ -3,6 +3,11 @@ aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
 
+v2.3.0 (2014-07-02)
+-------------------
+- Added support for provisioning General Purpose (SSD) volumes (gp2)
+
+
 v2.2.2 (2014-05-19)
 -------------------
 - [COOK-4655] - Require ec2 gem
