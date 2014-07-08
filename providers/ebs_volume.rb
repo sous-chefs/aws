@@ -177,17 +177,21 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
     Timeout::timeout(timeout) do
       while true
         vol = volume_by_id(nv[:aws_id])
-        if vol && vol[:aws_status] != "deleting"
-          if ["in-use", "available"].include?(vol[:aws_status])
+
+        if vol.nil?
+          Chef::Log.debug("Waiting for volume #{nv[:aws_id]} to report status")
+        else
+          case vol[:aws_status]
+          when "in-use", "available"
             Chef::Log.info("Volume #{nv[:aws_id]} is available")
             break
+          when "deleting"
+            raise "Volume #{nv[:aws_id]} no longer exists"
           else
             Chef::Log.debug("Volume is #{vol[:aws_status]}")
           end
-          sleep 3
-        else
-          raise "Volume #{nv[:aws_id]} no longer exists"
         end
+        sleep 3
       end
     end
   rescue Timeout::Error
