@@ -32,4 +32,4 @@ attribute :snapshots,             :default => []
 attribute :disk_type,             :kind_of => String, :default => 'standard'
 attribute :disk_piops,            :kind_of => Integer, :default => 0
 attribute :existing_raid,         :kind_of => [ TrueClass, FalseClass ]
-
+attribute :hvm_device_names,      :kind_of => [ TrueClass, FalseClass ], :default => false

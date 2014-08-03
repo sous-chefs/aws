@@ -35,7 +35,8 @@ action :auto_attach do
                       @new_resource.snapshots,
                       @new_resource.disk_type,
                       @new_resource.disk_piops,
-                      @new_resource.existing_raid)
+                      @new_resource.existing_raid,
+                      @new_resource.hvm_device_names)
 
     @new_resource.updated_by_last_action(true)
   end
@@ -56,6 +57,10 @@ def find_free_volume_device_prefix
   end while ::File.exists?(base_device)
 
   vol_dev
+end
+
+def valid_volume_device_name?(name)
+  !::File.exists?(name)
 end
 
 def find_free_md_device_name
@@ -317,12 +322,15 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid )
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, hvm_device_names )
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
   disk_dev = find_free_volume_device_prefix
-  Chef::Log.debug("vol device prefix is #{disk_dev}")
+
+  if !hvm_device_names
+    Chef::Log.debug("vol device prefix is #{disk_dev}")
+  end
 
   raid_dev = find_free_md_device_name
   Chef::Log.debug("target raid device is #{raid_dev}")
@@ -332,7 +340,11 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   # For each volume add information to the mount metadata
   (1..num_disks).each do |i|
 
-    disk_dev_path = "#{disk_dev}#{i}"
+    if hvm_device_names
+      disk_dev_path = disk_dev
+    else
+      disk_dev_path = "#{disk_dev}#{i}"
+    end
 
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     creds = aws_creds() # cannot be invoked inside the block
@@ -355,6 +367,13 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     end
 
     Chef::Log.info("attach dev: #{disk_dev_path}")
+
+    if hvm_device_names
+      disk_dev = disk_dev.next
+      while !valid_device_name?(disk_dev)
+        disk_dev = disk_dev.next
+      end
+    end
   end
 
   ruby_block "sleeping_#{new_resource.name}" do
