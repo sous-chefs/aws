@@ -370,7 +370,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
     if hvm_device_names
       disk_dev = disk_dev.next
-      while !valid_device_name?(disk_dev)
+      while !valid_volume_device_name?(disk_dev)
         disk_dev = disk_dev.next
       end
     end
