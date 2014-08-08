@@ -78,20 +78,20 @@ module Opscode
 
       def query_role_credentials(role = query_role)
         fail "Instance has no IAM role." if role.to_s.empty?
-        creds = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/#{role}"){|f| JSON.parse(f.string)}
+        creds = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/#{role}",options = {:proxy => false}){|f| JSON.parse(f.string)}
         Chef::Log.debug("Retrieved instance credentials for IAM role #{role}")
         creds
       end
 
       def query_instance_id
-        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id'){|f| f.gets}
+        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id',options = {:proxy => false}){|f| f.gets}
         raise "Cannot find instance id!" unless instance_id
         Chef::Log.debug("Instance ID is #{instance_id}")
         instance_id
       end
 
       def query_instance_availability_zone
-        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/'){|f| f.gets}
+        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/', options = {:proxy => false}){|f| f.gets}
         raise "Cannot find availability zone!" unless availability_zone
         Chef::Log.debug("Instance's availability zone is #{availability_zone}")
         availability_zone
