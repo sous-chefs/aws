@@ -59,7 +59,9 @@ def find_free_volume_device_prefix(hvm_device_names, start_device_name)
       base_device = "/dev/#{vol_dev}1"
     end
     Chef::Log.info("dev pre trim #{base_device}")
-    vol_dev = vol_dev.next
+    if ::File.exists?(base_device)
+      vol_dev = vol_dev.next
+    end
   end while ::File.exists?(base_device)
 
   vol_dev
