@@ -105,17 +105,6 @@ def update_node_from_md_device(md_device, mount_point)
   node.save unless Chef::Config[:solo]
 end
 
-# Dumb way to look for mounted raid devices.  Assumes that the machine
-# will only create one.
-def find_md_device
-  md_device = nil
-  Dir.glob("/dev/md[0-9]*").each do |dir|
-    Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
-    md_device = dir
-  end
-  md_device
-end
-
 def already_mounted(mount_point)
   if !::File.exists?(mount_point)
     return false
