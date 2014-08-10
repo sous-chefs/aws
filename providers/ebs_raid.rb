@@ -389,7 +389,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     # Try to figure out the actual device.
     ruby_block "formatting md device in #{new_resource.name}" do
       block do
-        md_device = raid_device_name
+        md_device = "/dev/#{raid_device_name}"
 
         Chef::Log.info("Format device found: #{md_device}")
         case filesystem
