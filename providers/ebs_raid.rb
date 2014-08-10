@@ -37,7 +37,8 @@ action :auto_attach do
                       @new_resource.disk_piops,
                       @new_resource.existing_raid,
                       @new_resource.hvm_device_names,
-                      @new_resource.start_device_name)
+                      @new_resource.start_device_name,
+                      @new_resource.raid_device_name)
 
     @new_resource.updated_by_last_action(true)
   end
@@ -284,13 +285,7 @@ def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mo
         Chef::Log.info("Already mounted: #{mount_point}")
       end
 
-      # For some silly reason we can't call the function.
-      md_device = nil
-      Dir.glob("/dev/md[0-9]*").each do |dir|
-        Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
-        md_device = dir
-      end
-
+      md_device = raid_dev
       Chef::Log.info("Found #{md_device}")
 
       # the mountpoint must be determined dynamically, so I can't use the chef mount
@@ -328,7 +323,7 @@ end
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
                       level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid,
-                      hvm_device_names, start_device_name)
+                      hvm_device_names, start_device_name, raid_device_name)
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
@@ -338,8 +333,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     Chef::Log.debug("vol device prefix is #{disk_dev}")
   end
 
-  raid_dev = find_free_md_device_name
-  Chef::Log.debug("target raid device is #{raid_dev}")
+  Chef::Log.debug("target raid device is #{raid_device_name}")
 
   devices = {}
 
@@ -396,20 +390,15 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   if not creating_from_snapshot and not existing_raid
     # Create the raid device on our system
     execute "creating raid device" do
-      Chef::Log.info("creating raid device /dev/#{raid_dev} with raid devices #{devices_string}")
-      command "[ -b /dev/#{raid_dev} ] && mdadm --stop /dev/#{raid_dev} ; yes | mdadm --create /dev/#{raid_dev} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
+      Chef::Log.info("creating raid device /dev/#{raid_device_name} with raid devices #{devices_string}")
+      command "[ -b /dev/#{raid_device_name} ] && mdadm --stop /dev/#{raid_device_name} ; yes | mdadm --create /dev/#{raid_device_name} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
     end
 
     # NOTE: must be a better way.
     # Try to figure out the actual device.
     ruby_block "formatting md device in #{new_resource.name}" do
       block do
-        # For some silly reason we can't call the function.
-        md_device = nil
-        Dir.glob("/dev/md[0-9]*").each do |dir|
-          Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
-          md_device = dir
-        end
+        md_device = raid_device_name
 
         Chef::Log.info("Format device found: #{md_device}")
         case filesystem
@@ -423,14 +412,14 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     end
   else
     # Reassembling the raid device on our system
-    assemble_raid("/dev/#{raid_dev}", devices_string)
+    assemble_raid("/dev/#{raid_device_name}", devices_string)
   end
 
   # start udev
   manage_udev("start")
 
   # Mount the device
-  mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
+  mount_device(raid_device_name, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
 
   # update initramfs to ensure RAID config persists reboots
   update_initramfs()
@@ -447,7 +436,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       end
 
       # Assemble all the data bag meta data
-      node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
+      node.set[:aws][:raid][mount_point][:raid_dev] = raid_device_name
       node.set[:aws][:raid][mount_point][:device_map] = devices
       node.save unless Chef::Config[:solo]
     end
