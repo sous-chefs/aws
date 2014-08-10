@@ -46,13 +46,17 @@ private
 
 # AWS's volume attachment interface assumes that we're using
 # sdX style device names.  The ones we actually get will be xvdX
-def find_free_volume_device_prefix
+def find_free_volume_device_prefix(hvm_device_names)
   # Specific to ubuntu 11./12.
   vol_dev = "sdh"
 
   begin
     vol_dev = vol_dev.next
-    base_device = "/dev/#{vol_dev}1"
+    if hvm_device_names
+      base_device = "/dev/#{vol_dev}"
+    else
+      base_device = "/dev/#{vol_dev}1"
+    end
     Chef::Log.info("dev pre trim #{base_device}")
   end while ::File.exists?(base_device)
 
@@ -326,7 +330,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
-  disk_dev = find_free_volume_device_prefix
+  disk_dev = find_free_volume_device_prefix(hvm_device_names)
 
   if !hvm_device_names
     Chef::Log.debug("vol device prefix is #{disk_dev}")
