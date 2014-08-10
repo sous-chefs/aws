@@ -36,7 +36,8 @@ action :auto_attach do
                       @new_resource.disk_type,
                       @new_resource.disk_piops,
                       @new_resource.existing_raid,
-                      @new_resource.hvm_device_names)
+                      @new_resource.hvm_device_names,
+                      @new_resource.start_device_name)
 
     @new_resource.updated_by_last_action(true)
   end
@@ -46,18 +47,18 @@ private
 
 # AWS's volume attachment interface assumes that we're using
 # sdX style device names.  The ones we actually get will be xvdX
-def find_free_volume_device_prefix(hvm_device_names)
+def find_free_volume_device_prefix(hvm_device_names, start_device_name)
   # Specific to ubuntu 11./12.
-  vol_dev = "sdh"
+  vol_dev = start_device_name
 
   begin
-    vol_dev = vol_dev.next
     if hvm_device_names
       base_device = "/dev/#{vol_dev}"
     else
       base_device = "/dev/#{vol_dev}1"
     end
     Chef::Log.info("dev pre trim #{base_device}")
+    vol_dev = vol_dev.next
   end while ::File.exists?(base_device)
 
   vol_dev
@@ -326,11 +327,12 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, hvm_device_names )
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid,
+                      hvm_device_names, start_device_name)
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
-  disk_dev = find_free_volume_device_prefix(hvm_device_names)
+  disk_dev = find_free_volume_device_prefix(hvm_device_names, start_device_name)
 
   if !hvm_device_names
     Chef::Log.debug("vol device prefix is #{disk_dev}")
