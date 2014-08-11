@@ -144,7 +144,7 @@ def volume_compatible_with_resource_definition?(volume)
     new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
   end
   (new_resource.size.nil? || new_resource.size == volume[:aws_size]) &&
-  (new_resource.availability_zone.nil? || new_resource.availability_zone == volume[:zone]) &&
+  ((new_resource.availability_zone.nil? || new_resource.availability_zone == '') || new_resource.availability_zone == volume[:zone]) &&
   (new_resource.snapshot_id.nil? || new_resource.snapshot_id == volume[:snapshot_id])
 end
 
