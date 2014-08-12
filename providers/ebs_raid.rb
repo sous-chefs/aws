@@ -272,15 +272,13 @@ def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mo
   # Try to figure out the actual device.
   ruby_block "find md device in #{new_resource.name}" do
     block do
-      if ::File.exists?(mount_point)
-        Chef::Log.info("Already mounted: #{mount_point}")
-      end
-
-      md_device = raid_dev
-      Chef::Log.info("Found #{md_device}")
+      md_device = "/dev/#{raid_dev}"
+      Chef::Log.info("Found raid device at #{md_device}")
 
       # the mountpoint must be determined dynamically, so I can't use the chef mount
-      system("mount -t #{filesystem} -o #{filesystem_options} #{md_device} #{mount_point}")
+      mnt_cmd = "mount -t #{filesystem} -o #{filesystem_options} #{md_device} #{mount_point}"
+      Chef::Log.info("Mounting device with: #{mnt_cmd}")
+      system(mnt_cmd)
     end
   end
 end
