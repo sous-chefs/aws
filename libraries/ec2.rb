@@ -18,6 +18,7 @@
 # TODO: once sync_libraries properly handles sub-directories, move this file to aws/libraries/opscode/aws/ec2.rb
 
 require 'open-uri'
+require 'right_aws'
 
 module Opscode
   module Aws
