@@ -1,0 +1,25 @@
+#<% require 'kitchen-sync' %>
+---
+driver_config:
+  aws_access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+  aws_secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+  aws_ssh_key_id: <%= ENV['AWS_KEYPAIR_NAME'] %>
+  flavor_id: <%= ENV['EC2_FLAVOR_ID'] %>
+  availability_zone: <%= ENV['AWS_AVAILABILITY_ZONE'] %>
+
+provisioner:
+  name: chef_zero
+  require_chef_omnibus: 11.16.0
+
+platforms:
+- name: amazon-2014.03
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-6b726502
+    username: ec2-user
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+
+suites:
+  - name: aws_test
+    run_list:
+    - recipe[aws_test::default]
