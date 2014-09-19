@@ -1,5 +1,18 @@
 actions :create, :attach, :detach, :snapshot, :prune
 
+state_attrs :availability_zone,
+            :aws_access_key,
+            :description,
+            :device,
+            :most_recent_snapshot,
+            :piops,
+            :size,
+            :snapshot_id,
+            :snapshots_to_keep,
+            :timeout,
+            :volume_id,
+            :volume_type
+
 attribute :aws_access_key,        :kind_of => String
 attribute :aws_secret_access_key, :kind_of => String
 attribute :size,                  :kind_of => Integer
@@ -11,7 +24,7 @@ attribute :volume_id,             :kind_of => String
 attribute :description,           :kind_of => String
 attribute :timeout,               :default => 3*60 # 3 mins, nil or 0 for no timeout
 attribute :snapshots_to_keep,     :default => 2
-attribute :volume_type,           :kind_of => String, :default => 'standard'
+attribute :volume_type,           :kind_of => String, :default => 'gp2'
 attribute :piops,                 :kind_of => Integer, :default => 0
 
 def initialize(*args)
