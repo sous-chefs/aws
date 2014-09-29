@@ -42,10 +42,11 @@ action :auto_attach do
 
     @new_resource.updated_by_last_action(true)
   else
-    mount @new_resource.mount_point do
-      device "/dev/#{@new_resource.raid_device_name}"
-      fstype @new_resource.filesystem
-      options @new_resource.filesystem_options
+    nr = @new_resource
+    mount nr.mount_point do
+      device "/dev/#{nr.raid_device_name}"
+      fstype nr.filesystem
+      options nr.filesystem_options
       actions [:enable]
     end
 
