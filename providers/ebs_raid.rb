@@ -41,6 +41,20 @@ action :auto_attach do
                       @new_resource.raid_device_name)
 
     @new_resource.updated_by_last_action(true)
+  else
+    mount @new_resource.mount_point do
+      device "/dev/#{@new_resource.raid_device_name}"
+      fstype @new_resource.filesystem
+      options @new_resource.filesystem_options
+      actions [:enable]
+    end
+
+    template "/etc/mdadm/mdadm.conf" do
+      source 'mdadm.conf.erb'
+      mode 0644
+      owner 'root'
+      group 'root'
+    end
   end
 end
 
@@ -109,11 +123,13 @@ end
 
 def already_mounted(mount_point)
   if !::File.exists?(mount_point)
+    Chef::Log.info("Not already mounted because mount point does not exist.")
     return false
   end
 
   md_device = md_device_from_mount_point(mount_point)
   if !md_device || md_device == ""
+    Chef::Log.info("Not already mounted because no md device.")
     return false
   end
 
@@ -269,17 +285,11 @@ def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mo
     not_if "test -d #{mount_point}"
   end
 
-  # Try to figure out the actual device.
-  ruby_block "find md device in #{new_resource.name}" do
-    block do
-      md_device = "/dev/#{raid_dev}"
-      Chef::Log.info("Found raid device at #{md_device}")
-
-      # the mountpoint must be determined dynamically, so I can't use the chef mount
-      mnt_cmd = "mount -t #{filesystem} -o #{filesystem_options} #{md_device} #{mount_point}"
-      Chef::Log.info("Mounting device with: #{mnt_cmd}")
-      system(mnt_cmd)
-    end
+  mount mount_point do
+    device "/dev/#{raid_dev}"
+    fstype filesystem
+    options filesystem_options
+    actions [:mount, :enable]
   end
 end
 
@@ -383,6 +393,13 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       command "[ -b /dev/#{raid_device_name} ] && mdadm --stop /dev/#{raid_device_name} ; yes | mdadm --create /dev/#{raid_device_name} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
     end
 
+    template "/etc/mdadm/mdadm.conf" do
+      source 'mdadm.conf.erb'
+      mode 0644
+      owner 'root'
+      group 'root'
+    end
+
     # NOTE: must be a better way.
     # Try to figure out the actual device.
     ruby_block "formatting md device in #{new_resource.name}" do
@@ -390,6 +407,11 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
         md_device = "/dev/#{raid_device_name}"
 
         Chef::Log.info("Format device found: #{md_device}")
+        Chef::Log.info("I AM SERIOUSLY GOING TO FORMAT YOUR DEVICE")
+        Chef::Log.info("BUT YOU HAVE FIVE MINUTES TO STOP ME")
+
+        sleep 300
+
         case filesystem
           when "ext4"
             system("mke2fs -t #{filesystem} -F #{md_device}")
