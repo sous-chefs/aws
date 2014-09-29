@@ -47,7 +47,7 @@ action :auto_attach do
       device "/dev/#{nr.raid_device_name}"
       fstype nr.filesystem
       options nr.filesystem_options
-      actions [:enable]
+      action [:enable]
     end
 
     template "/etc/mdadm/mdadm.conf" do
@@ -290,7 +290,7 @@ def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mo
     device "/dev/#{raid_dev}"
     fstype filesystem
     options filesystem_options
-    actions [:mount, :enable]
+    action [:mount, :enable]
   end
 end
 
