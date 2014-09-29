@@ -52,6 +52,7 @@ action :auto_attach do
 
     template "/etc/mdadm/mdadm.conf" do
       source 'mdadm.conf.erb'
+      cookbook 'aws'
       mode 0644
       owner 'root'
       group 'root'
@@ -396,6 +397,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
     template "/etc/mdadm/mdadm.conf" do
       source 'mdadm.conf.erb'
+      cookbook 'aws'
       mode 0644
       owner 'root'
       group 'root'
