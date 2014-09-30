@@ -388,7 +388,9 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   devices_string = device_map_to_string(devices)
   Chef::Log.info("finished sorting devices #{devices_string}")
 
-  if not creating_from_snapshot and not existing_raid
+  Chef::Log.info("EXISTING RAID PASSED AS -->#{existing_raid}<--")
+
+  if !creating_from_snapshot && !existing_raid
     # Create the raid device on our system
     execute "creating raid device" do
       Chef::Log.info("creating raid device /dev/#{raid_device_name} with raid devices #{devices_string}")
