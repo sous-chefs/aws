@@ -105,3 +105,11 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+
+  - name: s3_file
+    run_list:
+    - recipe[aws_test::s3_file]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
