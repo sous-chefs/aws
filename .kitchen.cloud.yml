@@ -13,12 +13,53 @@ platforms:
 - name: amazon-2014.09
   driver_plugin: ec2
   driver_config:
+    image_id: ami-50842d38
+    username: ec2-user
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: m1.small
+
+- name: ubuntu-12.04
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-2ccc7a44
+    username: ubuntu
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: m1.small
+
+- name: ubuntu-12.04-hvm
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-3ccc7a54
+    username: ubuntu
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: t2.small
+
+- name: ubuntu-14.04
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-8caa1ce4
+    username: ubuntu
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: m1.small
+
+- name: ubuntu-14.04-hvm
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-9aaa1cf2
+    username: ubuntu
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: t2.small
+
+- name: amazon-2014.09-hvm
+  driver_plugin: ec2
+  driver_config:
     image_id: ami-fccc6d94
     username: ec2-user
     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
     flavor_id: t2.small
 
 suites:
+
   - name: default
     run_list:
     - recipe[aws]
@@ -38,3 +79,12 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+
+  - name: elastic_ip
+    run_list:
+    - recipe[aws_test::elastic_ip]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        elastic_ip: <%= ENV['AWS_ELASTIC_IP'] %>
