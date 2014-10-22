@@ -35,9 +35,28 @@ action :auto_attach do
                       @new_resource.snapshots,
                       @new_resource.disk_type,
                       @new_resource.disk_piops,
-                      @new_resource.existing_raid)
+                      @new_resource.existing_raid,
+                      @new_resource.hvm_device_names,
+                      @new_resource.start_device_name,
+                      @new_resource.raid_device_name)
 
     @new_resource.updated_by_last_action(true)
+  else
+    nr = @new_resource
+    mount nr.mount_point do
+      device "/dev/#{nr.raid_device_name}"
+      fstype nr.filesystem
+      options nr.filesystem_options
+      action [:enable]
+    end
+
+    template "/etc/mdadm/mdadm.conf" do
+      source 'mdadm.conf.erb'
+      cookbook 'aws'
+      mode 0644
+      owner 'root'
+      group 'root'
+    end
   end
 end
 
@@ -45,17 +64,27 @@ private
 
 # AWS's volume attachment interface assumes that we're using
 # sdX style device names.  The ones we actually get will be xvdX
-def find_free_volume_device_prefix
+def find_free_volume_device_prefix(hvm_device_names, start_device_name)
   # Specific to ubuntu 11./12.
-  vol_dev = "sdh"
+  vol_dev = start_device_name
 
   begin
-    vol_dev = vol_dev.next
-    base_device = "/dev/#{vol_dev}1"
+    if hvm_device_names
+      base_device = "/dev/#{vol_dev}"
+    else
+      base_device = "/dev/#{vol_dev}1"
+    end
     Chef::Log.info("dev pre trim #{base_device}")
+    if ::File.exists?(base_device)
+      vol_dev = vol_dev.next
+    end
   end while ::File.exists?(base_device)
 
   vol_dev
+end
+
+def valid_volume_device_name?(name)
+  !::File.exists?(name)
 end
 
 def find_free_md_device_name
@@ -94,24 +123,15 @@ def update_node_from_md_device(md_device, mount_point)
   node.save unless Chef::Config[:solo]
 end
 
-# Dumb way to look for mounted raid devices.  Assumes that the machine
-# will only create one.
-def find_md_device
-  md_device = nil
-  Dir.glob("/dev/md[0-9]*").each do |dir|
-    Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
-    md_device = dir
-  end
-  md_device
-end
-
 def already_mounted(mount_point)
   if !::File.exists?(mount_point)
+    Chef::Log.info("Not already mounted because mount point does not exist.")
     return false
   end
 
   md_device = md_device_from_mount_point(mount_point)
   if !md_device || md_device == ""
+    Chef::Log.info("Not already mounted because no md device.")
     return false
   end
 
@@ -267,25 +287,11 @@ def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mo
     not_if "test -d #{mount_point}"
   end
 
-  # Try to figure out the actual device.
-  ruby_block "find md device in #{new_resource.name}" do
-    block do
-      if ::File.exists?(mount_point)
-        Chef::Log.info("Already mounted: #{mount_point}")
-      end
-
-      # For some silly reason we can't call the function.
-      md_device = nil
-      Dir.glob("/dev/md[0-9]*").each do |dir|
-        Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
-        md_device = dir
-      end
-
-      Chef::Log.info("Found #{md_device}")
-
-      # the mountpoint must be determined dynamically, so I can't use the chef mount
-      system("mount -t #{filesystem} -o #{filesystem_options} #{md_device} #{mount_point}")
-    end
+  mount mount_point do
+    device "/dev/#{raid_dev}"
+    fstype filesystem
+    options filesystem_options
+    action [:mount, :enable]
   end
 end
 
@@ -317,22 +323,29 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid )
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid,
+                      hvm_device_names, start_device_name, raid_device_name)
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
-  disk_dev = find_free_volume_device_prefix
-  Chef::Log.debug("vol device prefix is #{disk_dev}")
+  disk_dev = find_free_volume_device_prefix(hvm_device_names, start_device_name)
 
-  raid_dev = find_free_md_device_name
-  Chef::Log.debug("target raid device is #{raid_dev}")
+  if !hvm_device_names
+    Chef::Log.debug("vol device prefix is #{disk_dev}")
+  end
+
+  Chef::Log.debug("target raid device is #{raid_device_name}")
 
   devices = {}
 
   # For each volume add information to the mount metadata
   (1..num_disks).each do |i|
 
-    disk_dev_path = "#{disk_dev}#{i}"
+    if hvm_device_names
+      disk_dev_path = disk_dev
+    else
+      disk_dev_path = "#{disk_dev}#{i}"
+    end
 
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     creds = aws_creds() # cannot be invoked inside the block
@@ -355,6 +368,13 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     end
 
     Chef::Log.info("attach dev: #{disk_dev_path}")
+
+    if hvm_device_names
+      disk_dev = disk_dev.next
+      while !valid_volume_device_name?(disk_dev)
+        disk_dev = disk_dev.next
+      end
+    end
   end
 
   ruby_block "sleeping_#{new_resource.name}" do
@@ -368,25 +388,35 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   devices_string = device_map_to_string(devices)
   Chef::Log.info("finished sorting devices #{devices_string}")
 
-  if not creating_from_snapshot and not existing_raid
+  Chef::Log.info("EXISTING RAID PASSED AS -->#{existing_raid}<--")
+
+  if !creating_from_snapshot && !existing_raid
     # Create the raid device on our system
     execute "creating raid device" do
-      Chef::Log.info("creating raid device /dev/#{raid_dev} with raid devices #{devices_string}")
-      command "[ -b /dev/#{raid_dev} ] && mdadm --stop /dev/#{raid_dev} ; yes | mdadm --create /dev/#{raid_dev} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
+      Chef::Log.info("creating raid device /dev/#{raid_device_name} with raid devices #{devices_string}")
+      command "[ -b /dev/#{raid_device_name} ] && mdadm --stop /dev/#{raid_device_name} ; yes | mdadm --create /dev/#{raid_device_name} --level=#{level} --raid-devices=#{devices.size} #{devices_string}"
+    end
+
+    template "/etc/mdadm/mdadm.conf" do
+      source 'mdadm.conf.erb'
+      cookbook 'aws'
+      mode 0644
+      owner 'root'
+      group 'root'
     end
 
     # NOTE: must be a better way.
     # Try to figure out the actual device.
     ruby_block "formatting md device in #{new_resource.name}" do
       block do
-        # For some silly reason we can't call the function.
-        md_device = nil
-        Dir.glob("/dev/md[0-9]*").each do |dir|
-          Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
-          md_device = dir
-        end
+        md_device = "/dev/#{raid_device_name}"
 
         Chef::Log.info("Format device found: #{md_device}")
+        Chef::Log.info("I AM SERIOUSLY GOING TO FORMAT YOUR DEVICE")
+        Chef::Log.info("BUT YOU HAVE FIVE MINUTES TO STOP ME")
+
+        sleep 300
+
         case filesystem
           when "ext4"
             system("mke2fs -t #{filesystem} -F #{md_device}")
@@ -398,14 +428,14 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     end
   else
     # Reassembling the raid device on our system
-    assemble_raid("/dev/#{raid_dev}", devices_string)
+    assemble_raid("/dev/#{raid_device_name}", devices_string)
   end
 
   # start udev
   manage_udev("start")
 
   # Mount the device
-  mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
+  mount_device(raid_device_name, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
 
   # update initramfs to ensure RAID config persists reboots
   update_initramfs()
@@ -422,7 +452,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       end
 
       # Assemble all the data bag meta data
-      node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
+      node.set[:aws][:raid][mount_point][:raid_dev] = raid_device_name
       node.set[:aws][:raid][mount_point][:device_map] = devices
       node.save unless Chef::Config[:solo]
     end
