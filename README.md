@@ -275,6 +275,18 @@ Attribute Parameters
   be a single ID as a string or multiple IDs in an array. If no
   `resource_id` is specified the name attribute will be used.
 
+## instance_monitoring.rb
+
+Actions:
+
+* `enable` - Enable detailed CloudWatch monitoring for this instance (Default).
+* `disable` - Disable detailed CloudWatch monitoring for this instance.
+
+Attribute Parameters:
+
+* `aws_secret_access_key`, `aws_access_key` - passed to
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+
 Usage
 =====
 
@@ -417,6 +429,12 @@ is a wrapper around `remote_file` and supports the same resource attributes as `
       aws_secret_access_key aws['aws_secret_access_key']
     end
 
+
+## aws_instance_monitoring
+
+Allows detailed CloudWatch monitoring to be enabled for the current instance.
+
+    aws_instance_monitoring "enable detailed monitoring"
 
 License and Author
 ==================
