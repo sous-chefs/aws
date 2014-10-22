@@ -1,6 +1,11 @@
-aws Cookbook CHANGELOG
-======================
-This file is used to list changes made in each version of the aws cookbook.
+v2.5.0 (2014-10-22)
+-------------------
+- [#60] Updates to CHANGELOG
+- [#85] Lots of testing harness goodness
+- [#89] Add a recipe to setup ec2 hints in ohai
+- [#74] README and CHANGELOG updates
+- [#65] Add a resource for enabling CloudWatch Detailed Monitoring
+- [#90] Add tests for aws_instance_monitoring
 
 v2.4.0 (2014-08-07)
 -------------------
