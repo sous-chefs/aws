@@ -143,6 +143,12 @@ from this cookbook are used.
 The `gem_package` is created as a Ruby Object and thus installed
 during the Compile Phase of the Chef run.
 
+ec2_hints.rb
+------------
+
+This recipe is used to setup the ec2 hints for ohai in the case that an 
+instance is not created using knife-ec2.
+
 Libraries
 =========
 
