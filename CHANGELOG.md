@@ -1,6 +1,11 @@
-aws Cookbook CHANGELOG
-======================
-This file is used to list changes made in each version of the aws cookbook.
+v2.5.0 (2014-10-22)
+-------------------
+- [#60] Updates to CHANGELOG
+- [#85] Lots of testing harness goodness
+- [#89] Add a recipe to setup ec2 hints in ohai
+- [#74] README and CHANGELOG updates
+- [#65] Add a resource for enabling CloudWatch Detailed Monitoring
+- [#90] Add tests for aws_instance_monitoring
 
 v2.4.0 (2014-08-07)
 -------------------
@@ -34,26 +39,27 @@ v2.1.0 (2014-02-25)
 
 v2.0.0 (2014-02-19)
 -------------------
-[COOK-2755] Add allocate action to the elastic ip resource
-[COOK-2829] Expose AWS credentials for ebs_raid LWRP as parameters
-[COOK-2935] 
-[COOK-4213] Use use_inline_resources
-[COOK-3467] Support IAM role
-[COOK-4344] Add support for mounting existing raids and reusing volume
-[COOK-3859] Add VPC support (allocation_id) to AWS elastic_ip LWRPJoseph Smith
+
+- [COOK-2755] Add allocate action to the elastic ip resource
+- [COOK-2829] Expose AWS credentials for ebs_raid LWRP as parameters
+- [COOK-2935] 
+- [COOK-4213] Use use_inline_resources
+- [COOK-3467] Support IAM role
+- [COOK-4344] Add support for mounting existing raids and reusing volume
+- [COOK-3859] Add VPC support (allocation_id) to AWS elastic_ip LWRPJoseph Smith
 
 
 v1.0.0
 ------
 ### Improvement
-- [COOK-2829] -Expose AWS credentials for ebs_raid LWRP as parameters
+- [COOK-2829] - Expose AWS credentials for ebs_raid LWRP as parameters
 - Changing attribute defaults begs a major version bump
 
 
 v0.101.6
 --------
 ### Bug
-- **[COOK-3475](https://tickets.opscode.com/browse/COOK-3475)** - Fix an issuw were invoking action detach in the `ebs_volume `provider when the volume is already detached resulted in a failure
+- **[COOK-3475](https://tickets.opscode.com/browse/COOK-3475)** - Fix an issue where invoking action detach in the `ebs_volume` provider when the volume is already detached resulted in a failure
 
 v0.101.4
 --------

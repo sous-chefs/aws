@@ -143,6 +143,12 @@ from this cookbook are used.
 The `gem_package` is created as a Ruby Object and thus installed
 during the Compile Phase of the Chef run.
 
+ec2_hints.rb
+------------
+
+This recipe is used to setup the ec2 hints for ohai in the case that an 
+instance is not created using knife-ec2.
+
 Libraries
 =========
 
@@ -191,7 +197,7 @@ Attribute Parameters:
 * `snapshots_to_keep` - used with action `:prune` for number of
   snapshots to maintain.
 * `description` - used to set the description of an EBS snapshot
-* `volume_type` - "standard" or "io1" (io1 is the type for IOPS volume)
+* `volume_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is piops SSD, "gp2" is general purpose SSD)
 * `piops` - number of Provisioned IOPS to provision, must be >= 100
 * `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
 
@@ -268,6 +274,18 @@ Attribute Parameters
 * `resource_id` - resources whose tags will be modified. The value may
   be a single ID as a string or multiple IDs in an array. If no
   `resource_id` is specified the name attribute will be used.
+
+## instance_monitoring.rb
+
+Actions:
+
+* `enable` - Enable detailed CloudWatch monitoring for this instance (Default).
+* `disable` - Disable detailed CloudWatch monitoring for this instance.
+
+Attribute Parameters:
+
+* `aws_secret_access_key`, `aws_access_key` - passed to
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 
 Usage
 =====
@@ -411,6 +429,12 @@ is a wrapper around `remote_file` and supports the same resource attributes as `
       aws_secret_access_key aws['aws_secret_access_key']
     end
 
+
+## aws_instance_monitoring
+
+Allows detailed CloudWatch monitoring to be enabled for the current instance.
+
+    aws_instance_monitoring "enable detailed monitoring"
 
 License and Author
 ==================
