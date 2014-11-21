@@ -1,4 +1,4 @@
-
+include Opscode::Aws::S3
 use_inline_resources if defined?(use_inline_resources)
 
 def whyrun_supported?
@@ -31,18 +31,12 @@ def do_s3_file(resource_action)
   remote_path = new_resource.remote_path
   remote_path.sub!(/^\/*/, "")
 
-
-  if new_resource.aws_access_key_id and new_resource.aws_secret_access_key
-    s3url = RightAws::S3Interface.new(new_resource.aws_access_key_id, new_resource.aws_secret_access_key).get_link(new_resource.bucket, remote_path)
-  else
-    creds = query_role_credentials
-    s3url = RightAws::S3Interface.new(creds['AccessKeyId'], creds['SecretAccessKey'], 
-                                     {:logger => Chef::Log, :region => region, :token => creds['Token']}).get_link(new_resource.bucket, remote_path)
-  end
+  obj = ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
+  s3url = obj.presigned_url(:get, expires_in: 300)
 
   remote_file new_resource.name do
     path new_resource.path
-    source s3url
+    source s3url.gsub(/https:\/\/([\w\.\-]*)\.{1}s3.amazonaws.com:443/,'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
     owner new_resource.owner
     group new_resource.group
     mode new_resource.mode

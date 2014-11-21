@@ -45,7 +45,7 @@ action :allocate do
     Chef::Log.info("An Elastic IP was already allocated for #{new_resource.name} #{current_elastic_ip} from the instance")
   else
     converge_by("allocate new Elastic IP for #{new_resource.name}") do
-      addr = ec2.allocate_address
+      addr = ec2.allocate_address(:domain => new_resource.domain)
       Chef::Log.info("Allocated Elastic IP #{addr[:public_ip]} from the instance")
       node.set['aws']['elastic_ip'][new_resource.name]['ip'] = addr[:public_ip]
       node.save unless Chef::Config[:solo]
@@ -56,15 +56,15 @@ end
 private
 
 def address(ip)
-  ec2.describe_addresses.find { |a| a[:public_ip] == ip }
+  ec2.describe_addresses[:addresses].find { |a| a[:public_ip] == ip }
 end
 
 def attach(ip, timeout)
   addr = address(ip)
   if addr[:domain] == 'vpc'
-    ec2.associate_address(instance_id, {:allocation_id => addr[:allocation_id]})
+    ec2.associate_address(instance_id: instance_id, allocation_id: addr[:allocation_id])
   else
-    ec2.associate_address(instance_id, {:public_ip => addr[:public_ip]})
+    ec2.associate_address(instance_id: instance_id, public_ip: addr[:public_ip])
   end
 
   # block until attached
@@ -89,7 +89,12 @@ def attach(ip, timeout)
 end
 
 def detach(ip, timeout)
-  ec2.disassociate_address({:public_ip => ip})
+  addr = address(ip)
+  if ip[:domain] == 'vpc'
+    ec2.disassociate_address(allocation_ip: addr[:allocation_id])
+  else
+    ec2.disassociate_address(public_ip: ip)
+  end
 
   # block until detached
   begin

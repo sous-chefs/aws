@@ -25,13 +25,13 @@ module Opscode
       def find_snapshot_id(volume_id="", find_most_recent=false)
         snapshot_id = nil
         snapshots = if find_most_recent
-          ec2.describe_snapshots.sort { |a,b| a[:aws_started_at] <=> b[:aws_started_at] }
+          ec2.describe_snapshots.sort { |a,b| a[:start_time] <=> b[:start_time] }
         else
-          ec2.describe_snapshots.sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }
+          ec2.describe_snapshots.sort { |a,b| b[:start_time] <=> a[:start_time] }
         end
         snapshots.each do |snapshot|
-          if snapshot[:aws_volume_id] == volume_id
-            snapshot_id = snapshot[:aws_id]
+          if snapshot[:volume_id] == volume_id
+            snapshot_id = snapshot[:snapshot_id]
           end
         end
         raise "Cannot find snapshot id!" unless snapshot_id
@@ -40,7 +40,7 @@ module Opscode
       end
 
       def ec2
-        @@ec2 ||= create_aws_interface(RightAws::Ec2)
+        @@ec2 ||= create_aws_interface(::Aws::EC2::Client)
       end
 
       def instance_id
@@ -55,7 +55,7 @@ module Opscode
 
       def create_aws_interface(aws_interface)
         begin
-          require 'right_aws'
+          require 'aws-sdk'
         rescue LoadError
           Chef::Log.error("Missing gem 'right_aws'. Use the default aws recipe to install it first.")
         end
@@ -63,24 +63,13 @@ module Opscode
         region = instance_availability_zone
         region = region[0, region.length-1]
 
-        if new_resource.aws_access_key and new_resource.aws_secret_access_key
-          aws_interface.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, {:logger => Chef::Log, :region => region})
+        if !new_resource.aws_access_key.to_s.empty? and !new_resource.aws_secret_access_key.to_s.empty?
+          creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key)
         else
-          creds = query_role_credentials
-          aws_interface.new(creds['AccessKeyId'], creds['SecretAccessKey'], {:logger => Chef::Log, :region => region, :token => creds['Token']})
+          Chef::Log.info("Attempting to use iam profile")
+          creds = ::Aws::InstanceProfileCredentials.new
         end
-      end
-
-      def query_role
-        r = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/").readlines.first
-        r
-      end
-
-      def query_role_credentials(role = query_role)
-        fail "Instance has no IAM role." if role.to_s.empty?
-        creds = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/#{role}",options = {:proxy => false}){|f| JSON.parse(f.string)}
-        Chef::Log.debug("Retrieved instance credentials for IAM role #{role}")
-        creds
+        aws_interface.new(:credentials => creds ,:region => region)
       end
 
       def query_instance_id

@@ -14,3 +14,4 @@ bin
 .kitchen.local.yml
 .coverage
 tmp
+.kitchen/
