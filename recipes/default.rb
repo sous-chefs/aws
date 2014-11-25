@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 chef_gem "aws-sdk" do
-  version '2.0.9.pre'
+  version node['aws']['aws_sdk_version']
   action :install
 end
 
