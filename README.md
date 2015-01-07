@@ -200,6 +200,7 @@ Attribute Parameters:
 * `volume_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is piops SSD, "gp2" is general purpose SSD)
 * `piops` - number of Provisioned IOPS to provision, must be >= 100
 * `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
+* `hvm` - if set to true, device names will use the sdX convention instead of sdxX in order to support HVM instances (default false)
 
 ## ebs_raid.rb
 
