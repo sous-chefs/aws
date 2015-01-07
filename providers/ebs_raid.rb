@@ -50,6 +50,12 @@ action :auto_attach do
       action [:enable]
     end
 
+    # there seems to be a bug with chef where it will fail on a checksum issue if
+    # the file already exists. I don't understand it at all, but this should fix it.
+    file '/etc/mdadm/mdadm.conf' do
+      action :delete
+    end
+
     template "/etc/mdadm/mdadm.conf" do
       source 'mdadm.conf.erb'
       cookbook 'aws'
