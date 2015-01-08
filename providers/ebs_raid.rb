@@ -56,6 +56,7 @@ action :auto_attach do
       mode 0644
       owner 'root'
       group 'root'
+      checksum { nil }
     end
   end
 end
@@ -403,6 +404,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       mode 0644
       owner 'root'
       group 'root'
+      checksum { nil }
     end
 
     # NOTE: must be a better way.
