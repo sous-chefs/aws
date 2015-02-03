@@ -57,7 +57,7 @@ module Opscode
         begin
           require 'aws-sdk'
         rescue LoadError
-          Chef::Log.error("Missing gem 'right_aws'. Use the default aws recipe to install it first.")
+          Chef::Log.error("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
         end
 
         region = instance_availability_zone
