@@ -10,7 +10,7 @@ action :associate do
   addr = address(ip)
 
   if addr.nil?
-    raise "Elastic IP #{ip} does not exist"
+    fail "Elastic IP #{ip} does not exist"
   elsif addr[:instance_id] == instance_id
     Chef::Log.debug("Elastic IP #{ip} is already attached to the instance")
   else
@@ -45,7 +45,7 @@ action :allocate do
     Chef::Log.info("An Elastic IP was already allocated for #{new_resource.name} #{current_elastic_ip} from the instance")
   else
     converge_by("allocate new Elastic IP for #{new_resource.name}") do
-      addr = ec2.allocate_address(:domain => new_resource.domain)
+      addr = ec2.allocate_address(domain: new_resource.domain)
       Chef::Log.info("Allocated Elastic IP #{addr[:public_ip]} from the instance")
       node.set['aws']['elastic_ip'][new_resource.name]['ip'] = addr[:public_ip]
       node.save unless Chef::Config[:solo]
@@ -69,13 +69,13 @@ def attach(ip, timeout)
 
   # block until attached
   begin
-    Timeout::timeout(timeout) do
-      while true
+    Timeout.timeout(timeout) do
+      loop do
         addr = address(ip)
         if addr.nil?
-          raise "Elastic IP has been deleted while waiting for attachment"
+          fail 'Elastic IP has been deleted while waiting for attachment'
         elsif addr[:instance_id] == instance_id
-          Chef::Log.debug("Elastic IP is attached to this instance")
+          Chef::Log.debug('Elastic IP is attached to this instance')
           break
         else
           Chef::Log.debug("Elastic IP is currently attached to #{addr[:instance_id]}")
@@ -98,16 +98,16 @@ def detach(ip, timeout)
 
   # block until detached
   begin
-    Timeout::timeout(timeout) do
-      while true
+    Timeout.timeout(timeout) do
+      loop do
         addr = address(ip)
         if addr.nil?
-          Chef::Log.debug("Elastic IP has been deleted while waiting for detachment")
+          Chef::Log.debug('Elastic IP has been deleted while waiting for detachment')
         elsif addr[:instance_id] != instance_id
-          Chef::Log.debug("Elastic IP is detached from this instance")
+          Chef::Log.debug('Elastic IP is detached from this instance')
           break
         else
-          Chef::Log.debug("Elastic IP is still attached")
+          Chef::Log.debug('Elastic IP is still attached')
         end
         sleep 3
       end
