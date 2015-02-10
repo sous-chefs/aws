@@ -16,14 +16,6 @@ not limited to:
 
 * [Route53](http://community.opscode.com/cookbooks/route53)
 
-**Note** This cookbook uses the `right_aws` RubyGem to interact with
-  the AWS API because at the time it was written, `fog` and `aws-sdk`
-  were not available. Further, both of those gems require `nokogiri`
-  which requires compiling native extensions, which means build tools
-  are required. We do not plan at this time to change the underlying
-  Ruby library used in order to limit the external dependencies for
-  this cookbook.
-
 Requirements
 ============
 
@@ -131,7 +123,7 @@ Recipes
 default.rb
 ----------
 
-The default recipe installs the `right_aws` RubyGem, which this
+The default recipe installs the `aws-sdk` RubyGem, which this
 cookbook requires in order to work with the EC2 API. Make sure that
 the aws recipe is in the node or role `run_list` before any resources
 from this cookbook are used.

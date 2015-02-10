@@ -14,6 +14,7 @@ attribute :path, :kind_of => String, :name_attribute => true
 attribute :remote_path, :kind_of => String
 attribute :bucket, :kind_of => String
 attribute :aws_access_key_id, :kind_of => String
+attribute :aws_access_key, :kind_of => String
 attribute :aws_secret_access_key, :kind_of => String
 attribute :owner, :regex => Chef::Config[:user_valid_regex]
 attribute :group, :regex => Chef::Config[:group_valid_regex]
@@ -39,4 +40,14 @@ def initialize(*args)
   super
   @action = :create
   @path = name
+  @aws_access_key = @aws_access_key_id #Fix inconsistency in naming
+end
+
+# Fix inconsistency in naming
+def aws_access_key( arg=nil ) 
+  if arg.nil? and @aws_access_key.nil?
+    @aws_access_key_id
+  else
+    set_or_return( :aws_access_key, arg, :kind_of => String )
+  end
 end
