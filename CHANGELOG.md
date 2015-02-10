@@ -1,3 +1,7 @@
+v2.6.0 (2015-02-10)
+-------------------
+- Convert to use aws-sdk instead of right_aws
+
 v2.5.0 (2014-10-22)
 -------------------
 - [#60] Updates to CHANGELOG

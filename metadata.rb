@@ -1,8 +1,8 @@
 name              "aws"
-maintainer        "Opscode, Inc."
-maintainer_email  "cookbooks@opscode.com"
+maintainer        "Chef Software, Inc"
+maintainer_email  "cookbooks@chef.io"
 license           "Apache 2.0"
 description       "LWRPs for managing AWS resources"
 long_description  IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version           "2.5.0"
+version           "2.6.0"
 recipe            "aws", "Installs the right_aws gem during compile time"
