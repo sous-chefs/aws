@@ -35,7 +35,8 @@ action :auto_attach do
                       @new_resource.snapshots,
                       @new_resource.disk_type,
                       @new_resource.disk_piops,
-                      @new_resource.existing_raid)
+                      @new_resource.existing_raid,
+                      @new_resource.hvm)
 
     @new_resource.updated_by_last_action(true)
   end
@@ -45,13 +46,13 @@ private
 
 # AWS's volume attachment interface assumes that we're using
 # sdX style device names.  The ones we actually get will be xvdX
-def find_free_volume_device_prefix
+def find_free_volume_device_prefix(hvm)
   # Specific to ubuntu 11./12.
-  vol_dev = "sdh"
+  vol_dev = "sdf"
 
   begin
     vol_dev = vol_dev.next
-    base_device = "/dev/#{vol_dev}1"
+    hvm ? base_device = "/dev/#{vol_dev}" : base_device = "/dev/#{vol_dev}1"
     Chef::Log.info("dev pre trim #{base_device}")
   end while ::File.exists?(base_device)
 
@@ -317,12 +318,12 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid )
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, hvm )
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
-  disk_dev = find_free_volume_device_prefix
-  Chef::Log.debug("vol device prefix is #{disk_dev}")
+  disk_dev = find_free_volume_device_prefix(hvm)
+  Chef::Log.debug("vol base device is #{disk_dev}")
 
   raid_dev = find_free_md_device_name
   Chef::Log.debug("target raid device is #{raid_dev}")
@@ -331,8 +332,12 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
   # For each volume add information to the mount metadata
   (1..num_disks).each do |i|
-
-    disk_dev_path = "#{disk_dev}#{i}"
+    if hvm
+      disk_dev_path = disk_dev
+      disk_dev = disk_dev.next
+    else
+      disk_dev_path = "#{disk_dev}#{i}"
+    end
 
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     creds = aws_creds() # cannot be invoked inside the block
