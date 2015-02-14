@@ -39,6 +39,10 @@ module Opscode
         snapshot_id
       end
 
+      def get_network_interface(interface_id)
+        ec2.describe_network_interfaces(network_interface_ids: [interface_id])[:network_interfaces].find { |ni| ni[:network_interface_id] == interface_id }
+      end
+
       def ec2
         @@ec2 ||= create_aws_interface(::Aws::EC2::Client)
       end

@@ -88,6 +88,18 @@ suites:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
         elastic_ip: <%= ENV['AWS_ELASTIC_IP'] %>
+        elastic_network_interface_id: <%= ENV['AWS_ELASTIC_NETWORK_INTERFACE_ID'] %>
+
+  - name: elastic_network_interface
+    run_list:
+    - recipe[aws_test::elastic_network_interface]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        elastic_network_interface_id: <%= ENV['AWS_ELASTIC_NETWORK_INTERFACE_ID'] %>
+        elastic_network_interface_device_index: <%= ENV['AWS_ELASTIC_NETWORK_INTERFACE_DEVICE_INDEX'] %>
+        elastic_ip: <%= ENV['AWS_ELASTIC_IP'] %>
 
   - name: elb
     run_list:
