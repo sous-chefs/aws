@@ -1,3 +1,8 @@
+v2.6.1 (2015-02-17)
+-------------------
+- Being explicit about usage of the chef_gem's compile_time property.
+- Eliminating future deprecation warnings in Chef 12.1.0.
+
 v2.6.0 (2015-02-10)
 -------------------
 - Convert to use aws-sdk instead of right_aws
