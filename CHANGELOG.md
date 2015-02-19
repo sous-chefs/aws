@@ -1,3 +1,7 @@
+v2.6.4 (2015-02-18)
+-------------------
+- Reverting all chef_gem compile_time edits
+
 v2.6.3 (2015-02-18)
 -------------------
 - Fixing chef_gem with Chef::Resource::ChefGem.method_defined?(:compile_time)
