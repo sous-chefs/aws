@@ -19,7 +19,7 @@
 
 chef_gem 'aws-sdk' do
   version node['aws']['aws_sdk_version']
-  compile_time true if respond_to?(:compile_time)
+  compile_time true
   action :install
 end
 
