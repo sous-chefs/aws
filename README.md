@@ -230,6 +230,7 @@ Attribute Parameters:
 * `aws_secret_access_key`, `aws_access_key` - passed to
   `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `ip` - the IP address.
+* `network_interface_id` - the Elastic Network Interface to attach the Elastic IP to. If specified, the network interface must be attached to the instance before associating the Elastic IP to the network interface. Otherwise, the AWS API will timeout.
 * `timeout` - connection timeout for EC2 API.
 
 ## elastic_network_interface.rb
