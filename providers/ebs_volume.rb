@@ -113,7 +113,7 @@ private
 
 def volume_id_in_node_data
   node['aws']['ebs_volume'][new_resource.name]['volume_id']
-rescue NoMethodError => e
+rescue NoMethodError
   nil
 end
 
