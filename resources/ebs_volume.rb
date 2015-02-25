@@ -11,7 +11,8 @@ state_attrs :availability_zone,
             :snapshots_to_keep,
             :timeout,
             :volume_id,
-            :volume_type
+            :volume_type,
+            :encrypted
 
 attribute :aws_access_key,        kind_of: String
 attribute :aws_secret_access_key, kind_of: String
@@ -26,6 +27,7 @@ attribute :timeout,               default: 3 * 60 # 3 mins, nil or 0 for no time
 attribute :snapshots_to_keep,     default: 2
 attribute :volume_type,           kind_of: String, default: 'standard'
 attribute :piops,                 kind_of: Integer, default: 0
+attribute :encrypted,             kind_of: [TrueClass, FalseClass], default: false
 
 def initialize(*args)
   super

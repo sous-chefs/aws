@@ -40,7 +40,8 @@ action :create do
                              new_resource.availability_zone,
                              new_resource.timeout,
                              new_resource.volume_type,
-                             new_resource.piops)
+                             new_resource.piops,
+                             new_resource.encrypted)
         node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
         node.save unless Chef::Config[:solo]
       end
@@ -152,13 +153,13 @@ def volume_compatible_with_resource_definition?(volume)
 end
 
 # Creates a volume according to specifications and blocks until done (or times out)
-def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, piops)
+def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, piops, encrypted)
   availability_zone ||= instance_availability_zone
 
   # Sanity checks so we don't shoot ourselves.
   fail "Invalid volume type: #{volume_type}" unless %w(standard io1 gp2).include?(volume_type)
 
-  params = { availability_zone: availability_zone, volume_type: volume_type }
+  params = { availability_zone: availability_zone, volume_type: volume_type, encrypted: encrypted }
   # PIOPs requested. Must specify an iops param and probably won't be "low".
   if volume_type == 'io1'
     fail 'IOPS value not specified.' unless piops >= 100
