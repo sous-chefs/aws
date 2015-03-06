@@ -28,6 +28,7 @@ attribute :snapshots_to_keep,     default: 2
 attribute :volume_type,           kind_of: String, default: 'standard'
 attribute :piops,                 kind_of: Integer, default: 0
 attribute :encrypted,             kind_of: [TrueClass, FalseClass], default: false
+attribute :kms_key_id,            kind_of: String
 
 def initialize(*args)
   super
