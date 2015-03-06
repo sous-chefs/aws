@@ -138,7 +138,7 @@ during the Compile Phase of the Chef run.
 ec2_hints.rb
 ------------
 
-This recipe is used to setup the ec2 hints for ohai in the case that an 
+This recipe is used to setup the ec2 hints for ohai in the case that an
 instance is not created using knife-ec2.
 
 Libraries
@@ -192,6 +192,8 @@ Attribute Parameters:
 * `volume_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is piops SSD, "gp2" is general purpose SSD)
 * `piops` - number of Provisioned IOPS to provision, must be >= 100
 * `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
+* `encrypted` - specify if the EBS should be encrypted
+* `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
 
 ## ebs_raid.rb
 
