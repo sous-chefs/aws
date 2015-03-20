@@ -1,18 +1,23 @@
+v2.6.5 (2015-03-19)
+-------------------
+
+- #110, fixes `chef_gem` compile time usage, also in conjunction with `chef-sugar` and Chef 11
+
 v2.6.4 (2015-02-18)
 -------------------
-- Reverting all chef_gem compile_time edits
+- Reverting all `chef_gem` `compile_time` edits
 
 v2.6.3 (2015-02-18)
 -------------------
-- Fixing chef_gem with Chef::Resource::ChefGem.method_defined?(:compile_time)
+- Fixing `chef_gem` with `Chef::Resource::ChefGem.method_defined?(:compile_time)`
 
 v2.6.2 (2015-02-18)
 -------------------
-- Fixing chef_gem for Chef below 12.1.0
+- Fixing `chef_gem` for Chef below 12.1.0
 
 v2.6.1 (2015-02-17)
 -------------------
-- Being explicit about usage of the chef_gem's compile_time property.
+- Being explicit about usage of the `chef_gem`'s `compile_time` property.
 - Eliminating future deprecation warnings in Chef 12.1.0.
 
 v2.6.0 (2015-02-10)
