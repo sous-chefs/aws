@@ -108,7 +108,7 @@ to them.
 
 All of Chef's open source cookbook projects are available on
 Github at either
-[http://www.github.com/chef-cookbooks](http://www.github.com/chef-cookbooks)or 
+[http://www.github.com/chef-cookbooks](http://www.github.com/chef-cookbooks) or 
 [http://www.github.com/opscode-cookbooks](http://www.github.com/opscode-cookbooks).
 
 ### More information
