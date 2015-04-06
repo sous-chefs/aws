@@ -1,3 +1,10 @@
+v2.7.0 (2015-04-06)
+-------------------
+- Support for encrypted EBS volumes
+- secondary_ip resource and provider
+- Improvement of resource_tag id regex
+- Add ChefSpec matchers for aws cookbook resources
+
 v2.6.6 (2015-05-06)
 -------------------
 - [#123] Cleans up README and adds more metadata
