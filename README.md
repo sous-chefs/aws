@@ -105,7 +105,8 @@ For resource tags:
   "Statement": [
     {
       "Action": [
-        "ec2:CreateTags"
+        "ec2:CreateTags",
+        "ec2:DescribeTags"
       ],
       "Sid": "Stmt1381536708000",
       "Resource": [
