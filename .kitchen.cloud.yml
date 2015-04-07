@@ -13,7 +13,7 @@ platforms:
 - name: amazon-2014.09
   driver_plugin: ec2
   driver_config:
-    image_id: ami-50842d38
+    image_id: ami-8e682ce6
     username: ec2-user
     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
     flavor_id: m1.small
@@ -21,7 +21,7 @@ platforms:
 - name: ubuntu-12.04
   driver_plugin: ec2
   driver_config:
-    image_id: ami-2ccc7a44
+    image_id: ami-00ab0168
     username: ubuntu
     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
     flavor_id: m1.small
@@ -29,7 +29,7 @@ platforms:
 - name: ubuntu-12.04-hvm
   driver_plugin: ec2
   driver_config:
-    image_id: ami-3ccc7a54
+    image_id: ami-10ab0178
     username: ubuntu
     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
     flavor_id: t2.small
@@ -37,7 +37,7 @@ platforms:
 - name: ubuntu-14.04
   driver_plugin: ec2
   driver_config:
-    image_id: ami-8caa1ce4
+    image_id: ami-84562dec
     username: ubuntu
     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
     flavor_id: m1.small
@@ -45,7 +45,7 @@ platforms:
 - name: ubuntu-14.04-hvm
   driver_plugin: ec2
   driver_config:
-    image_id: ami-9aaa1cf2
+    image_id: ami-9a562df2
     username: ubuntu
     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
     flavor_id: t2.small
@@ -53,7 +53,7 @@ platforms:
 - name: amazon-2014.09-hvm
   driver_plugin: ec2
   driver_config:
-    image_id: ami-fccc6d94
+    image_id: ami-146e2a7c
     username: ec2-user
     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
     flavor_id: t2.small
@@ -87,6 +87,18 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        elastic_ip: <%= ENV['AWS_ELASTIC_IP'] %>
+        elastic_network_interface_id: <%= ENV['AWS_ELASTIC_NETWORK_INTERFACE_ID'] %>
+
+  - name: elastic_network_interface
+    run_list:
+    - recipe[aws_test::elastic_network_interface]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        elastic_network_interface_id: <%= ENV['AWS_ELASTIC_NETWORK_INTERFACE_ID'] %>
+        elastic_network_interface_device_index: <%= ENV['AWS_ELASTIC_NETWORK_INTERFACE_DEVICE_INDEX'] %>
         elastic_ip: <%= ENV['AWS_ELASTIC_IP'] %>
 
   - name: elb

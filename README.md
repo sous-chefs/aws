@@ -8,6 +8,7 @@ API. Currently supported resources:
 * EBS Volumes (`ebs_volume`)
 * EBS Raid (`ebs_raid`)
 * Elastic IPs (`elastic_ip`)
+* Elastic Network Interfaces (`elastic_network_interface`)
 * Elastic Load Balancer (`elastic_lb`)
 * AWS Resource Tags (`resource_tag`)
 
@@ -232,6 +233,26 @@ Attribute Parameters:
 * `aws_secret_access_key`, `aws_access_key` - passed to
   `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `ip` - the IP address.
+* `network_interface_id` - the Elastic Network Interface to attach the Elastic IP to. If specified, the network interface must be attached to the instance before associating the Elastic IP to the network interface. Otherwise, the AWS API will timeout.
+* `timeout` - connection timeout for EC2 API.
+
+## elastic_network_interface.rb
+
+Actions:
+
+* `attach` - attach the network interface.
+* `detach` - detach the network interface.
+* `create` - create a network interface.
+
+Attribute Parameters:
+
+* `aws_secret_access_key`, `aws_access_key` - passed to
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+* `network_interface_id` - the network interface id. Required for `:attach` and `:detach` actions.
+* `device_index` - the index for the network interface to attach to. Required for `:attach` action.
+* `subnet_id` - the subnet of the network interface. Required for `:create` action.
+* `private_ip_addresses` - array of private ip addresses to assign to the network interface on creation. Only used for `:create` action.
+* `groups` - security groups to apply to the network interface on creation. Only used for `:create` action.
 * `timeout` - connection timeout for EC2 API.
 
 ## elastic_lb.rb
@@ -351,6 +372,31 @@ required values into the resource to configure. Note that when
 associating an Elastic IP to an instance, connectivity to the instance
 will be lost because the public IP address is changed. You will need
 to reconnect to the instance with the new IP.
+
+You can also store this in a role as an attribute or assign to the
+node directly, if preferred.
+
+## aws_elastic_network_interface
+
+The `elastic_network_interface` resource provider does not support creating new
+network interfaces. This must be done before running a recipe that uses the resource.
+After creating a new Elastic Network Interface, we recommend storing it in a
+databag and loading the item in the recipe.
+
+To set up an existing Elastic Network Interface on a system:
+
+    eni_info = data_bag_item("aws", "eni")
+
+    aws_elastic_network_interface "eni" do
+      aws_access_key aws['aws_access_key_id']
+      aws_secret_access_key aws['aws_secret_access_key']
+      network_interface_id eni_info['network_interface_id']
+      device_index eni_info['device_index']
+      action [:create, :associate]
+    end
+
+This will use the loaded `aws` and `eni_info` databags to pass the
+required values into the resource to configure.
 
 You can also store this in a role as an attribute or assign to the
 node directly, if preferred.
