@@ -36,8 +36,7 @@ action :auto_attach do
                       @new_resource.disk_piops,
                       @new_resource.existing_raid,
                       @new_resource.disk_encrypted,
-                      @new_resource.disk_kms_key_id,
-                      @new_resource.hvm)
+                      @new_resource.disk_kms_key_id)
 
     @new_resource.updated_by_last_action(true)
   end
@@ -320,7 +319,11 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
+<<<<<<< HEAD
                       level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, disk_encrypted, disk_kms_key_id, hvm)
+=======
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, disk_encrypted, disk_kms_key_id)
+>>>>>>> Fixing Raid creation issue with Snapshot_id and adding encryption passthrough
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
