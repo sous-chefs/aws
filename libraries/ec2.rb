@@ -31,7 +31,7 @@ module Opscode
         end
         response.each do |page|
           page.snapshots.each do |snapshot|
-            if snapshot[:volume_id] == volume_id
+            if snapshot[:volume_id] == volume_id && snapshot[:state] == 'completed'
               snapshot_id = snapshot[:snapshot_id]
             end
           end
