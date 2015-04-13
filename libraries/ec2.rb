@@ -24,14 +24,16 @@ module Opscode
     module Ec2
       def find_snapshot_id(volume_id = '', find_most_recent = false)
         snapshot_id = nil
-        snapshots = if find_most_recent
-                      ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
-                    else
-                      ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
+        response = if find_most_recent
+                     ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
+                   else
+                     ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
         end
-        snapshots.each do |snapshot|
-          if snapshot[:volume_id] == volume_id
-            snapshot_id = snapshot[:snapshot_id]
+        response.each do |page|
+          page.snapshots.each do |snapshot|
+            if snapshot[:volume_id] == volume_id
+              snapshot_id = snapshot[:snapshot_id]
+            end
           end
         end
         fail 'Cannot find snapshot id!' unless snapshot_id
