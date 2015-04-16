@@ -17,7 +17,7 @@ action :deregister do
     target_lb = elb.describe_load_balancers[:load_balancer_descriptions].find { |lb| lb[:load_balancer_name] == new_resource.name }
     if target_lb[:instances].detect { |instances| instances.include?(instance_id) }
       Chef::Log.info("Removing node from ELB #{new_resource.name}")
-      elb.deregister_instances_with_load_balancer(load_balancer_name: new_resource.name, instances: [{ instance_id: instance_id }])
+      elb.deregister_instances_from_load_balancer(load_balancer_name: new_resource.name, instances: [{ instance_id: instance_id }])
     else
       Chef::Log.debug("Node #{instance_id} is not present in ELB instances, no action required.")
     end
