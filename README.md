@@ -219,6 +219,10 @@ Attribute Parameters:
 * `disk_type` - "standard" or "io1" (io1 is the type for IOPS volume)
 * `disk_piops` - number of Provisioned IOPS to provision per disk,
   must be > 100
+* `disk_encrypted` - specify if the EBS volumes should be encrypted
+* `disk_kms_key_id` - the full ARN of the AWS Key Management Service   
+  (AWS KMS) master key to use when creating the encrypted volumes 
+  (defaults to master key if not specified)
 
 ## elastic_ip.rb
 
