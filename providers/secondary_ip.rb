@@ -21,7 +21,7 @@ action :assign do
     Chef::Log.debug("secondary ip (#{ip}) is already attached to the #{interface}")
   else
     converge_by("assign secondary ip to #{interface}") do
-      assign(eni)
+      assign(eni, ip)
       begin
         Timeout.timeout(timeout) do
           loop do
@@ -76,11 +76,18 @@ end
 
 private
 
-def assign(eni_id)
-  ec2.assign_private_ip_addresses(
-    network_interface_id: eni_id,
-    secondary_private_ip_address_count: 1
-  )
+def assign(eni_id, ip_address)
+  if ip_address
+    ec2.assign_private_ip_addresses(
+      network_interface_id: eni_id,
+      private_ip_addresses: [ip_address]
+    )
+  else
+    ec2.assign_private_ip_addresses(
+      network_interface_id: eni_id,
+      secondary_private_ip_address_count: 1
+    )
+  end
 end
 
 def unassign(eni_id, ip_address)
