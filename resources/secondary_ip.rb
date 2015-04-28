@@ -2,7 +2,7 @@ actions :assign, :unassign
 
 state_attrs :aws_access_key,
             :ip,
-            :interface_id,
+            :interface,
             :timeout
 
 attribute :aws_access_key,        kind_of: String
