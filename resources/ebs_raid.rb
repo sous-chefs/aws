@@ -36,3 +36,4 @@ attribute :disk_piops,            kind_of: Integer, default: 0
 attribute :existing_raid,         kind_of: [TrueClass, FalseClass]
 attribute :disk_encrypted,        kind_of: [TrueClass, FalseClass], default: false
 attribute :disk_kms_key_id,       kind_of: String
+attribute :hvm,                   :kind_of => [ TrueClass, FalseClass ], :default => false
