@@ -320,15 +320,7 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
-<<<<<<< HEAD
-<<<<<<< HEAD
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, disk_encrypted, disk_kms_key_id, hvm)
-=======
                       level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, disk_encrypted, disk_kms_key_id)
->>>>>>> Fixing Raid creation issue with Snapshot_id and adding encryption passthrough
-=======
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, disk_encrypted, disk_kms_key_id, hvm)
->>>>>>> Pulled code from https://github.com/opscode-cookbooks/aws/pull/99
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
@@ -344,11 +336,8 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   (1..num_disks).each do |i|
     if hvm
       disk_dev_path = disk_dev
-<<<<<<< HEAD
+      base_device = "/dev/#{vol_dev}"
       disk_dev = disk_dev.next
-=======
-      base_device = "/dev/#{vol_dev}
->>>>>>> Pulled code from https://github.com/opscode-cookbooks/aws/pull/99
     else
       disk_dev_path = "#{disk_dev}#{i}"
     end
