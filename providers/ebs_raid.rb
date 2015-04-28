@@ -49,13 +49,11 @@ private
 # sdX style device names.  The ones we actually get will be xvdX
 def find_free_volume_device_prefix(hvm)
   # Specific to ubuntu 11./12.
-#  vol_dev = 'sdh'
   vol_dev = 'sdf'
 
   begin
     vol_dev = vol_dev.next
-#    base_device = "/dev/#{vol_dev}1"
-    hvm ? base_device = "/dev/#{vol_dev} :  base_device = "/dev/#{vol_dev}1"
+    hvm ? base_device = "/dev/#{vol_dev}" : base_device = "/dev/#{vol_dev}1"
     Chef::Log.info("dev pre trim #{base_device}")
   end while ::File.exist?(base_device)
 
@@ -338,7 +336,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   (1..num_disks).each do |i|
     if hvm
       disk_dev_path = disk_dev
-      base_device = "/dev/#{vol_dev}
+      disk_dev = disk_dev.next
     else
       disk_dev_path = "#{disk_dev}#{i}"
     end
