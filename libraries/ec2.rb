@@ -93,6 +93,7 @@ module Opscode
       end
 
       def query_default_interface()
+        Chef::Log.debug("Instance ID is #{node[:network][:interfaces]['default_interface']}")
         node[:network][:interfaces]['default_interface']
       end
 
