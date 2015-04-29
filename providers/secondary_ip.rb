@@ -11,7 +11,7 @@ action :assign do
     ip = node['aws']['secondary_ip'][new_resource.name]['ip']
   end
 
-  interface = new_resource.interface || 'eth0'
+  interface = new_resource.interface || query_default_interface
   eni = query_network_interface_id(interface)
   timeout = new_resource.timeout
 
@@ -46,7 +46,7 @@ action :unassign do
     ip = node['aws']['secondary_ip'][new_resource.name]['ip']
   end
 
-  interface = new_resource.interface || 'eth0'
+  interface = new_resource.interface || query_default_interface
   eni = query_network_interface_id(interface)
   timeout = new_resource.timeout
 
