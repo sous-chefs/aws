@@ -93,8 +93,8 @@ module Opscode
       end
 
       def query_default_interface()
-        Chef::Log.debug("Instance ID is #{node[:network][:interfaces]['default_interface']}")
-        node[:network][:interfaces]['default_interface']
+        Chef::Log.debug("Default instance ID is #{node[:network]['default_interface']}")
+        node[:network]['default_interface']
       end
 
       def query_private_ip_addresses(interface)
