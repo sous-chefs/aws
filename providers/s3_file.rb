@@ -45,6 +45,7 @@ def do_s3_file(resource_action)
       inherits new_resource.inherits
       rights new_resource.rights
     end
+    sensitive new_resource.sensitive
     action resource_action
 
     if version.major > 11 || (version.major == 11 && version.minor >= 6)
