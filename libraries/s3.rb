@@ -5,7 +5,10 @@ module Opscode
     module S3
       include Opscode::Aws::Ec2
 
-      def s3
+      def s3(bucket_region=nil)
+        if bucket_region
+            @@instance_availability_zone = bucket_region
+        end
         @@s3 ||= create_aws_interface(::Aws::S3::Client)
       end
     end
