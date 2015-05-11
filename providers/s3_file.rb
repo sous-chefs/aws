@@ -30,7 +30,10 @@ def do_s3_file(resource_action)
   remote_path = new_resource.remote_path
   remote_path.sub!(/^\/*/, '')
 
-  obj = ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3(new_resource.bucket_region))
+  if new_resource.bucket_region
+      @@instance_region = new_resource.bucket_region
+  end
+  obj = ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
   s3url = obj.presigned_url(:get, expires_in: 300)
 
   remote_file new_resource.name do
