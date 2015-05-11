@@ -7,7 +7,7 @@ module Opscode
 
       def s3(bucket_region=nil)
         if bucket_region
-            @@instance_availability_zone = bucket_region
+            @@instance_region = bucket_region
         end
         @@s3 ||= create_aws_interface(::Aws::S3::Client)
       end
