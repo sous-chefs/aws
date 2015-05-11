@@ -5,7 +5,7 @@ module Opscode
     module S3
       include Opscode::Aws::Ec2
 
-      def s3(bucket_region=nil)
+      def s3
         @@s3 ||= create_aws_interface(::Aws::S3::Client)
       end
     end
