@@ -63,7 +63,7 @@ module Opscode
         region = instance_availability_zone
         region = region[0, region.length - 1]
 
-        if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
+        if defined?(new_resource) && !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
           creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key)
         else
           Chef::Log.info('Attempting to use iam profile')
