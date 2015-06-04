@@ -298,6 +298,7 @@ def attach_volume(disk_dev, volume_id)
   aws_ebs_volume disk_dev_path do
     aws_access_key creds['aws_access_key_id']
     aws_secret_access_key creds['aws_secret_access_key']
+    aws_session_token creds['aws_session_token']
     device disk_dev_path
     name disk_dev
     volume_id volume_id
@@ -337,6 +338,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     aws_ebs_volume disk_dev_path do
       aws_access_key creds['aws_access_key_id']
       aws_secret_access_key creds['aws_secret_access_key']
+      aws_session_token creds['aws_session_token']
       size disk_size
       volume_type disk_type
       piops disk_piops
@@ -432,6 +434,7 @@ def aws_creds
   if new_resource.aws_access_key && new_resource.aws_secret_access_key
     h['aws_access_key_id'] = new_resource.aws_access_key
     h['aws_secret_access_key'] = new_resource.aws_secret_access_key
+    h['aws_session_token'] = new_resource.aws_session_token
   elsif node['aws']['databag_name'] && node['aws']['databag_entry']
     Chef::Log.warn("DEPRECATED: node['aws']['databag_name'] and node['aws']['databag_entry'] are deprecated. Use LWRP parameters instead.")
     h = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
