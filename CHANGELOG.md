@@ -1,3 +1,7 @@
+v2.7.1 (2015-06-04)
+-------------------
+- Adding support for aws_session_token
+
 v2.7.0 (2015-04-06)
 -------------------
 - Support for encrypted EBS volumes

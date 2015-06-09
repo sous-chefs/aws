@@ -64,7 +64,7 @@ module Opscode
         region = region[0, region.length - 1]
 
         if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
-          creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key)
+          creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, new_resource.aws_session_token)
         else
           Chef::Log.info('Attempting to use iam profile')
           creds = ::Aws::InstanceProfileCredentials.new
