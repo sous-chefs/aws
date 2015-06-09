@@ -172,11 +172,8 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
     fail 'IOPS param without piops volume type.' unless volume_type == 'io1'
   end
 
-  if snapshot_id
-    params[:snapshot_id] = snapshot_id
-  else
-    params[:size] = size
-  end
+  params[:snapshot_id] = snapshot_id if snapshot_id
+  params[:size] = size if size
 
   nv = ec2.create_volume(params)
   Chef::Log.debug("Created new #{nv[:encrypted] ? 'encryped' : ''} volume #{nv[:volume_id]}#{snapshot_id ? " based on #{snapshot_id}" : ''}")
