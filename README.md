@@ -436,11 +436,11 @@ Allows detailed CloudWatch monitoring to be enabled for the current instance.
 License and Author
 ==================
 
-* Author:: Chris Walters (<cw@opscode.com>)
-* Author:: AJ Christensen (<aj@opscode.com>)
+* Author:: Chris Walters (<cw@chef.io>)
+* Author:: AJ Christensen (<aj@chef.io>)
 * Author:: Justin Huff (<jjhuff@mspin.net>)
 
-Copyright 2009-2013, Opscode, Inc.
+Copyright 2009-2015, Chef Software, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
