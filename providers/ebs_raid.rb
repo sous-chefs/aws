@@ -424,7 +424,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       # Assemble all the data bag meta data
       node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
       node.set[:aws][:raid][mount_point][:device_map] = devices
-      node.save unless Chef::Config[:solo]
+      #node.save unless Chef::Config[:solo]
     end
   end
 end
