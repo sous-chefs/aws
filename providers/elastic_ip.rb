@@ -56,7 +56,7 @@ end
 private
 
 def address(ip)
-  ec2.describe_addresses[:addresses].find { |a| a[:public_ip] == ip }
+  ec2.describe_addresses(public_ips: [ip]).addresses[0]
 end
 
 def attach(ip, timeout)
