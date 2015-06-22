@@ -92,7 +92,7 @@ end
 
 action :prune do
   vol = determine_volume
-  old_snapshots = Array.new
+  old_snapshots = []
   Chef::Log.info 'Checking for old snapshots'
   ec2.describe_snapshots[:snapshots].sort { |a, b| b[:start_time] <=> a[:start_time] }.each do |snapshot|
     if snapshot[:volume_id] == vol[:volume_id]

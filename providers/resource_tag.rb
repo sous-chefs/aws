@@ -86,8 +86,8 @@ def load_current_resource
 
   @current_resource.tags({})
 
-  ec2.describe_tags(filters: [{ name: 'resource-id', values: [@current_resource.resource_id] }])[:tags].map do
-    |tag| @current_resource.tags[tag[:key]] = tag[:value]
+  ec2.describe_tags(filters: [{ name: 'resource-id', values: [@current_resource.resource_id] }])[:tags].map do |tag|
+    @current_resource.tags[tag[:key]] = tag[:value]
   end
 
   @current_resource
