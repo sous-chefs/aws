@@ -50,13 +50,23 @@ action :auto_attach do
       action [:enable]
     end
 
-    template "/etc/mdadm/mdadm.conf" do
+    # This is outrageous, but if you do this multiple times, chef will remember
+    # the checksum between the first and second times and then fail saying that
+    # the checksum is wrong when you attempt to update the file again. So we have
+    # to put the template in a shitty place and then manually move things over.
+    template "/tmp/mdadm.conf" do
       source 'mdadm.conf.erb'
       cookbook 'aws'
       mode 0644
       owner 'root'
       group 'root'
       checksum { nil }
+    end
+
+    ruby_block 'move file into place' do
+      block do
+        FileUtils.mv('/tmp/mdadm.conf', '/etc/mdadm/mdadm.conf')
+      end
     end
   end
 end
