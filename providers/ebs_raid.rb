@@ -425,9 +425,6 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
         Chef::Log.info("Format device found: #{md_device}")
         Chef::Log.info("I AM SERIOUSLY GOING TO FORMAT YOUR DEVICE")
-        Chef::Log.info("BUT YOU HAVE FIVE MINUTES TO STOP ME")
-
-        sleep 300
 
         case filesystem
           when "ext4"
