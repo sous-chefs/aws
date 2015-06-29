@@ -1,4 +1,4 @@
-v2.7.2 (Unreleased)
+v2.7.2 (2015-06-29)
 
 - [#124][] Retain compatibility with Chef 11, [@dhui][]
 - [#128][] Use correct pageable response from `aws-sdk` v2 update, [@drywheat][]
