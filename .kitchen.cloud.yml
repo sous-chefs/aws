@@ -1,0 +1,125 @@
+---
+driver_config:
+  aws_access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+  aws_secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+  aws_ssh_key_id: <%= ENV['AWS_KEYPAIR_NAME'] %>
+  availability_zone: <%= ENV['AWS_AVAILABILITY_ZONE'] %>
+
+provisioner:
+  name: chef_zero
+  require_chef_omnibus: 11.16.0
+
+platforms:
+- name: amazon-2014.09
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-50842d38
+    username: ec2-user
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: m1.small
+
+- name: ubuntu-12.04
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-2ccc7a44
+    username: ubuntu
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: m1.small
+
+- name: ubuntu-12.04-hvm
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-3ccc7a54
+    username: ubuntu
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: t2.small
+
+- name: ubuntu-14.04
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-8caa1ce4
+    username: ubuntu
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: m1.small
+
+- name: ubuntu-14.04-hvm
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-9aaa1cf2
+    username: ubuntu
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: t2.small
+
+- name: amazon-2014.09-hvm
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-fccc6d94
+    username: ec2-user
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+    flavor_id: t2.small
+
+suites:
+
+  - name: default
+    run_list:
+    - recipe[aws]
+
+  - name: ebs_volume
+    run_list:
+    - recipe[aws_test::ebs_volume]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+
+  - name: ebs_raid
+    run_list:
+    - recipe[aws_test::ebs_raid]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+
+  - name: elastic_ip
+    run_list:
+    - recipe[aws_test::elastic_ip]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        elastic_ip: <%= ENV['AWS_ELASTIC_IP'] %>
+
+  - name: elb
+    run_list:
+    - recipe[aws_test::elb]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        elb_name: <%= ENV['AWS_ELB_NAME'] %>
+
+  - name: resource_tag
+    run_list:
+    - recipe[aws_test::resource_tag]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+
+  - name: s3_file
+    run_list:
+    - recipe[aws_test::s3_file]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        bucket: <%= ENV['AWS_S3_BUCKET'] || 'aws-test' %>
+        s3key: <%= ENV['AWS_S3_KEY'] || 'an_file' %>
+
+  - name: instance_monitoring
+    run_list:
+    - recipe[aws_test::instance_monitoring]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>

@@ -2,7 +2,7 @@
 # Cookbook Name:: aws
 # Attributes:: default
 #
-# Copyright 2011, Opscode, Inc.
+# Copyright 2011-2015, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,6 @@
 # limitations under the License.
 #
 
-default['aws']['right_aws_version'] = "3.0.5"
+default['aws']['aws_sdk_version'] = '~> 2.0.22'
 default['aws']['databag_name'] = nil
 default['aws']['databag_entry'] = nil

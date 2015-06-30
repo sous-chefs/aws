@@ -1,8 +1,7 @@
 include Opscode::Aws::Ec2
 
 action :auto_attach do
-
-  package "mdadm" do
+  package 'mdadm' do
     action :install
   end
 
@@ -21,7 +20,7 @@ action :auto_attach do
     # If we get here, we couldn't auto attach, nor re-allocate an existing set of disks to ourselves.  Auto create the md devices
 
     # Stopping udev to ensure RAID md device allocates md0 properly
-    manage_udev("stop")
+    manage_udev('stop')
 
     create_raid_disks(@new_resource.mount_point,
                       @new_resource.mount_point_owner,
@@ -50,7 +49,6 @@ private
 # trailing '1' just in case.
 def find_free_volume_device_prefix(vol_dev="sde")
   # "sd" dev name specific to ubuntu 11./12.
-
   begin
     vol_dev = vol_dev.next
     base_device = "/dev/#{vol_dev}"
@@ -61,20 +59,20 @@ def find_free_volume_device_prefix(vol_dev="sde")
 end
 
 def find_free_md_device_name
-  number=0
-  #TODO, this won't work with more than 10 md devices
+  number = 0
+  # TODO, this won't work with more than 10 md devices
   begin
     dir = "/dev/md#{number}"
     Chef::Log.info("md pre trim #{dir}")
-    number +=1
-  end while ::File.exists?(dir)
+    number += 1
+  end while ::File.exist?(dir)
 
   dir[5, dir.length]
 end
 
 def md_device_from_mount_point(mount_point)
-  md_device = ""
-  Dir.glob("/dev/md[0-9]*").each do |dir|
+  md_device = ''
+  Dir.glob('/dev/md[0-9]*').each do |dir|
     # Look at the mount point directory and see if containing device
     # is the same as the md device.
     if ::File.lstat(dir).rdev == ::File.lstat(mount_point).dev
@@ -91,7 +89,7 @@ def update_node_from_md_device(md_device, mount_point)
   raid_devices = `#{command}`
   Chef::Log.info("already found the mounted device, created from #{raid_devices}")
 
-  node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//,"")
+  node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//, '')
   node.set[:aws][:raid][mount_point][:devices] = raid_devices
   node.save unless Chef::Config[:solo]
 end
@@ -100,29 +98,30 @@ end
 # will only create one.
 def find_md_device
   md_device = nil
-  Dir.glob("/dev/md[0-9]*").each do |dir|
-    Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
+  Dir.glob('/dev/md[0-9]*').each do |dir|
+    Chef::Log.error('More than one /dev/mdX found.') unless md_device.nil?
     md_device = dir
   end
   md_device
 end
 
 def already_mounted(mount_point)
-  if !::File.exists?(mount_point)
+  unless ::File.exist?(mount_point)
     return false
   end
 
   md_device = md_device_from_mount_point(mount_point)
-  if !md_device || md_device == ""
+  if !md_device || md_device == ''
     return false
   end
 
   update_node_from_md_device(md_device, mount_point)
 
-  return true
+  true
 end
 
 private
+
 def udev(cmd, log)
   execute log do
     Chef::Log.debug(log)
@@ -130,27 +129,26 @@ def udev(cmd, log)
   end
 end
 
-def update_initramfs()
-  execute "updating initramfs" do
-    Chef::Log.debug("updating initramfs to ensure RAID config persists reboots")
-    command "update-initramfs -u"
+def update_initramfs
+  execute 'updating initramfs' do
+    Chef::Log.debug('updating initramfs to ensure RAID config persists reboots')
+    command 'update-initramfs -u'
   end
 end
 
 def manage_udev(action)
-  if action == "stop"
-    udev("--stop-exec-queue", "stopping udev...")
-  elsif action == "start"
-    udev("--start-exec-queue", "starting udev queued events..")
+  if action == 'stop'
+    udev('--stop-exec-queue', 'stopping udev...')
+  elsif action == 'start'
+    udev('--start-exec-queue', 'starting udev queued events..')
   else
-   Chef::Log.fatal("Incorrect action passed to manage_udev")
+    Chef::Log.fatal('Incorrect action passed to manage_udev')
   end
 end
 
 # Attempt to find an unused data bag and mount all the EBS volumes to our system
 # Note: recovery from this assumed state is weakly untested.
 def locate_and_mount(mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
-
   if node['aws'].nil? || node['aws']['raid'].nil? || node['aws']['raid'][mount_point].nil?
     Chef::Log.info("No mount point found '#{mount_point}' for node")
     return false
@@ -167,7 +165,7 @@ def locate_and_mount(mount_point, mount_point_owner, mount_point_group, mount_po
   Chef::Log.info("Raid device is #{raid_dev} and mount path is #{mount_point}")
 
   # Stop udev
-  manage_udev("stop")
+  manage_udev('stop')
 
   # Mount volumes
   mount_volumes(node['aws']['raid'][mount_point]['device_map'])
@@ -179,10 +177,10 @@ def locate_and_mount(mount_point, mount_point_owner, mount_point_group, mount_po
   mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
 
   # update initramfs to ensure RAID config persists reboots
-  update_initramfs()
+  update_initramfs
 
   # Start udev back up
-  manage_udev("start")
+  manage_udev('start')
 
   true
 end
@@ -196,7 +194,7 @@ def correct_device_map(device_map)
     if k.start_with?('sd')
       new_k = 'xvd' + k[2..-1]
       if corrected_device_map.include?(new_k)
-        Chef::Log.error("Unable to remap due to collision.")
+        Chef::Log.error('Unable to remap due to collision.')
         return {}
       end
       corrected_device_map[new_k] = device_map[k]
@@ -211,7 +209,7 @@ end
 def device_map_to_string(device_map)
   corrected_map = correct_device_map(device_map)
 
-  devices_string = ""
+  devices_string = ''
   corrected_map.keys.sort.each do |k|
     devices_string += "/dev/#{k} "
   end
@@ -229,8 +227,8 @@ def mount_volumes(device_vol_map)
   # Wait until all volumes are mounted
   ruby_block "wait_#{new_resource.name}" do
     block do
-      while not correct_devices.all? { |dev_path| ::File.exists?(dev_path) }
-        Chef::Log.info("sleeping 3 seconds until EBS volumes have re-attached")
+      until correct_devices.all? { |dev_path| ::File.exist?(dev_path) }
+        Chef::Log.info('sleeping 3 seconds until EBS volumes have re-attached')
         sleep 3
       end
     end
@@ -240,7 +238,7 @@ end
 # Assembles the raid if it doesn't already exist
 # Note: raid_dev is the "suggested" location.  mdadm may actually put it somewhere else.
 def assemble_raid(raid_dev, devices_string)
-  if ::File.exists?(raid_dev)
+  if ::File.exist?(raid_dev)
     Chef::Log.info("Device #{raid_dev} exists skipping")
     return
   end
@@ -252,34 +250,34 @@ def assemble_raid(raid_dev, devices_string)
   # We have to grab the UUID of the md device or the disks will be assembled with the UUID stored
   # within the superblock metadata, causing the md_device number to be randomly
   # chosen if restore is happening on a different host
-  execute "re-attaching raid device" do
+  execute 're-attaching raid device' do
     command "mdadm -A --uuid=`mdadm -E --scan|awk '{print $4}'|sed 's/UUID=//g'` #{raid_dev} #{devices_string}"
     # mdadm may return 2 but still return a clean raid device.
     returns [0, 2]
   end
 end
 
-def mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
+def mount_device(_raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
   # Create the mount point
   directory mount_point do
     owner mount_point_owner
     group mount_point_group
     mode mount_point_mode
-    action    :create
+    action :create
     not_if "test -d #{mount_point}"
   end
 
   # Try to figure out the actual device.
   ruby_block "find md device in #{new_resource.name}" do
     block do
-      if ::File.exists?(mount_point)
+      if ::File.exist?(mount_point)
         Chef::Log.info("Already mounted: #{mount_point}")
       end
 
       # For some silly reason we can't call the function.
       md_device = nil
-      Dir.glob("/dev/md[0-9]*").each do |dir|
-        Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
+      Dir.glob('/dev/md[0-9]*').each do |dir|
+        Chef::Log.error('More than one /dev/mdX found.') unless md_device.nil?
         md_device = dir
       end
 
@@ -297,15 +295,16 @@ def attach_volume(disk_dev, volume_id)
 
   Chef::Log.info("Attaching existing ebs volume id #{volume_id} for device #{disk_dev_path}")
 
-  creds = aws_creds() # cannot be invoked inside the block
+  creds = aws_creds # cannot be invoked inside the block
   aws_ebs_volume disk_dev_path do
-    aws_access_key          creds['aws_access_key_id']
-    aws_secret_access_key   creds['aws_secret_access_key']
-    device                  disk_dev_path
-    name                    disk_dev
-    volume_id               volume_id
-    action                  [:attach]
-    provider                "aws_ebs_volume"
+    aws_access_key creds['aws_access_key_id']
+    aws_secret_access_key creds['aws_secret_access_key']
+    aws_session_token creds['aws_session_token']
+    device disk_dev_path
+    name disk_dev
+    volume_id volume_id
+    action [:attach]
+    provider 'aws_ebs_volume'
   end
 end
 
@@ -319,7 +318,7 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid )
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid)
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
@@ -335,22 +334,23 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     disk_dev_path = find_free_volume_device_prefix(disk_dev_path)
     Chef::Log.debug("vol device prefix is #{disk_dev_path}")
 
-    Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
-    creds = aws_creds() # cannot be invoked inside the block
+    Chef::Log.info "Snapshot array is #{snapshots[i - 1]}"
+    creds = aws_creds # cannot be invoked inside the block
     aws_ebs_volume disk_dev_path do
-      aws_access_key          creds['aws_access_key_id']
-      aws_secret_access_key   creds['aws_secret_access_key']
-      size                    disk_size
-      volume_type             disk_type
-      piops                   disk_piops
-      device                  "/dev/#{disk_dev_path}"
-      name                    disk_dev_path
-      action                  [:create, :attach]
-      snapshot_id             creating_from_snapshot ? snapshots[i-1] : ""
-      provider                "aws_ebs_volume"
+      aws_access_key creds['aws_access_key_id']
+      aws_secret_access_key creds['aws_secret_access_key']
+      aws_session_token creds['aws_session_token']
+      size disk_size
+      volume_type disk_type
+      piops disk_piops
+      device "/dev/#{disk_dev_path}"
+      name disk_dev_path
+      action [:create, :attach]
+      snapshot_id creating_from_snapshot ? snapshots[i - 1] : nil
+      provider 'aws_ebs_volume'
 
       # set up our data bag info
-      devices[disk_dev_path] = "pending"
+      devices[disk_dev_path] = 'pending'
 
       Chef::Log.info("creating ebs volume for device #{disk_dev_path} with size #{disk_size}")
     end
@@ -360,7 +360,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
   ruby_block "sleeping_#{new_resource.name}" do
     block do
-      Chef::Log.debug("sleeping 10 seconds to let drives attach")
+      Chef::Log.debug('sleeping 10 seconds to let drives attach')
       sleep 10
     end
   end
@@ -369,9 +369,9 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   devices_string = device_map_to_string(devices)
   Chef::Log.info("finished sorting devices #{devices_string}")
 
-  if not creating_from_snapshot and not existing_raid
+  if !creating_from_snapshot && !existing_raid
     # Create the raid device on our system
-    execute "creating raid device" do
+    execute 'creating raid device' do
       Chef::Log.info("creating raid device /dev/#{raid_dev} with raid devices #{devices_string}")
       command "[ -b /dev/#{raid_dev} ] && mdadm --stop /dev/#{raid_dev} ; yes | mdadm --create /dev/#{raid_dev} --level=#{level} --raid-devices=#{devices.size} --chunk=16 #{devices_string}"
     end
@@ -382,8 +382,8 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       block do
         # For some silly reason we can't call the function.
         md_device = nil
-        Dir.glob("/dev/md[0-9]*").each do |dir|
-          Chef::Log.error("More than one /dev/mdX found.") unless md_device.nil?
+        Dir.glob('/dev/md[0-9]*').each do |dir|
+          Chef::Log.error('More than one /dev/mdX found.') unless md_device.nil?
           md_device = dir
         end
 
@@ -392,7 +392,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
           when "ext4"
             system("mke2fs -t #{filesystem} -E stride=32,stripe_width=128 -F #{md_device}")
           else
-            #TODO fill in details on how to format other filesystems here
+            # TODO fill in details on how to format other filesystems here
             Chef::Log.info("Can't format filesystem #{filesystem}")
         end
       end
@@ -403,18 +403,18 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   end
 
   # start udev
-  manage_udev("start")
+  manage_udev('start')
 
   # Mount the device
   mount_device(raid_dev, mount_point, mount_point_owner, mount_point_group, mount_point_mode, filesystem, filesystem_options)
 
   # update initramfs to ensure RAID config persists reboots
-  update_initramfs()
+  update_initramfs
 
   # Not invoked until the volumes have been successfully created and attached
-  ruby_block "databagupdate" do
+  ruby_block 'databagupdate' do
     block do
-      Chef::Log.info("finished creating disks")
+      Chef::Log.info('finished creating disks')
 
       devices.each_pair do |key, value|
         value = node['aws']['ebs_volume'][key]['volume_id']
@@ -428,7 +428,6 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       node.save unless Chef::Config[:solo]
     end
   end
-
 end
 
 def aws_creds
@@ -436,10 +435,10 @@ def aws_creds
   if new_resource.aws_access_key && new_resource.aws_secret_access_key
     h['aws_access_key_id'] = new_resource.aws_access_key
     h['aws_secret_access_key'] = new_resource.aws_secret_access_key
+    h['aws_session_token'] = new_resource.aws_session_token
   elsif node['aws']['databag_name'] && node['aws']['databag_entry']
     Chef::Log.warn("DEPRECATED: node['aws']['databag_name'] and node['aws']['databag_entry'] are deprecated. Use LWRP parameters instead.")
     h = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
   end
   h
 end
-

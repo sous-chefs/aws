@@ -2,11 +2,11 @@ require File.join(File.dirname(__FILE__), 'ec2')
 
 module Opscode
   module Aws
-    module Elb
+    module S3
       include Opscode::Aws::Ec2
 
-      def elb
-        @@elb ||= create_aws_interface(::Aws::ElasticLoadBalancing::Client)
+      def s3
+        @@s3 ||= create_aws_interface(::Aws::S3::Client)
       end
     end
   end

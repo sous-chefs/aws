@@ -22,25 +22,27 @@ require 'open-uri'
 module Opscode
   module Aws
     module Ec2
-      def find_snapshot_id(volume_id="", find_most_recent=false)
+      def find_snapshot_id(volume_id = '', find_most_recent = false)
         snapshot_id = nil
-        snapshots = if find_most_recent
-          ec2.describe_snapshots.sort { |a,b| a[:aws_started_at] <=> b[:aws_started_at] }
-        else
-          ec2.describe_snapshots.sort { |a,b| b[:aws_started_at] <=> a[:aws_started_at] }
+        response = if find_most_recent
+                     ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
+                   else
+                     ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
         end
-        snapshots.each do |snapshot|
-          if snapshot[:aws_volume_id] == volume_id
-            snapshot_id = snapshot[:aws_id]
+        response.each do |page|
+          page.snapshots.each do |snapshot|
+            if snapshot[:volume_id] == volume_id && snapshot[:state] == 'completed'
+              snapshot_id = snapshot[:snapshot_id]
+            end
           end
         end
-        raise "Cannot find snapshot id!" unless snapshot_id
+        fail 'Cannot find snapshot id!' unless snapshot_id
         Chef::Log.debug("Snapshot ID is #{snapshot_id}")
         snapshot_id
       end
 
       def ec2
-        @@ec2 ||= create_aws_interface(RightAws::Ec2)
+        @@ec2 ||= create_aws_interface(::Aws::EC2::Client)
       end
 
       def instance_id
@@ -55,48 +57,56 @@ module Opscode
 
       def create_aws_interface(aws_interface)
         begin
-          require 'right_aws'
+          require 'aws-sdk'
         rescue LoadError
-          Chef::Log.error("Missing gem 'right_aws'. Use the default aws recipe to install it first.")
+          Chef::Log.error("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
         end
 
         region = instance_availability_zone
-        region = region[0, region.length-1]
+        region = region[0, region.length - 1]
 
-        if new_resource.aws_access_key and new_resource.aws_secret_access_key
-          aws_interface.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, {:logger => Chef::Log, :region => region})
+        if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
+          creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, new_resource.aws_session_token)
         else
-          creds = query_role_credentials
-          aws_interface.new(creds['AccessKeyId'], creds['SecretAccessKey'], {:logger => Chef::Log, :region => region, :token => creds['Token']})
+          Chef::Log.info('Attempting to use iam profile')
+          creds = ::Aws::InstanceProfileCredentials.new
         end
-      end
-
-      def query_role
-        r = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/").readlines.first
-        r
-      end
-
-      def query_role_credentials(role = query_role)
-        fail "Instance has no IAM role." if role.to_s.empty?
-        creds = open("http://169.254.169.254/latest/meta-data/iam/security-credentials/#{role}"){|f| JSON.parse(f.string)}
-        Chef::Log.debug("Retrieved instance credentials for IAM role #{role}")
-        creds
+        aws_interface.new(credentials: creds, region: region)
       end
 
       def query_instance_id
-        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id'){|f| f.gets}
-        raise "Cannot find instance id!" unless instance_id
+        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id', options = { proxy: false }) { |f| f.gets }
+        fail 'Cannot find instance id!' unless instance_id
         Chef::Log.debug("Instance ID is #{instance_id}")
         instance_id
       end
 
       def query_instance_availability_zone
-        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/'){|f| f.gets}
-        raise "Cannot find availability zone!" unless availability_zone
+        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/', options = { proxy: false }) { |f| f.gets }
+        fail 'Cannot find availability zone!' unless availability_zone
         Chef::Log.debug("Instance's availability zone is #{availability_zone}")
         availability_zone
       end
 
+      def query_mac_address(interface = 'eth0')
+        node[:network][:interfaces][interface][:addresses].select do |_, e|
+          e['family'] == 'lladdr'
+        end.keys.first.downcase
+      end
+
+      def query_private_ip_addresses(interface = 'eth0')
+        mac = query_mac_address(interface)
+        ip_addresses = open("http://169.254.169.254/latest/meta-data/network/interfaces/macs/#{mac}/local-ipv4s", options = { proxy: false }) { |f| f.read.split("\n") }
+        Chef::Log.debug("#{interface} assigned local ipv4s addresses is/are #{ip_addresses.join(',')}")
+        ip_addresses
+      end
+
+      def query_network_interface_id(interface = 'eth0')
+        mac = query_mac_address(interface)
+        eni_id = open("http://169.254.169.254/latest/meta-data/network/interfaces/macs/#{mac}/interface-id", options = { proxy: false }) { |f| f.gets }
+        Chef::Log.debug("#{interface} eni id is #{eni_id}")
+        eni_id
+      end
     end
   end
 end
