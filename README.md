@@ -197,7 +197,6 @@ Attribute Parameters:
 * `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
 * `encrypted` - specify if the EBS should be encrypted
 * `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
-* `hvm` - if set to true, device names will use the sdX convention instead of sdxX in order to support HVM instances (default false)
 
 ## ebs_raid.rb
 
