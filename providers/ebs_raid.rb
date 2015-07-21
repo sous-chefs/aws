@@ -36,7 +36,7 @@ action :auto_attach do
                       @new_resource.disk_piops,
                       @new_resource.existing_raid,
                       @new_resource.disk_encrypted,
-                      @new_resource.disk_kms_key_id
+                      @new_resource.disk_kms_key_id)
 
     @new_resource.updated_by_last_action(true)
   end
