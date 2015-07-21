@@ -36,8 +36,7 @@ action :auto_attach do
                       @new_resource.disk_piops,
                       @new_resource.existing_raid,
                       @new_resource.disk_encrypted,
-                      @new_resource.disk_kms_key_id,
-                      @new_resource.hvm)
+                      @new_resource.disk_kms_key_id)
 
     @new_resource.updated_by_last_action(true)
   end
@@ -47,13 +46,13 @@ private
 
 # AWS's volume attachment interface assumes that we're using
 # sdX style device names.  The ones we actually get will be xvdX
-def find_free_volume_device_prefix(hvm)
+def find_free_volume_device_prefix
   # Specific to ubuntu 11./12.
-  vol_dev = 'sdf'
+  vol_dev = 'sdh'
 
   begin
     vol_dev = vol_dev.next
-    hvm ? base_device = "/dev/#{vol_dev}" : base_device = "/dev/#{vol_dev}1"
+    base_device = "/dev/#{vol_dev}1"
     Chef::Log.info("dev pre trim #{base_device}")
   end while ::File.exist?(base_device)
 
@@ -324,8 +323,8 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
-  disk_dev = find_free_volume_device_prefix(hvm)
-  Chef::Log.debug("vol base device is #{disk_dev}")
+  disk_dev = find_free_volume_device_prefix
+  Chef::Log.debug("vol device prefix is #{disk_dev}")
 
   raid_dev = find_free_md_device_name
   Chef::Log.debug("target raid device is #{raid_dev}")
@@ -334,13 +333,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
   # For each volume add information to the mount metadata
   (1..num_disks).each do |i|
-    if hvm
-      disk_dev_path = disk_dev
-      base_device = "/dev/#{vol_dev}"
-      disk_dev = disk_dev.next
-    else
-      disk_dev_path = "#{disk_dev}#{i}"
-    end
+    disk_dev_path = "#{disk_dev}#{i}"
 
     Chef::Log.info "Snapshot array is #{snapshots[i - 1]}"
     creds = aws_creds # cannot be invoked inside the block
