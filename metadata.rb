@@ -5,3 +5,6 @@ license 'Apache 2.0'
 description 'LWRPs for managing AWS resources'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version '14.2.0'
+recipe 'aws', 'Installs the right_aws gem during compile time'
+source_url "https://github.com/opscode-cookbooks/aws" if respond_to?(:source_url)
+issues_url "https://github.com/opscode-cookbooks/aws/issues" if respond_to?(:issues_url)
