@@ -4,4 +4,4 @@ maintainer_email 'cookbooks@chef.io'
 license 'Apache 2.0'
 description 'LWRPs for managing AWS resources'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version '2.7.2'
+version '14.2.0'
