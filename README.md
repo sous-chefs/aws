@@ -1,5 +1,8 @@
-Description
-===========
+aws Cookbook
+============
+
+[![Build Status](https://travis-ci.org/opscode-cookbooks/aws.svg?branch=master)](https://travis-ci.org/opscode-cookbooks/aws)
+[![Cookbook Version](https://img.shields.io/cookbook/v/aws.svg)](https://supermarket.chef.io/cookbooks/aws)
 
 This cookbook provides libraries, resources and providers to configure
 and manage Amazon Web Services components and offerings with the EC2
