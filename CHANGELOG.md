@@ -1,3 +1,8 @@
+aws Cookbook CHANGELOG
+======================
+
+This file is used to list changes made in each version of the aws cookbook.
+
 v2.7.2 (2015-06-29)
 -------------------
 
