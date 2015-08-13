@@ -31,6 +31,8 @@ _Store
 .yardoc
 _yardoc
 doc/
+.idea
+.ruby-version
 
 #chef stuff
 Berksfile.lock
