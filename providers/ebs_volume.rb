@@ -6,18 +6,43 @@ def whyrun_supported?
 end
 
 action :create do
+  # Possible acceptable scenarios:
+  # 1 Create and attach a new volume
+  # 1.1 ALLOWED -> when no node data exists
+  # 1.2 ALLOWED -> when existing node data is available and the recipe specifies to override the existing volume
+  # 1.3 NOT ALLOWED -> when existing node data is available and the recipe specifies to NOT override the existing volume
+  #
+  # 2. Create a new volume from a snapshot and attach
+  # 2.1 ALLOWED -> when no node data exists
+  # 2.2 ALLOWED -> when existing node data is available and the recipe says to override the existing volume
+  # 2.3 NOT ALLOWED -> when existing node data is available and the recipe specifies to NOT override the existing volume
+  #
+  # 3. Attach an existing volume
+  # 3.1 ALLOWED -> from node data IF it exists but is not attached; also mount the volume
+  # 3.2 NOT ALLOWED -> from nod
   fail 'Cannot create a volume with a specific id (EC2 chooses volume ids)' if new_resource.volume_id
-  if new_resource.snapshot_id =~ /vol/
-    new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
+  # If a snapshot ID was specified, or tag key/value pairs, attempt to find the snapshot. Specify if a snapshot is required or optional; if required,
+  # a failure will occur if the snapshot is not found.
+  if new_resource.snapshot_id =~ /vol/ or new_resource.search_tags
+    new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot, new_resource.search_tags, new_resource.require_existing_snapshot))
   end
 
+  # If the code made it this far, it is assumed that:
+  # - no attempt was made to find a snapshot
+  # - an attempt was made and the snapshot was found
+  # - an attempt was made, no snapshot was found, but the snapshot was set as not required, so the code has proceded anyway
   nvid = volume_id_in_node_data
-  if nvid
+
+  # If volume information exists in the node data, and override_existing_volume is false, then make sure the
+  # existing volume really exists and potentially fail if it does not
+  if nvid && !new_resource.override_existing_volume
     # volume id is registered in the node data, so check that the volume in fact exists in EC2
     vol = volume_by_id(nvid)
     exists = vol && vol[:state] != 'deleting'
+
     # TODO: determine whether this should be an error or just cause a new volume to be created. Currently erring on the side of failing loudly
     fail "Volume with id #{nvid} is registered with the node but does not exist in EC2. To clear this error, remove the ['aws']['ebs_volume']['#{new_resource.name}']['volume_id'] entry from this node's data." unless exists
+
   else
     # Determine if there is a volume that meets the resource's specifications and is attached to the current
     # instance in case a previous [:create, :attach] run created and attached a volume but for some reason was

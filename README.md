@@ -200,6 +200,11 @@ Attribute Parameters:
 * `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
 * `encrypted` - specify if the EBS should be encrypted
 * `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
+* `search_tags` - tags associated to the snapshot that allow searching for a snapshot dynamically
+ rather than specifying a snapshot_id; if both snapshot_id and search_tags are specified, the search_tags will take precedence
+* `require_existing_snapshot` - if attempting to attach a volume from a snapshot, fail if a matching snapshot cannot be found
+* `override_existing_volume` - if an existing volume is specified in the node metadata but does not exist, then create a new volume
+* `attach_existing` - if an existing volume is specified in the node metadata, attach that volume if it exists; fail if it does not exist
 
 ## ebs_raid.rb
 

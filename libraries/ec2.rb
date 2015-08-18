@@ -22,21 +22,40 @@ require 'open-uri'
 module Opscode
   module Aws
     module Ec2
-      def find_snapshot_id(volume_id = '', find_most_recent = false)
+      def find_snapshot_id(volume_id = '', find_most_recent = false, search_tags = nil, require_existing_snapshot = true)
         snapshot_id = nil
-        response = if find_most_recent
-                     ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
-                   else
-                     ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
+        if (volume_id == '')
+          volume_id = nil
         end
+
+        response = if find_most_recent
+                     if search_tags.nil?
+                       ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
+                     else
+                       Chef::Log.debug("Filtering results using #{search_tags.inspect}")
+                       ec2.describe_snapshots(filters: search_tags).sort { |a, b| a[:start_time] <=> b[:start_time] }
+                     end
+                   else
+                     if search_tags.nil?
+                       ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
+                     else
+                       Chef::Log.debug("Filtering results using #{search_tags.inspect}")
+                       ec2.describe_snapshots(filters: search_tags).sort { |a, b| b[:start_time] <=> a[:start_time] }
+                     end
+        end
+
         response.each do |page|
           page.snapshots.each do |snapshot|
-            if snapshot[:volume_id] == volume_id && snapshot[:state] == 'completed'
+            if ((volume_id.nil? && !search_tags.nil?) || (snapshot[:volume_id] == volume_id)) && snapshot[:state] == 'completed'
               snapshot_id = snapshot[:snapshot_id]
             end
           end
         end
-        fail 'Cannot find snapshot id!' unless snapshot_id
+
+        if require_existing_snapshot
+          fail 'Cannot find snapshot id!' unless snapshot_id
+        end
+
         Chef::Log.debug("Snapshot ID is #{snapshot_id}")
         snapshot_id
       end
