@@ -1,4 +1,4 @@
-include_recipe 'bq-aws'
+include_recipe 'aws'
 
 directory "/mnt/test" do
   action :create
@@ -8,7 +8,7 @@ directory "/mnt/test" do
 end
 
 
-bq_aws_ebs_volume "/var/www-volume" do
+aws_ebs_volume "/var/www-volume" do
   device '/dev/xvdf'
   description 'volume restore from snapshot test'
   search_tags [{name: 'tag:Environment', values:['dev']},
