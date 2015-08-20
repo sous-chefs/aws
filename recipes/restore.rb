@@ -13,7 +13,7 @@ aws_ebs_volume "/var/www-volume" do
   description 'volume restore from snapshot test'
   search_tags [{name: 'tag:Environment', values:['dev']},
                 {name: 'tag:Contents', values:['www']},
-                {name: 'tag:Project', values: ['buyerquest.net']}]
+                {name: 'tag:Projects', values: ['buyerquest.net']}]
   most_recent_snapshot true
   require_existing_snapshot false
   override_existing_volume false
@@ -25,7 +25,7 @@ end
 # in order to easily snapshot only that volume in the future.
 resource_tag node['aws']['ebs_volume']["/mnt/test-volume"]['volume_id'] do
   action :add
-  tags {"Environment" => "dev", "Contents" => "www", "Project" => "buyerquest.net", "Name" => "/var/www"}
+  tags({"Environment" => "dev", "Contents" => "www", "Project" => "buyerquest.net", "Name" => "/var/www"})
 end
 
 # Need to check if the volume is formatted, in case it was created as new; if it was created as new, then
