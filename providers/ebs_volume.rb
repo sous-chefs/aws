@@ -6,20 +6,7 @@ def whyrun_supported?
 end
 
 action :create do
-  # Possible acceptable scenarios:
-  # 1 Create and attach a new volume
-  # 1.1 ALLOWED -> when no node data exists
-  # 1.2 ALLOWED -> when existing node data is available and the recipe specifies to override the existing volume
-  # 1.3 NOT ALLOWED -> when existing node data is available and the recipe specifies to NOT override the existing volume
-  #
-  # 2. Create a new volume from a snapshot and attach
-  # 2.1 ALLOWED -> when no node data exists
-  # 2.2 ALLOWED -> when existing node data is available and the recipe says to override the existing volume
-  # 2.3 NOT ALLOWED -> when existing node data is available and the recipe specifies to NOT override the existing volume
-  #
-  # 3. Attach an existing volume
-  # 3.1 ALLOWED -> from node data IF it exists but is not attached; also mount the volume
-  # 3.2 NOT ALLOWED -> from nod
+  # TODO What is the impact if a snapshot is found, but the device is already attached?
   fail 'Cannot create a volume with a specific id (EC2 chooses volume ids)' if new_resource.volume_id
   # If a snapshot ID was specified, or tag key/value pairs, attempt to find the snapshot. Specify if a snapshot is required or optional; if required,
   # a failure will occur if the snapshot is not found.
@@ -44,6 +31,8 @@ action :create do
     fail "Volume with id #{nvid} is registered with the node but does not exist in EC2. To clear this error, remove the ['aws']['ebs_volume']['#{new_resource.name}']['volume_id'] entry from this node's data." unless exists
 
   else
+    # TODO: If override_existing_volume is true and the volume is already attached, the existing volume needs to be detached.
+    
     # Determine if there is a volume that meets the resource's specifications and is attached to the current
     # instance in case a previous [:create, :attach] run created and attached a volume but for some reason was
     # not registered in the node data (e.g. an exception is thrown after the attach_volume request was accepted
