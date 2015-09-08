@@ -17,6 +17,7 @@ attribute :aws_access_key_id, kind_of: String
 attribute :aws_access_key, kind_of: String
 attribute :aws_secret_access_key, kind_of: String
 attribute :aws_session_token,     kind_of: String, default: nil
+attribute :region, kind_of: String, default: nil
 attribute :owner, regex: Chef::Config[:user_valid_regex]
 attribute :group, regex: Chef::Config[:group_valid_regex]
 attribute :mode, kind_of: [String, NilClass], default: nil

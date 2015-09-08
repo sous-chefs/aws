@@ -123,3 +123,23 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+
+  - name: cfn_stack
+    run_list:
+    - recipe[aws_test::cfn_stack]
+
+  - name: iam_user
+    run_list:
+    - recipe[aws_test::iam_user]
+
+  - name: iam_group
+    run_list:
+    - recipe[aws_test::iam_group]
+
+  - name: iam_policy
+    run_list:
+    - recipe[aws_test::iam_policy]
+
+  - name: iam_role
+    run_list:
+    - recipe[aws_test::iam_role]

@@ -13,6 +13,13 @@ API. Currently supported resources:
 * Elastic IPs (`elastic_ip`)
 * Elastic Load Balancer (`elastic_lb`)
 * AWS Resource Tags (`resource_tag`)
+* CloudFormation Stack Management (`cfn_stack`)
+* IAM User, Group, Policy, and Role Management:
+ * (`iam_user`)
+ * (`iam_group`)
+ * (`iam_policy`)
+ * (`iam_role`)
+
 
 Unsupported AWS resources that have other cookbooks include but are
 not limited to:
@@ -34,9 +41,14 @@ AWS Credentials
 ===============
 
 In order to manage AWS components, authentication credentials need to
-be available to the node. There are 2 way to handle this:
+be available to the node. There are 3 ways to handle this:
+
 1. explicitly pass credentials parameter to the resource
-2. or let the resource pick up credentials from the IAM role assigned to the instance
+2. use the credentials in the `~/.aws/credentials` file
+3. let the resource pick up credentials from the IAM role assigned to the instance
+
+**Also new** resources can now assume an STS role, with support for MFA as well.
+Instructions are below in the relevant section.
 
 
 ## Using resource parameters
@@ -68,6 +80,20 @@ And to access the values:
     aws['aws_session_token']
 
 We'll look at specific usage below.
+
+## Using local credentials
+
+If credentials are not supplied via parameters, resources will look for the
+credentials in the `~/.aws/credentials` file:
+
+```
+[default]
+aws_access_key_id = ACCESS_KEY_ID
+aws_secret_access_key = ACCESS_KEY
+```
+
+Note that this also accepts other profiles if they are supplied via the
+`ENV['AWS_PROFILE']` environment variable.
 
 ## Using IAM instance role
 
@@ -122,6 +148,71 @@ For resource tags:
   ]
 }
 ```
+
+## Assuming roles via STS and using MFA
+
+The following is an example of how roles can be assumed using MFA. The following
+can also be used to assumes roles that do not require MFA, just ensure that the
+MFA arguments (`serial_number` and `token_code`) are omitted.
+
+This assumes you have also stored the `cfn_role_arn`, and `mfa_serial`
+attributes as well, but there are plenty of ways these attributes can be
+supplied (they could be stored locally in the consuming cookbook, for example).
+
+Note that MFA codes cannot be recycled, hence the importance of creating a
+single STS session and passing that to resources. If multiple roles need to
+be assumed using MFA, it is probably prudent that these be broken up into
+different recipes and `chef-client` runs.
+
+```
+require 'aws-sdk'
+require 'securerandom'
+
+session_id = SecureRandom.hex(8)
+sts = ::Aws::AssumeRoleCredentials.new(
+  client: ::Aws::STS::Client.new(
+    credentials: ::Aws::Credentials.new(
+      node['aws']['aws_access_key_id'],
+      node['aws']['aws_secret_access_key']
+    ),
+    region: 'us-east-1'
+  ),
+  role_arn: node['aws']['cfn_role_arn'],
+  role_session_name: session_id,
+  serial_number: node['aws']['mfa_serial'],
+  token_code: node['aws']['mfa_code']
+)
+
+aws_cfn_stack 'kitchen-test-stack' do
+  action :create
+  template_source 'kitchen-test-stack.tpl'
+  aws_access_key sts.access_key_id
+  aws_secret_access_key sts.secret_access_key
+  aws_session_token sts.session_token
+end
+```
+
+When running the cookbook, ensure that an attribute JSON is passed that supplies
+the MFA code. Example using chef-zero:
+
+```
+echo '{ "aws": { "mfa_code": "123456" } }' > mfa.json && chef-client -z -o 'recipe[aws_test]' -j mfa.json
+```
+
+## Running outside of an AWS instance
+
+`region` can be specified if the cookbook is being run outside of an AWS instance.
+This can prevent some kinds of failures that happen when resources try to detect
+region.
+
+```
+aws_cfn_stack 'kitchen-test-stack' do
+  action :create
+  template_source 'kitchen-test-stack.tpl'
+  region 'us-east-1'
+end
+```
+
 
 Recipes
 =======
@@ -435,6 +526,212 @@ is a wrapper around `remote_file` and supports the same resource attributes as `
 Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
     aws_instance_monitoring "enable detailed monitoring"
+
+
+## aws_cfn_stack
+
+Manage CloudFormation stacks with Chef!
+
+Example:
+
+```
+aws_cfn_stack 'example-stack' do
+  region 'us-east-1'
+  template_source 'example-stack.tpl'
+
+  parameters ([
+    {
+      :parameter_key => 'KeyPair',
+      :parameter_value => 'user@host'
+    },
+    {
+      :parameter_key => 'SSHAllowIPAddress',
+      :parameter_value => '127.0.0.1/32'
+    }
+  ])
+end
+```
+
+Actions:
+
+ * `create`: Creates the stack, or updates it if it already exists.
+ * `delete`: Begins the deletion process for the stack.
+
+Attribute parameters are:
+
+ * `template_source`: Required - the location of the CloudFormation template file.
+    The file should be stored in the `files` directory in the cookbook.
+ * `parameters`: An array of `parameter_key` and `parameter_value` pairs for
+   parameters in the template. Follow the syntax in the example above.
+ * `disable_rollback`: Set this to `true` if you want stack rollback to be disabled
+   if creation of the stack fails. Default: `false`
+ * `stack_policy_body`: Optionally define a stack policy to apply to the stack,
+   mainly used in protecting stack resources after they are created. For more
+   information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
+   in the CloudFormation user guide.
+
+
+## aws_iam_user
+
+Use this resource to manage IAM users.
+
+```
+aws_iam_user 'example-user' do
+  action :create
+  path '/'
+end
+```
+
+Actions:
+
+ * `create`: Creates the user. No effect if the user already exists.
+ * `delete`: Gracefully deletes the user (detatches from all attached entities,
+   and deletes the user).
+
+The IAM user takes the name of the resource. A `path` can be specified as well.
+For more information about paths, see
+[IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
+in the Using IAM guide.
+
+
+## aws_iam_group
+
+Use this resource to manage IAM groups. The group takes the name of the resource.
+
+```
+aws_iam_group 'example-group' do
+  action :create
+  path '/'
+  members [
+    'example-user'
+  ]
+  remove_members true
+  policy_members [
+    'arn:aws:iam::123456789012:policy/example-policy'
+  ]
+  remove_policy_members true
+end
+```
+
+Actions:
+
+* `create`: Creates the group, and updates members and attached policies if the
+  group already exists.
+* `delete`: Gracefully deletes the group (detatches from all attached entities,
+  and deletes the group).
+
+
+Attribute parameters are:
+
+ * `path`: A path can be supplied for the group. For information on paths, see
+   [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
+   in the Using IAM guide.
+ * `members`: An array of IAM users that are a member of this group.
+ * `remove_members`: Set to `false` to ensure that members are not removed from
+   the group when they are not present in the defined resource. Default: `true`
+ * `policy_members`: An array of ARNs of IAM managed policies to attach to this
+   resource. Accepts both user-defined and AWS-defined policy ARNs.
+ * `remove_policy_members`: Set to `false` to ensure that policies are not
+   detached from the group when they are not present in the defined resource.
+   Default: `true`
+
+
+## aws_iam_policy
+
+Use this resource to create an IAM policy. The policy takes the name of the
+resource.
+
+```
+aws_iam_policy 'example-policy' do
+  action :create
+  path '/'
+  account_id '123456789012'
+  policy_document <<-EOH.gsub(/^ {4}/, '')
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "Stmt1234567890",
+                "Effect": "Allow",
+                "Action": [
+                    "sts:AssumeRole"
+                ],
+                "Resource": [
+                    "arn:aws:iam::123456789012:role/example-role"
+                ]
+            }
+        ]
+    }
+  EOH
+end
+```
+
+Actions:
+
+* `create`: Creates or updates the policy.
+* `delete`: Gracefully deletes the policy (detatches from all attached entities,
+  deletes all non-default policy versions, then deletes the policy).
+
+
+Attribute parameters are:
+
+ * `path`: A path can be supplied for the group. For information on paths, see
+   [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
+   in the Using IAM guide.
+ * `policy_document`: The JSON document for the policy.
+ * `account_id`: The AWS account ID that the policy is going in. Required if
+   using non-user credentials (ie: IAM role through STS or instance role).
+
+
+## aws_iam_role
+
+Use this resource to create an IAM role. The policy takes the name of the
+resource.
+
+```
+aws_iam_role 'example-role' do
+  action :create
+  path '/'
+  policy_members [
+    'arn:aws:iam::123456789012:policy/example-policy'
+  ]
+  remove_policy_members true
+  assume_role_policy_document <<-EOH.gsub(/^ {4}/, '')
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "",
+          "Effect": "Deny",
+          "Principal": {
+            "AWS": "*"
+          },
+          "Action": "sts:AssumeRole"
+        }
+      ]
+    }
+  EOH
+end
+```
+
+* `create`: Creates the role if it does not exist. If the role exists, updates
+  attached policies and the `assume_role_policy_document`.
+* `delete`: Gracefully deletes the role (detatches from all attached entities,
+  and deletes the role).
+
+Attribute parameters are:
+
+ * `path`: A path can be supplied for the group. For information on paths, see
+   [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
+   in the Using IAM guide.
+ * `policy_members`: An array of ARNs of IAM managed policies to attach to this
+   resource. Accepts both user-defined and AWS-defined policy ARNs.
+ * `remove_policy_members`: Set to `false` to ensure that policies are not
+   detached from the group when they are not present in the defined resource.
+   Default: `true`
+ * `assume_role_policy_document`: The JSON policy document to apply to this role
+   for trust relationships. Dictates what entities can assume this role.
+
 
 License and Author
 ==================
