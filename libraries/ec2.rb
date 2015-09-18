@@ -49,6 +49,8 @@ module Opscode
             Chef::Log.debug("Checking #{snapshot[:volume_id]} / #{snapshot[:snapshot_id]} for readiness / use against -#{volume_id}-")
             if ((volume_id.nil? && !search_tags.nil?) || (snapshot[:volume_id] == volume_id)) && snapshot[:state] == 'completed'
               snapshot_id = snapshot[:snapshot_id]
+            else
+              Chef::Log.debug("VolumeID: #{volume_id}/#{volume_id.nil?}; Search Tags: #{search_tags.inspect}; Snapshot Volume ID: #{snapshot[:volume_id]}; Snapshot State: #{snapshot[:state]}")
             end
           end
         end
