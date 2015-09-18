@@ -14,6 +14,7 @@ API. Currently supported resources:
 * Elastic Load Balancer (`elastic_lb`)
 * AWS Resource Tags (`resource_tag`)
 * CloudFormation Stack Management (`cfn_stack`)
+* Kinesis Stream Management (`kinesis_stream`)
 * IAM User, Group, Policy, and Role Management:
  * (`iam_user`)
  * (`iam_group`)
@@ -569,6 +570,28 @@ Attribute parameters are:
    mainly used in protecting stack resources after they are created. For more
    information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
    in the CloudFormation user guide.
+
+
+## aws_kinesis_stream
+
+Use this resource to create and delete Kinesis streams. Note that this resource
+cannot be used to modify the shard count as shard splitting is a somewhat
+complex operation (for example, even CloudFormation replaces streams upon update).
+
+```
+aws_kinesis_stream 'example-stream' do
+ action :create
+ starting_shard_count 1
+end
+```
+
+Actions:
+
+* `create`: Creates the stream. No effect if the stream already exists.
+* `delete`: Deletes the stream.
+
+Use `starting_shard_count` to control the amount of shards the stream starts
+with.
 
 
 ## aws_iam_user
