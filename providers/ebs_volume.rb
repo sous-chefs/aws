@@ -130,7 +130,16 @@ end
 
 # Retrieves information for a volume
 def volume_by_id(volume_id)
-  ec2.describe_volumes.find{|v| v[:aws_id] == volume_id}
+  begin
+    ec2.describe_volumes.find { |v| v[:aws_id] == volume_id }
+  rescue RightAws::AwsError => e
+    if e.message =~ /Request limit exceeded/
+      sleep 2
+      retry
+    else
+      raise
+    end
+  end
 end
 
 # Returns the volume that's attached to the instance at the given device or nil if none matches
@@ -263,5 +272,3 @@ def detach_volume(volume_id, timeout)
     raise "Timed out waiting for volume detachment after #{timeout} seconds"
   end
 end
-
-
