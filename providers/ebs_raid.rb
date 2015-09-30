@@ -1,4 +1,5 @@
 include Opscode::Aws::Ec2
+use_inline_resources if defined?(use_inline_resources)
 
 action :auto_attach do
   package 'mdadm' do
@@ -7,10 +8,10 @@ action :auto_attach do
 
   # Baseline expectations.
   node.set['aws'] ||= {}
-  node.set[:aws][:raid] ||= {}
+  node.set['aws']['raid'] ||= {}
 
   # Mount point information.
-  node.set[:aws][:raid][@new_resource.mount_point] ||= {}
+  node.set['aws']['raid'][@new_resource.mount_point] ||= {}
 
   # we're done we successfully located what we needed
   if !already_mounted(@new_resource.mount_point) && !locate_and_mount(@new_resource.mount_point, @new_resource.mount_point_owner,
@@ -85,11 +86,11 @@ end
 def update_node_from_md_device(md_device, mount_point)
   command = "mdadm --misc -D #{md_device} | grep '/dev/s\\|/xv' | awk '{print $7}' | tr '\\n' ' '"
   Chef::Log.info("Running #{command}")
-  raid_devices = `#{command}`
+  raid_devices = Mixlib::ShellOut.new('#{command}')
   Chef::Log.info("already found the mounted device, created from #{raid_devices}")
 
-  node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//, '')
-  node.set[:aws][:raid][mount_point][:devices] = raid_devices
+  node.set['aws']['raid'][mount_point]['raid_dev'] = md_device.sub(/\/dev\//, '')
+  node.set['aws']['raid'][mount_point]['devices'] = raid_devices
   node.save unless Chef::Config[:solo]
 end
 
@@ -250,7 +251,7 @@ def assemble_raid(raid_dev, devices_string)
   # within the superblock metadata, causing the md_device number to be randomly
   # chosen if restore is happening on a different host
   execute 're-attaching raid device' do
-    command "mdadm -A --uuid=`mdadm -E --scan|awk '{print $4}'|sed 's/UUID=//g'` #{raid_dev} #{devices_string}"
+    command "mdadm -A --uuid=Mixlib::ShellOut.new('mdadm -E --scan|awk '{print $4}'|sed 's/UUID=//g'') #{raid_dev} #{devices_string}"
     # mdadm may return 2 but still return a clean raid device.
     returns [0, 2]
   end
@@ -283,7 +284,7 @@ def mount_device(_raid_dev, mount_point, mount_point_owner, mount_point_group, m
       Chef::Log.info("Found #{md_device}")
 
       # the mountpoint must be determined dynamically, so I can't use the chef mount
-      system("mount -t #{filesystem} -o #{filesystem_options} #{md_device} #{mount_point}")
+      Mixlib::ShellOut.new('mount -t #{filesystem} -o #{filesystem_options} #{md_device} #{mount_point}')
     end
   end
 end
@@ -389,7 +390,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
         Chef::Log.info("Format device found: #{md_device}")
         case filesystem
           when 'ext4'
-            system("mke2fs -t #{filesystem} -F #{md_device}")
+            Mixlib::ShellOut.new('mke2fs -t #{filesystem} -F #{md_device}')
           else
             # TODO fill in details on how to format other filesystems here
             Chef::Log.info("Can't format filesystem #{filesystem}")
@@ -422,8 +423,8 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       end
 
       # Assemble all the data bag meta data
-      node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
-      node.set[:aws][:raid][mount_point][:device_map] = devices
+      node.set['aws']['raid'][mount_point]['raid_dev'] = raid_dev
+      node.set['aws']['raid'][mount_point]['device_map'] = devices
       node.save unless Chef::Config[:solo]
     end
   end

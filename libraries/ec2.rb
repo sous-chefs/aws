@@ -89,7 +89,7 @@ module Opscode
       end
 
       def query_mac_address(interface = 'eth0')
-        node[:network][:interfaces][interface][:addresses].select do |_, e|
+        node['network']['network'][interface]['addresses'].select do |_, e|
           e['family'] == 'lladdr'
         end.keys.first.downcase
       end
