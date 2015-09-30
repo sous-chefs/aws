@@ -7,6 +7,6 @@ rvm:
   - 2.1
   - 2.2
 script:
-  - bundle exec foodcritic -f any .
+  - bundle exec rake style:chef
   - bundle exec rubocop
   - bundle exec rspec --color --format progress
