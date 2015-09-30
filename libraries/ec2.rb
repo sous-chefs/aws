@@ -75,14 +75,14 @@ module Opscode
       end
 
       def query_instance_id
-        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id', options = { proxy: false }) { |f| f.gets }
+        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id', options = { proxy: false }, &:gets)
         fail 'Cannot find instance id!' unless instance_id
         Chef::Log.debug("Instance ID is #{instance_id}")
         instance_id
       end
 
       def query_instance_availability_zone
-        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/', options = { proxy: false }) { |f| f.gets }
+        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/', options = { proxy: false }, &:gets)
         fail 'Cannot find availability zone!' unless availability_zone
         Chef::Log.debug("Instance's availability zone is #{availability_zone}")
         availability_zone
@@ -103,7 +103,7 @@ module Opscode
 
       def query_network_interface_id(interface = 'eth0')
         mac = query_mac_address(interface)
-        eni_id = open("http://169.254.169.254/latest/meta-data/network/interfaces/macs/#{mac}/interface-id", options = { proxy: false }) { |f| f.gets }
+        eni_id = open("http://169.254.169.254/latest/meta-data/network/interfaces/macs/#{mac}/interface-id", options = { proxy: false }, &:gets)
         Chef::Log.debug("#{interface} eni id is #{eni_id}")
         eni_id
       end

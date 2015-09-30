@@ -105,14 +105,10 @@ def find_md_device
 end
 
 def already_mounted(mount_point)
-  unless ::File.exist?(mount_point)
-    return false
-  end
+  return false unless ::File.exist?(mount_point)
 
   md_device = md_device_from_mount_point(mount_point)
-  if !md_device || md_device == ''
-    return false
-  end
+  return false if !md_device || md_device == ''
 
   update_node_from_md_device(md_device, mount_point)
 
@@ -184,7 +180,7 @@ def locate_and_mount(mount_point, mount_point_owner, mount_point_group, mount_po
   true
 end
 
-# TODO fix this kludge: ideally we'd pull in the device information from the ebs_volume
+# TODO: fix this kludge: ideally we'd pull in the device information from the ebs_volume
 #   resource but it's not up-to-date at this time without breaking this action up.
 def correct_device_map(device_map)
   corrected_device_map = {}
@@ -388,11 +384,11 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
         Chef::Log.info("Format device found: #{md_device}")
         case filesystem
-          when 'ext4'
-            system("mke2fs -t #{filesystem} -F #{md_device}")
-          else
-            # TODO fill in details on how to format other filesystems here
-            Chef::Log.info("Can't format filesystem #{filesystem}")
+        when 'ext4'
+          system("mke2fs -t #{filesystem} -F #{md_device}")
+        else
+          # TODO: fill in details on how to format other filesystems here
+          Chef::Log.info("Can't format filesystem #{filesystem}")
         end
       end
     end
