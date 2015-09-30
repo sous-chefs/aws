@@ -28,7 +28,7 @@ module Opscode
                      ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
                    else
                      ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
-        end
+                   end
         response.each do |page|
           page.snapshots.each do |snapshot|
             if snapshot[:volume_id] == volume_id && snapshot[:state] == 'completed'
@@ -89,7 +89,7 @@ module Opscode
       end
 
       def query_mac_address(interface = 'eth0')
-        node[:network][:interfaces][interface][:addresses].select do |_, e|
+        node['network']['interfaces'][interface]['addresses'].select do |_, e|
           e['family'] == 'lladdr'
         end.keys.first.downcase
       end

@@ -1,16 +1,16 @@
 include Opscode::Aws::Ec2
 
-action :auto_attach do
+action :auto_attach do # ~FC017 https://github.com/acrmp/foodcritic/issues/387
   package 'mdadm' do
     action :install
   end
 
   # Baseline expectations.
   node.set['aws'] ||= {}
-  node.set[:aws][:raid] ||= {}
+  node.set['aws']['raid'] ||= {}
 
   # Mount point information.
-  node.set[:aws][:raid][@new_resource.mount_point] ||= {}
+  node.set['aws']['raid'][@new_resource.mount_point] ||= {}
 
   # we're done we successfully located what we needed
   if !already_mounted(@new_resource.mount_point) && !locate_and_mount(@new_resource.mount_point, @new_resource.mount_point_owner,
@@ -88,8 +88,8 @@ def update_node_from_md_device(md_device, mount_point)
   raid_devices = `#{command}`
   Chef::Log.info("already found the mounted device, created from #{raid_devices}")
 
-  node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//, '')
-  node.set[:aws][:raid][mount_point][:devices] = raid_devices
+  node.set['aws']['raid'][mount_point]['raid_dev'] = md_device.sub(%r{/dev/}, '')
+  node.set['aws']['raid'][mount_point]['devices'] = raid_devices
   node.save unless Chef::Config[:solo]
 end
 
@@ -418,8 +418,8 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       end
 
       # Assemble all the data bag meta data
-      node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
-      node.set[:aws][:raid][mount_point][:device_map] = devices
+      node.set['aws']['raid'][mount_point]['raid_dev'] = raid_dev
+      node.set['aws']['raid'][mount_point]['device_map'] = devices
       node.save unless Chef::Config[:solo]
     end
   end
