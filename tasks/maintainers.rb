@@ -17,15 +17,15 @@
 
 require 'rake'
 
-SOURCE = File.join(File.dirname(__FILE__), "..", "MAINTAINERS.toml")
-TARGET = File.join(File.dirname(__FILE__), "..", "MAINTAINERS.md")
+SOURCE = File.join(File.dirname(__FILE__), '..', 'MAINTAINERS.toml')
+TARGET = File.join(File.dirname(__FILE__), '..', 'MAINTAINERS.md')
 
 begin
   require 'tomlrb'
-  task :default => :generate
+  task default: 'maintainers:generate'
 
   namespace :maintainers do
-    desc "Generate MarkDown version of MAINTAINERS file"
+    desc 'Generate MarkDown version of MAINTAINERS file'
     task :generate do
       @toml = Tomlrb.load_file SOURCE
       out = "<!-- This is a generated file. Please do not edit directly -->\n\n"
@@ -34,12 +34,12 @@ begin
       out << project_lieutenant
       out << all_maintainers
 
-      File.open(TARGET, "w") { |fn|
+      File.open(TARGET, 'w') do |fn|
         fn.write out
-      }
+      end
     end
   end
-  
+
 rescue LoadError
   STDERR.puts "\n*** TomlRb not available.\n\n"
 end
