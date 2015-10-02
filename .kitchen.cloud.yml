@@ -143,3 +143,11 @@ suites:
   - name: iam_role
     run_list:
     - recipe[aws_test::iam_role]
+
+  - name: kinesis_stream
+    run_list:
+    - recipe[aws_test::kinesis_stream]
+
+  - name: dynamodb_table
+    run_list:
+    - recipe[aws_test::dynamodb_table]

@@ -572,6 +572,100 @@ Attribute parameters are:
    in the CloudFormation user guide.
 
 
+## aws_dynamodb_table
+
+Use this resource to create and delete DynamoDB tables. This includes the ability
+to add global secondary indexes to existing tables.
+
+```
+aws_dynamodb_table 'example-table' do
+  action :create
+  attribute_definitions [
+    { attribute_name: 'Id', attribute_type: 'N' },
+    { attribute_name: 'Foo', attribute_type: 'N' },
+    { attribute_name: 'Bar', attribute_type: 'N' },
+    { attribute_name: 'Baz', attribute_type: 'S' }
+  ]
+  key_schema [
+    { attribute_name: 'Id', key_type: 'HASH' },
+    { attribute_name: 'Foo', key_type: 'RANGE' }
+  ]
+  local_secondary_indexes [
+    {
+      index_name: 'BarIndex',
+      key_schema: [
+        {
+          attribute_name: 'Id',
+          key_type: 'HASH'
+        },
+        {
+          attribute_name: 'Bar',
+          key_type: 'RANGE'
+        }
+      ],
+      projection: {
+        projection_type: 'ALL'
+      }
+    }
+  ]
+  global_secondary_indexes [
+    {
+      index_name: 'BazIndex',
+      key_schema: [{
+        attribute_name: 'Baz',
+        key_type: 'HASH'
+      }],
+      projection: {
+        projection_type: 'ALL'
+      },
+      provisioned_throughput: {
+        read_capacity_units: 1,
+        write_capacity_units: 1
+      }
+    }
+  ]
+  provisioned_throughput ({
+    read_capacity_units: 1,
+    write_capacity_units: 1
+  })
+  stream_specification ({
+    stream_enabled: true,
+    stream_view_type: 'KEYS_ONLY'
+  })
+end
+```
+
+Actions:
+
+* `create`: Creates the table. Will update the following if the table exists:
+ * `global_secondary_indexes`: Will remove non-existent indexes, add new ones,
+   and update throughput for existing ones. All attributes need to be present
+   in `attribute_definitions`. No effect if the resource is omitted.
+ * `stream_specification`: Will update as shown. No effect is the resource is
+   omitted.
+ * `provisioned_throughput`: Will update as shown.
+* `delete`: Deletes the index.
+
+Attributes:
+
+ * `attribute_definitions`: Required. Attributes to create for the table.
+   Mainly this is used to specify attributes that are used in keys, as otherwise
+   one can add any attribute they want to a DynamoDB table.
+ * `key_schema`: Required. Used to create the primary key for the table.
+   Attributes need to be present in `attribute_definitions`.
+ * `local_secondary_indexes`: Used to create any local secondary indexes for the
+   table. Attributes need to be present in `attribute_definitions`.
+ * `global_secondary_indexes`: Used to create any global secondary indexes. Can
+   be done to an existing table. Attributes need to be present in
+   `attribute_definitions`.
+ * `provisioned_throughput`: Define the throughput for this table.
+ * `stream_specification`: Specify if there should be a stream for this table.
+
+Several of the attributes shown here take parameters as shown in the
+[AWS Ruby SDK Documentation](http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Client.html#create_table-instance_method).
+Also, the [AWS DynamoDB Documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html)
+may be of further help as well.
+
 ## aws_kinesis_stream
 
 Use this resource to create and delete Kinesis streams. Note that this resource
