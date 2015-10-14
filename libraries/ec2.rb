@@ -45,7 +45,6 @@ module Opscode
                        ec2.describe_snapshots(filters: search_tags).sort { |a, b| b[:start_time] <=> a[:start_time] }
                      end
                    end
-        end
 
         response.each do |page|
           page.snapshots.each do |snapshot|

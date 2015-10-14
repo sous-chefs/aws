@@ -10,7 +10,7 @@ action :create do
   fail 'Cannot create a volume with a specific id (EC2 chooses volume ids)' if new_resource.volume_id
   # If a snapshot ID was specified, or tag key/value pairs, attempt to find the snapshot. Specify if a snapshot is required or optional; if required,
   # a failure will occur if the snapshot is not found.
-  if new_resource.snapshot_id =~ /vol/ or new_resource.search_tags
+  if new_resource.snapshot_id =~ /vol/ || new_resource.search_tags
     new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot, new_resource.search_tags, new_resource.require_existing_snapshot))
   end
 
@@ -32,7 +32,7 @@ action :create do
 
   else
     # TODO: If override_existing_volume is true and the volume is already attached, the existing volume needs to be detached.
-    
+
     # Determine if there is a volume that meets the resource's specifications and is attached to the current
     # instance in case a previous [:create, :attach] run created and attached a volume but for some reason was
     # not registered in the node data (e.g. an exception is thrown after the attach_volume request was accepted
