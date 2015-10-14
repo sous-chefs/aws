@@ -30,6 +30,7 @@ module Opscode
 
         response = if find_most_recent
                      if search_tags.nil?
+                       # Fall through to old / default / previous behavior
                        ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
                      else
                        Chef::Log.debug("Filtering results using #{search_tags.inspect}")
@@ -37,6 +38,7 @@ module Opscode
                      end
                    else
                      if search_tags.nil?
+                       # Fall through to old / default / previous behavior
                        ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
                      else
                        Chef::Log.debug("Filtering results using #{search_tags.inspect}")
@@ -44,17 +46,22 @@ module Opscode
                      end
                    end
         end
+
         response.each do |page|
           page.snapshots.each do |snapshot|
             Chef::Log.debug("Checking #{snapshot[:volume_id]} / #{snapshot[:snapshot_id]} for readiness / use against -#{volume_id}-")
+            # && snapshot_id.nil? is required to ensure only the first match is used, otherwise the last match is used.
             if ((volume_id.nil? && !search_tags.nil?) || (snapshot[:volume_id] == volume_id)) && snapshot[:state] == 'completed' && snapshot_id.nil?
               snapshot_id = snapshot[:snapshot_id]
             else
-              Chef::Log.debug("VolumeID: #{volume_id}/#{volume_id.nil?}; Search Tags: #{search_tags.inspect}; Snapshot Volume ID: #{snapshot[:volume_id]}; Snapshot State: #{snapshot[:state]}")
+              Chef::Log.info("Not using VolumeID: #{volume_id}/#{volume_id.nil?}; Search Tags: #{search_tags.inspect}; Snapshot Volume ID: #{snapshot[:volume_id]}; Snapshot State: #{snapshot[:state]}")
             end
           end
         end
 
+        # Allow for two scenarios:
+        # 1. Building a new instance for the first time, there are no existing snapshots; this will fall through if require_existing_snapshot is 'false', and then create a new, empty volume
+        # 2. Building a new instance subsequent times, after a snapshot has been created for the volume, in this case the code here should have found a snapshot and will create a volume from that snapshot
         if require_existing_snapshot
           fail 'Cannot find snapshot id!' unless snapshot_id
         end
