@@ -1,7 +1,7 @@
 aws Cookbook
 ============
 
-[![Build Status](https://travis-ci.org/opscode-cookbooks/aws.svg?branch=master)](https://travis-ci.org/opscode-cookbooks/aws)
+[![Build Status](https://travis-ci.org/chef-cookbooks/aws.svg?branch=master)](https://travis-ci.org/chef-cookbooks/aws)
 [![Cookbook Version](https://img.shields.io/cookbook/v/aws.svg)](https://supermarket.chef.io/cookbooks/aws)
 
 This cookbook provides libraries, resources and providers to configure

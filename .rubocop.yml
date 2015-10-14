@@ -1,36 +1,43 @@
+AllCops:
+  Exclude:
+    - vendor/**/*
+    - Guardfile
+
 AlignParameters:
   Enabled: false
-
-Encoding:
-  Enabled: false
-
 ClassLength:
   Enabled: false
-
-MethodLength:
-  Enabled: false
-
-LineLength:
-  Enabled: false
-
-# HashSyntax:
-#  EnforcedStyle: hash_rockets
-
-Documentation:
-  Enabled: false
-
-PerceivedComplexity:
-  Enabled: false
-
 CyclomaticComplexity:
   Enabled: false
-
+Documentation:
+  Enabled: false
+Encoding:
+  Enabled: false
+Style/FileName:
+  Enabled: false
+LineLength:
+  Enabled: false
+MethodLength:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+PerceivedComplexity:
+  Enabled: false
+SingleSpaceBeforeFirstArg:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  Enabled: false
 Style/FileName:
   Enabled: false
 
-Metrics/AbcSize:
+# Todo:  These should are non-standard rubocop rules were should investigate and resolve
+Style/ClassVars:
   Enabled: false
-
-AllCops:
-  Exclude:
-    - 'Guardfile'
+Metrics/ParameterLists:
+  Enabled: false
+Lint/Loop:
+  Enabled: false
+Style/UnlessElse:
+  Enabled: false
+Lint/UselessAssignment:
+  Enabled: false

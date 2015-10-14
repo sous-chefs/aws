@@ -5,7 +5,7 @@ def whyrun_supported?
 end
 
 action :enable do
-  if is_monitoring_enabled
+  if monitoring_enabled?
     Chef::Log.debug('Monitoring is already enabled for this instance')
   else
     converge_by('enable monitoring for this instance') do
@@ -16,7 +16,7 @@ action :enable do
 end
 
 action :disable do
-  if is_monitoring_enabled
+  if monitoring_enabled?
     converge_by('disable monitoring for this instance') do
       Chef::Log.info('Disabling monitoring for this instance')
       ec2.unmonitor_instances(instance_ids: [instance_id])
@@ -28,7 +28,7 @@ end
 
 private
 
-def is_monitoring_enabled
+def monitoring_enabled?
   monitoring_state = ec2.describe_instances(instance_ids: [instance_id])[:reservations][0][:instances][0][:monitoring][:state]
   Chef::Log.info("Current monitoring state for this instance is #{monitoring_state}")
   monitoring_state == 'enabled'

@@ -1,16 +1,16 @@
 include Opscode::Aws::Ec2
 
-action :auto_attach do
+action :auto_attach do # ~FC017 https://github.com/acrmp/foodcritic/issues/387
   package 'mdadm' do
     action :install
   end
 
   # Baseline expectations.
   node.set['aws'] ||= {}
-  node.set[:aws][:raid] ||= {}
+  node.set['aws']['raid'] ||= {}
 
   # Mount point information.
-  node.set[:aws][:raid][@new_resource.mount_point] ||= {}
+  node.set['aws']['raid'][@new_resource.mount_point] ||= {}
 
   # we're done we successfully located what we needed
   if !already_mounted(@new_resource.mount_point) && !locate_and_mount(@new_resource.mount_point, @new_resource.mount_point_owner,
@@ -88,8 +88,8 @@ def update_node_from_md_device(md_device, mount_point)
   raid_devices = `#{command}`
   Chef::Log.info("already found the mounted device, created from #{raid_devices}")
 
-  node.set[:aws][:raid][mount_point][:raid_dev] = md_device.sub(/\/dev\//, '')
-  node.set[:aws][:raid][mount_point][:devices] = raid_devices
+  node.set['aws']['raid'][mount_point]['raid_dev'] = md_device.sub(%r{/dev/}, '')
+  node.set['aws']['raid'][mount_point]['devices'] = raid_devices
   node.save unless Chef::Config[:solo]
 end
 
@@ -105,14 +105,10 @@ def find_md_device
 end
 
 def already_mounted(mount_point)
-  unless ::File.exist?(mount_point)
-    return false
-  end
+  return false unless ::File.exist?(mount_point)
 
   md_device = md_device_from_mount_point(mount_point)
-  if !md_device || md_device == ''
-    return false
-  end
+  return false if !md_device || md_device == ''
 
   update_node_from_md_device(md_device, mount_point)
 
@@ -184,7 +180,7 @@ def locate_and_mount(mount_point, mount_point_owner, mount_point_group, mount_po
   true
 end
 
-# TODO fix this kludge: ideally we'd pull in the device information from the ebs_volume
+# TODO: fix this kludge: ideally we'd pull in the device information from the ebs_volume
 #   resource but it's not up-to-date at this time without breaking this action up.
 def correct_device_map(device_map)
   corrected_device_map = {}
@@ -388,11 +384,11 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
         Chef::Log.info("Format device found: #{md_device}")
         case filesystem
-          when 'ext4'
-            system("mke2fs -t #{filesystem} -F #{md_device}")
-          else
-            # TODO fill in details on how to format other filesystems here
-            Chef::Log.info("Can't format filesystem #{filesystem}")
+        when 'ext4'
+          system("mke2fs -t #{filesystem} -F #{md_device}")
+        else
+          # TODO: fill in details on how to format other filesystems here
+          Chef::Log.info("Can't format filesystem #{filesystem}")
         end
       end
     end
@@ -422,8 +418,8 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       end
 
       # Assemble all the data bag meta data
-      node.set[:aws][:raid][mount_point][:raid_dev] = raid_dev
-      node.set[:aws][:raid][mount_point][:device_map] = devices
+      node.set['aws']['raid'][mount_point]['raid_dev'] = raid_dev
+      node.set['aws']['raid'][mount_point]['device_map'] = devices
       node.save unless Chef::Config[:solo]
     end
   end
