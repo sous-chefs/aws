@@ -6,7 +6,7 @@ def whyrun_supported?
 end
 
 action :create do
-  # TODO What is the impact if a snapshot is found, but the device is already attached?
+  # TODO: What is the impact if a snapshot is found, but the device is already attached?
   fail 'Cannot create a volume with a specific id (EC2 chooses volume ids)' if new_resource.volume_id
   # If a snapshot ID was specified, or tag key/value pairs, attempt to find the snapshot. Specify if a snapshot is required or optional; if required,
   # a failure will occur if the snapshot is not found.

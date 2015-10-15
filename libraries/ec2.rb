@@ -24,9 +24,7 @@ module Opscode
     module Ec2
       def find_snapshot_id(volume_id = '', find_most_recent = false, search_tags = nil, require_existing_snapshot = true)
         snapshot_id = nil
-        if (volume_id == '')
-          volume_id = nil
-        end
+        volume_id == '' if volume_id = nil
 
         response = if find_most_recent
                      if search_tags.nil?
