@@ -1,4 +1,5 @@
 include Opscode::Aws::CloudFormation
+require 'fileutils'
 
 def whyrun_supported?
   true
@@ -10,7 +11,10 @@ end
 # build_cfn_options - embedded file resource to move template file to cache dir.
 # this allows for possible future update logic, plus a easy place to get at the data
 def save_cfn_template
-  f = cookbook_file ::File.join(Chef::Config[:file_cache_path], new_resource.template_source) do
+  template_cache_file = ::File.join(Chef::Config[:file_cache_path], new_resource.template_source)
+  template_cache_dir = ::File.dirname(template_cache_file)
+  ::FileUtils.mkdir_p(template_cache_dir) unless ::Dir.exist?(template_cache_dir)
+  f = cookbook_file template_cache_file do
     action :create
     source new_resource.template_source
     cookbook new_resource.cookbook_name
@@ -33,6 +37,7 @@ def build_cfn_options
   unless new_resource.stack_policy_body.nil?
     options[:stack_policy_body] = new_resource.stack_policy_body
   end
+  options[:capabilities] = ["CAPABILITY_IAM"] if new_resource.iam_capability
   options
 end
 

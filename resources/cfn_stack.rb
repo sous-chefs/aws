@@ -6,6 +6,7 @@ attribute :stack_name, kind_of: String, name_attribute: true
 attribute :template_source, kind_of: String, required: true
 attribute :parameters, kind_of: Array, default: []
 attribute :disable_rollback, kind_of: TrueClass, default: false
+attribute :iam_capability, kind_of: TrueClass, default: false
 attribute :stack_policy_body, kind_of: String, default: nil
 attribute :region, kind_of: String, default: nil
 attribute :aws_access_key, kind_of: String, default: nil
