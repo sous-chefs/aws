@@ -5,32 +5,13 @@ def whyrun_supported?
   true
 end
 
-# some shared variables
-# @template_cache_path = File.join(Chef::Config[:file_cache_path], new_resource.template_source)
-
-# build_cfn_options - embedded file resource to move template file to cache dir.
-# this allows for possible future update logic, plus a easy place to get at the data
-def save_cfn_template
-  template_cache_file = ::File.join(Chef::Config[:file_cache_path], new_resource.template_source)
-  template_cache_dir = ::File.dirname(template_cache_file)
-  ::FileUtils.mkdir_p(template_cache_dir) unless ::Dir.exist?(template_cache_dir)
-  f = cookbook_file template_cache_file do
-    action :create
-    source new_resource.template_source
-    cookbook new_resource.cookbook_name
-    action :nothing
-  end
-  f.run_action(:create)
-  f.updated_by_last_action?
-end
-
 # build_cfn_options - build options hash for create_stack based off of
 # new_resource data
 def build_cfn_options
   options = {
     stack_name: new_resource.stack_name,
     # make sure you call this after you save the file
-    template_body: ::IO.read(::File.join(Chef::Config[:file_cache_path], new_resource.template_source)),
+    template_body: ::IO.read(@template_path),
     parameters: new_resource.parameters,
     disable_rollback: new_resource.disable_rollback
   }
@@ -44,7 +25,7 @@ end
 # cfn_stack_changed - get the stack JSON, and compare with local template
 def cfn_stack_changed?
   resp = cfn.get_template(stack_name: new_resource.stack_name)
-  if resp.template_body == ::IO.read(::File.join(Chef::Config[:file_cache_path], new_resource.template_source))
+  if resp.template_body == ::IO.read(@template_path)
     false
   else
     true
@@ -64,7 +45,7 @@ rescue ::Aws::CloudFormation::Errors::ValidationError
 end
 
 action :create do
-  save_cfn_template
+  load_template_path
   if stack_exists?(new_resource.stack_name)
     # only update if stack changed
     if cfn_stack_changed?
@@ -93,5 +74,18 @@ action :delete do
       cfn.delete_stack(stack_name: new_resource.stack_name)
       new_resource.updated_by_last_action(true)
     end
+  end
+end
+
+
+private
+
+def load_template_path
+  cookbook = run_context.cookbook_collection[new_resource.cookbook_name]
+  file_cache_location = cookbook.preferred_filename_on_disk_location(run_context.node, :files, new_resource.template_source)
+  if file_cache_location.nil?
+    raise "Cannot find #{new_resource.template_source} in cookbook!"
+  else
+    @template_path = file_cache_location
   end
 end
