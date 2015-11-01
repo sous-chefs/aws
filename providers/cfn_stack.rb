@@ -32,6 +32,18 @@ def cfn_stack_changed?
   end
 end
 
+# cfn_params_chagned - see if parameters have updated
+def cfn_params_chagned?
+  resp = cfn.describe_stacks(stack_name: new_resource.stack_name)
+  resp.stacks[0].parameters.each do |existing_param|
+    new_params = new_resource.parameters
+    index = new_params.index { |x| x[:parameter_key] = existing_param[:parameter_key] }
+    next if index.nil?
+    return true unless new_params[index][:parameter_value] == existing_param[:parameter_value]
+  end
+  false
+end
+
 # does_stack_exist - logic for checking if the stack exists
 def stack_exists?(stack_name)
   resp = cfn.describe_stacks(stack_name: stack_name)
@@ -48,7 +60,7 @@ action :create do
   load_template_path
   if stack_exists?(new_resource.stack_name)
     # only update if stack changed
-    if cfn_stack_changed?
+    if cfn_stack_changed? or cfn_params_chagned?
       converge_by("update stack #{new_resource.stack_name}") do
         Chef::Log.debug("update stack #{new_resource.stack_name}")
         options = build_cfn_options
