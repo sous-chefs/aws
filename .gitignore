@@ -31,6 +31,7 @@ _Store
 .yardoc
 _yardoc
 doc/
+.idea
 
 #chef stuff
 Berksfile.lock
@@ -42,3 +43,4 @@ vendor/
 #vagrant stuff
 .vagrant/
 .vagrant.d/
+.kitchen/

@@ -31,7 +31,7 @@ action :update do
     # tags that begin with "aws" are reserved
     converge_by("Updating the following tags for resource #{resource_id} (skipping AWS tags): " + updated_tags.inspect) do
       Chef::Log.info("AWS: Updating the following tags for resource #{resource_id} (skipping AWS tags): " + updated_tags.inspect)
-      updated_tags.delete_if { |key, _value| key.to_s.match /^aws/ }
+      updated_tags.delete_if { |key, _value| key.to_s.match /^aws/ } # rubocop: disable Lint/AmbiguousRegexpLiteral
       ec2.create_tags(resources: [resource_id], tags: updated_tags.collect { |k, v| { key: k, value: v } })
     end
   else
@@ -49,11 +49,10 @@ action :remove do
   tags_to_delete = @new_resource.tags.keys
 
   tags_to_delete.each do |key|
-    if @current_resource.tags.keys.include?(key) && @current_resource.tags[key] == @new_resource.tags[key]
-      converge_by("delete tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'") do
-        ec2.delete_tags(resources: [resource_id], tags: [{ key => @new_resource.tags[key] }])
-        Chef::Log.info("AWS: Deleted tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'")
-      end
+    next unless @current_resource.tags.keys.include?(key) && @current_resource.tags[key] == @new_resource.tags[key]
+    converge_by("delete tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'") do
+      ec2.delete_tags(resources: [resource_id], tags: [{ key => @new_resource.tags[key] }])
+      Chef::Log.info("AWS: Deleted tag '#{key}' on resource #{resource_id} with value '#{@current_resource.tags[key]}'")
     end
   end
 end
@@ -86,8 +85,8 @@ def load_current_resource
 
   @current_resource.tags({})
 
-  ec2.describe_tags(filters: [{ name: 'resource-id', values: [@current_resource.resource_id] }])[:tags].map do
-    |tag| @current_resource.tags[tag[:key]] = tag[:value]
+  ec2.describe_tags(filters: [{ name: 'resource-id', values: [@current_resource.resource_id] }])[:tags].map do |tag|
+    @current_resource.tags[tag[:key]] = tag[:value]
   end
 
   @current_resource
