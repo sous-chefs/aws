@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-default['aws']['aws_sdk_version'] = '~> 2.0.22'
+default['aws']['aws_sdk_version'] = '~> 2.1.29'
 default['aws']['databag_name'] = nil
 default['aws']['databag_entry'] = nil
 default['aws']['mfa_code'] = nil
