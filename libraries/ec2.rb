@@ -22,21 +22,47 @@ require 'open-uri'
 module Opscode
   module Aws
     module Ec2
-      def find_snapshot_id(volume_id = '', find_most_recent = false)
+      def find_snapshot_id(volume_id = '', find_most_recent = false, search_tags = nil, require_existing_snapshot = true)
         snapshot_id = nil
+        volume_id = '' if volume_id.nil?
+
         response = if find_most_recent
-                     ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
+                     if search_tags.nil?
+                       # Fall through to old / default / previous behavior
+                       ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
+                     else
+                       Chef::Log.debug("Filtering results using #{search_tags.inspect}")
+                       ec2.describe_snapshots(filters: search_tags).sort { |a, b| a[:start_time] <=> b[:start_time] }
+                     end
                    else
-                     ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
+                     if search_tags.nil?
+                       # Fall through to old / default / previous behavior
+                       ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
+                     else
+                       Chef::Log.debug("Filtering results using #{search_tags.inspect}")
+                       ec2.describe_snapshots(filters: search_tags).sort { |a, b| b[:start_time] <=> a[:start_time] }
+                     end
                    end
+
         response.each do |page|
           page.snapshots.each do |snapshot|
-            if snapshot[:volume_id] == volume_id && snapshot[:state] == 'completed'
+            Chef::Log.debug("Checking #{snapshot[:volume_id]} / #{snapshot[:snapshot_id]} for readiness / use against -#{volume_id}-")
+            # && snapshot_id.nil? is required to ensure only the first match is used, otherwise the last match is used.
+            if ((volume_id == '' && !search_tags.nil?) || (snapshot[:volume_id] == volume_id)) && snapshot[:state] == 'completed' && snapshot_id.nil?
               snapshot_id = snapshot[:snapshot_id]
+            else
+              Chef::Log.info("Not using VolumeID: #{volume_id}/#{volume_id.nil?}; Search Tags: #{search_tags.inspect}; Snapshot Volume ID: #{snapshot[:volume_id]}; Snapshot State: #{snapshot[:state]}")
             end
           end
         end
-        fail 'Cannot find snapshot id!' unless snapshot_id
+
+        # Allow for two scenarios:
+        # 1. Building a new instance for the first time, there are no existing snapshots; this will fall through if require_existing_snapshot is 'false', and then create a new, empty volume
+        # 2. Building a new instance subsequent times, after a snapshot has been created for the volume, in this case the code here should have found a snapshot and will create a volume from that snapshot
+        if require_existing_snapshot
+          fail 'Cannot find snapshot id!' unless snapshot_id
+        end
+
         Chef::Log.debug("Snapshot ID is #{snapshot_id}")
         snapshot_id
       end
