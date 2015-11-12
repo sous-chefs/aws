@@ -1,5 +1,4 @@
 actions :auto_attach
-
 default_action :auto_attach
 
 state_attrs :aws_access_key,
