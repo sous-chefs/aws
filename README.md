@@ -1,5 +1,4 @@
-aws Cookbook
-============
+# aws Cookbook
 
 [![Build Status](https://travis-ci.org/chef-cookbooks/aws.svg?branch=master)](https://travis-ci.org/chef-cookbooks/aws)
 [![Cookbook Version](https://img.shields.io/cookbook/v/aws.svg)](https://supermarket.chef.io/cookbooks/aws)
@@ -17,29 +16,25 @@ API. Currently supported resources:
 Unsupported AWS resources that have other cookbooks include but are
 not limited to:
 
-* [Route53](http://community.opscode.com/cookbooks/route53)
+* [Route53](https://supermarket.chef.io/cookbooks/route53)
 
-Requirements
-============
+## Requirements
 
-Requires Chef 0.7.10 or higher for Lightweight Resource and Provider
-support. Chef 0.8+ is recommended. While this cookbook can be used in
-`chef-solo` mode, to gain the most flexibility, we recommend using
-`chef-client` with a Chef Server.
+#### Platforms
+ - Any platform supported by Chef
 
-An Amazon Web Services account is required. The Access Key and Secret
-Access Key are used to authenticate with EC2.
+#### Chef
+- Chef 11+
 
-AWS Credentials
-===============
 
+## Credentials
 In order to manage AWS components, authentication credentials need to
 be available to the node. There are 2 way to handle this:
 1. explicitly pass credentials parameter to the resource
 2. or let the resource pick up credentials from the IAM role assigned to the instance
 
 
-## Using resource parameters
+### Using resource parameters
 
 To pass the credentials to the resource, credentials should be available to the node.
 There are a number of ways to handle this, such as node attributes or Chef roles.
@@ -69,7 +64,7 @@ And to access the values:
 
 We'll look at specific usage below.
 
-## Using IAM instance role
+### Using IAM instance role
 
 If your instance has an IAM role, then the credentials can be automatically resolved by the cookbook
 using Amazon instance metadata API.
@@ -123,11 +118,9 @@ For resource tags:
 }
 ```
 
-Recipes
-=======
+## Recipes
 
-default.rb
-----------
+### default.rb
 
 The default recipe installs the `aws-sdk` RubyGem, which this
 cookbook requires in order to work with the EC2 API. Make sure that
@@ -141,14 +134,12 @@ from this cookbook are used.
 The `gem_package` is created as a Ruby Object and thus installed
 during the Compile Phase of the Chef run.
 
-ec2_hints.rb
-------------
+### ec2_hints.rb
 
 This recipe is used to setup the ec2 hints for ohai in the case that an
 instance is not created using knife-ec2.
 
-Libraries
-=========
+## Libraries
 
 The cookbook has a library module, `Opscode::AWS::Ec2`, which can be
 included where necessary:
@@ -159,12 +150,11 @@ This is needed in any providers in the cookbook. Along with some
 helper methods used in the providers, it sets up a class variable,
 `ec2` that is used along with the access and secret access keys
 
-Resources and Providers
-=======================
+## Resources and Providers
 
 This cookbook provides two resources and corresponding providers.
 
-## ebs_volume.rb
+### ebs_volume.rb
 
 
 Manage Elastic Block Store (EBS) volumes with this resource.
@@ -201,7 +191,7 @@ Attribute Parameters:
 * `encrypted` - specify if the EBS should be encrypted
 * `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
 
-## ebs_raid.rb
+### ebs_raid.rb
 
 Manage Elastic Block Store (EBS) raid devices with this resource.
 
@@ -225,7 +215,7 @@ Attribute Parameters:
 * `disk_piops` - number of Provisioned IOPS to provision per disk,
   must be > 100
 
-## elastic_ip.rb
+### elastic_ip.rb
 
 Actions:
 
@@ -239,7 +229,7 @@ Attribute Parameters:
 * `ip` - the IP address.
 * `timeout` - connection timeout for EC2 API.
 
-## elastic_lb.rb
+### elastic_lb.rb
 
 Actions:
 
@@ -252,7 +242,7 @@ Attribute Parameters:
   `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `name` - the name of the LB, required.
 
-## resource_tag.rb
+### resource_tag.rb
 
 Actions:
 
@@ -275,7 +265,7 @@ Attribute Parameters
   be a single ID as a string or multiple IDs in an array. If no
   `resource_id` is specified the name attribute will be used.
 
-## instance_monitoring.rb
+### instance_monitoring.rb
 
 Actions:
 
@@ -287,8 +277,7 @@ Attribute Parameters:
 * `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
   `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 
-Usage
-=====
+## Usage
 
 The following examples assume that the recommended data bag item has
 been created and that the following has been included at the top of
@@ -297,7 +286,7 @@ the recipe where they are used.
     include_recipe "aws"
     aws = data_bag_item("aws", "main")
 
-## aws_ebs_volume
+### aws_ebs_volume
 
 The resource only handles manipulating the EBS volume, additional
 resources need to be created in the recipe to manage the attached
@@ -325,7 +314,7 @@ This will create a 50G volume, attach it to the instance as `/dev/sdi`.
 This will create a new 50G volume from the snapshot ID provided and
 attach it as `/dev/sdi`.
 
-## aws_elastic_ip
+### aws_elastic_ip
 
 The `elastic_ip` resource provider does not support allocating new
 IPs. This must be done before running a recipe that uses the resource.
@@ -360,7 +349,7 @@ to reconnect to the instance with the new IP.
 You can also store this in a role as an attribute or assign to the
 node directly, if preferred.
 
-## aws_elastic_lb
+### aws_elastic_lb
 
 `elastic_lb` opererates similar to `elastic_ip'. Make sure that you've
 created the ELB and enabled your instances' availability zones prior
@@ -375,7 +364,7 @@ For example, to register the node in the 'QA' ELB:
       action :register
     end
 
-## aws_resource_tag
+### aws_resource_tag
 
 `resource_tag` can be used to manipulate the tags assigned to one or
 more AWS resources, i.e. ec2 instances, ebs volumes or ebs volume
@@ -402,14 +391,6 @@ disk set:
             "Environment" => node.chef_environment})
     end
 
-**Note** If you would like to use the normal attribute
-   `node['aws']['ebs_volume']['db_ebs_volume']['volume_id']` generated by the
-   aws_ebs_volume resource examples above as input for the resource_id attribute of
-   the aws_resource_tag resource, you must employ the "lazy" attribute feature
-   from Chef 10.28 or Chef 11.x and higher. "lazy" will delay the
-   evaluation of the resource_id attribute's value until the normal/set node attribute is
-   available.
-
 ``` ruby
 aws_resource_tag "db_ebs_volume" do
   resource_id lazy { node['aws']['ebs_volume']['db_ebs_volume']['volume_id'] }
@@ -417,7 +398,7 @@ aws_resource_tag "db_ebs_volume" do
 end
 ```
 
-## aws_s3_file
+### aws_s3_file
 
 `s3_file` can be used to download a file from s3 that requires aws authorization.  This
 is a wrapper around `remote_file` and supports the same resource attributes as `remote_file`.
@@ -436,8 +417,7 @@ Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
     aws_instance_monitoring "enable detailed monitoring"
 
-License and Author
-==================
+## License and Authors
 
 * Author:: Chris Walters (<cw@chef.io>)
 * Author:: AJ Christensen (<aj@chef.io>)
@@ -445,6 +425,7 @@ License and Author
 
 Copyright 2009-2015, Chef Software, Inc.
 
+```
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -456,3 +437,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+```
