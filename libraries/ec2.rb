@@ -29,30 +29,29 @@ module Opscode
         response = if find_most_recent
                      if search_tags.nil?
                        # Fall through to old / default / previous behavior
-                       ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
+                       ec2.describe_snapshots[:snapshots].sort { |a, b| b[:start_time] <=> a[:start_time] }
                      else
                        Chef::Log.debug("Filtering results using #{search_tags.inspect}")
-                       ec2.describe_snapshots(filters: search_tags).sort { |a, b| a[:start_time] <=> b[:start_time] }
+                       ec2.describe_snapshots(filters: search_tags)[:snapshots].sort { |a, b| b[:start_time] <=> a[:start_time] }
                      end
                    else
                      if search_tags.nil?
                        # Fall through to old / default / previous behavior
-                       ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
+                       ec2.describe_snapshots[:snapshots].sort { |a, b| a[:start_time] <=> b[:start_time] }
                      else
                        Chef::Log.debug("Filtering results using #{search_tags.inspect}")
-                       ec2.describe_snapshots(filters: search_tags).sort { |a, b| b[:start_time] <=> a[:start_time] }
+                       ec2.describe_snapshots(filters: search_tags)[:snapshots].sort { |a, b| a[:start_time] <=> b[:start_time] }
                      end
                    end
 
-        response.each do |page|
-          page.snapshots.each do |snapshot|
-            Chef::Log.debug("Checking #{snapshot[:volume_id]} / #{snapshot[:snapshot_id]} for readiness / use against -#{volume_id}-")
-            # && snapshot_id.nil? is required to ensure only the first match is used, otherwise the last match is used.
-            if ((volume_id == '' && !search_tags.nil?) || (snapshot[:volume_id] == volume_id)) && snapshot[:state] == 'completed' && snapshot_id.nil?
-              snapshot_id = snapshot[:snapshot_id]
-            else
-              Chef::Log.info("Not using VolumeID: #{volume_id}/#{volume_id.nil?}; Search Tags: #{search_tags.inspect}; Snapshot Volume ID: #{snapshot[:volume_id]}; Snapshot State: #{snapshot[:state]}")
-            end
+        # Because the response is already a sorted array of snapshots, there is no need to iterate through each page in the response.
+        response.each do |snapshot|
+          Chef::Log.info("Checking #{snapshot[:volume_id]} / #{snapshot[:snapshot_id]} for readiness / use against -#{volume_id}-")
+          # && snapshot_id.nil? is required to ensure only the first match is used, otherwise the last match is used.
+          if ((volume_id == '' && !search_tags.nil?) || (snapshot[:volume_id] == volume_id)) && snapshot[:state] == 'completed' && snapshot_id.nil?
+            snapshot_id = snapshot[:snapshot_id]
+          else
+            Chef::Log.debug("Not using VolumeID: #{volume_id == '' ? 'unset' : volume_id}; Search Tags: #{search_tags.inspect}; Snapshot #{snapshot[:snapshot_id]} from Volume ID: #{snapshot[:volume_id]}; Snapshot State: #{snapshot[:state]}")
           end
         end
 
@@ -63,7 +62,7 @@ module Opscode
           fail 'Cannot find snapshot id!' unless snapshot_id
         end
 
-        Chef::Log.debug("Snapshot ID is #{snapshot_id}")
+        Chef::Log.info("Snapshot ID is #{snapshot_id}")
         snapshot_id
       end
 
