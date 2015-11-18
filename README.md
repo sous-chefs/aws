@@ -190,6 +190,7 @@ Attribute Parameters:
 * `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
 * `encrypted` - specify if the EBS should be encrypted
 * `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
+* `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil).  Only applies to :attach action.
 
 ### ebs_raid.rb
 
