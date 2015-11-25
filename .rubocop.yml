@@ -1,3 +1,5 @@
+inherit_from: .rubocop_todo.yml
+
 AllCops:
   Exclude:
     - vendor/**/*
@@ -28,16 +30,4 @@ SingleSpaceBeforeFirstArg:
 Style/ClassAndModuleChildren:
   Enabled: false
 Style/FileName:
-  Enabled: false
-
-# Todo:  These should are non-standard rubocop rules were should investigate and resolve
-Style/ClassVars:
-  Enabled: false
-Metrics/ParameterLists:
-  Enabled: false
-Lint/Loop:
-  Enabled: false
-Style/UnlessElse:
-  Enabled: false
-Lint/UselessAssignment:
   Enabled: false
