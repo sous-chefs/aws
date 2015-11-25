@@ -45,7 +45,7 @@ DataBag recommendation:
 This can be loaded in a recipe with:
 
 ```ruby
-aws = data_bag_item("aws", "main")
+aws = data_bag_item('aws', 'main')
 ```
 
 And to access the values:
@@ -149,35 +149,28 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `prune` - prune snapshots.
 
 #### Properties:
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
-- `Opscode::AWS:Ec2` to authenticate required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate required, unless using IAM roles for authentication.
 - `size` - size of the volume in gigabytes.
 - `snapshot_id` - snapshot to build EBS volume from.
-- most_recent_snapshot - use the most recent snapshot when creating a
-- volume from an existing volume (defaults to false)
-- `availability_zone` - EC2 region, and is normally automatically
-- detected.
-- `device` - local block device to attach the volume to, e.g.
-- `/dev/sdi` but no default value, required.
-- `volume_id` - specify an ID to attach, cannot be used with action
-- `:create` because AWS assigns new volume IDs
+- `most_recent_snapshot` - use the most recent snapshot when creating a volume from an existing volume (defaults to false)
+- `availability_zone` - EC2 region, and is normally automatically detected.
+- `device` - local block device to attach the volume to, e.g. `/dev/sdi` but no default value, required.
+- `volume_id` - specify an ID to attach, cannot be used with action `:create` because AWS assigns new volume IDs
 - `timeout` - connection timeout for EC2 API.
-- `snapshots_to_keep` - used with action `:prune` for number of
-- snapshots to maintain.
+- `snapshots_to_keep` - used with action `:prune` for number of snapshots to maintain.
 - `description` - used to set the description of an EBS snapshot
 - `volume_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is piops SSD, "gp2" is general purpose SSD)
 - `piops` - number of Provisioned IOPS to provision, must be >= 100
 - `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
 - `encrypted` - specify if the EBS should be encrypted
 - `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
-- `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil).  Only applies to :attach action.
+- `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil).  Only applies to `:attach` action.
 
 ### ebs_raid.rb
 Manage Elastic Block Store (EBS) raid devices with this resource.
 
 #### Properties:
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
-- `Opscode::AWS:Ec2` to authenticate, required.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required.
 - `mount_point` - where to mount the RAID volume
 - `mount_point_owner` - the owner of the mount point (default root)
 - `mount_point_group` - the group of the mount point (default root)
@@ -186,17 +179,11 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 - `disk_size` - size of EBS volumes to raid
 - `level` - RAID level (default 10)
 - `filesystem` - filesystem to format raid array (default ext4)
-- `snapshots` - array of EBS snapshots to restore. Snapshots must be
-- taken using an ec2 consistent snapshot tool, and tagged with a
-- number that indicates how many devices are in the array being backed
-- up (e.g. "Logs Backup [0-4]" for a four-volume raid array snapshot)
+- `snapshots` - array of EBS snapshots to restore. Snapshots must be taken using an ec2 consistent snapshot tool, and tagged with a number that indicates how many devices are in the array being backed up (e.g. "Logs Backup [0-4]" for a four-volume raid array snapshot)
 - `disk_type` - "standard" or "io1" (io1 is the type for IOPS volume)
-- `disk_piops` - number of Provisioned IOPS to provision per disk,
-- must be > 100
+- `disk_piops` - number of Provisioned IOPS to provision per disk, must be > 100
 - `disk_encrypted` - specify if the EBS volumes should be encrypted
-- `disk_kms_key_id` - the full ARN of the AWS Key Management Service
-- (AWS KMS) master key to use when creating the encrypted volumes
-- (defaults to master key if not specified)
+- `disk_kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volumes (defaults to master key if not specified)
 
 ### elastic_ip.rb
 #### Actions:
@@ -204,8 +191,7 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 - `disassociate` - disassociate the IP.
 
 #### Properties:
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
-- `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `ip` - the IP address.
 - `timeout` - connection timeout for EC2 API.
 
@@ -215,28 +201,20 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 - `deregister` - Remove this instance from the LB
 
 #### Properties:
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
-- `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `name` - the name of the LB, required.
 
 ### resource_tag.rb
 #### Actions:
 - `add` - Add tags to a resource.
-- `update` - Add or modify existing tags on a resource -- this is the
-- default action.
-- `remove` - Remove tags from a resource, but only if the specified
-- values match the existing ones.
-- `force_remove` - Remove tags from a resource, regardless of their
-- values.
+- `update` - Add or modify existing tags on a resource -- this is the default action.
+- `remove` - Remove tags from a resource, but only if the specified values match the existing ones.
+- `force_remove` - Remove tags from a resource, regardless of their values.
 
 #### Properties:
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
-- `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
-- `tags` - a hash of key value pairs to be used as resource tags,
-- (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment
-- }`,) required.
-- `resource_id` - resources whose tags will be modified. The value may
-- be a single ID as a string or multiple IDs in an array. If no
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
+- `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no
 - `resource_id` is specified the name attribute will be used.
 
 ### instance_monitoring.rb
@@ -245,40 +223,39 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 - `disable` - Disable detailed CloudWatch monitoring for this instance.
 
 #### Properties:
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
-- `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 
 ## Usage
 The following examples assume that the recommended data bag item has been created and that the following has been included at the top of the recipe where they are used.
 
 ```ruby
-include_recipe "aws"
-aws = data_bag_item("aws", "main")
+include_recipe 'aws'
+aws = data_bag_item('aws', 'main')
 ```
 
 ### aws_ebs_volume
 The resource only handles manipulating the EBS volume, additional resources need to be created in the recipe to manage the attached volume as a filesystem or logical volume.
 
 ```ruby
-aws_ebs_volume "db_ebs_volume" do
+aws_ebs_volume 'db_ebs_volume' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
   size 50
-  device "/dev/sdi"
-  action [ :create, :attach ]
+  device '/dev/sdi'
+  action [:create, :attach]
 end
 ```
 
 This will create a 50G volume, attach it to the instance as `/dev/sdi`.
 
 ```ruby
-aws_ebs_volume "db_ebs_volume_from_snapshot" do
+aws_ebs_volume 'db_ebs_volume_from_snapshot' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
   size 50
-  device "/dev/sdi"
-  snapshot_id "snap-ABCDEFGH"
-  action [ :create, :attach ]
+  device '/dev/sdi'
+  snapshot_id 'snap-ABCDEFGH'
+  action [:create, :attach]
 end
 ```
 
@@ -300,9 +277,9 @@ Databag structure:
 Then to set up the Elastic IP on a system:
 
 ```ruby
-ip_info = data_bag_item("aws", "eip_load_balancer_production")
+ip_info = data_bag_item('aws', 'eip_load_balancer_production')
 
-aws_elastic_ip "eip_load_balancer_production" do
+aws_elastic_ip 'eip_load_balancer_production' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
   ip ip_info['public_ip']
@@ -320,10 +297,10 @@ You can also store this in a role as an attribute or assign to the node directly
 For example, to register the node in the 'QA' ELB:
 
 ```ruby
-aws_elastic_lb "elb_qa" do
+aws_elastic_lb 'elb_qa' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
-  name "QA"
+  name 'QA'
   action :register
 end
 ```
@@ -337,8 +314,8 @@ Assigning tags to a node to reflect it's role and environment:
 aws_resource_tag node['ec2']['instance_id'] do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
-  tags({"Name" => "www.example.com app server",
-        "Environment" => node.chef_environment})
+  tags('Name' => 'www.example.com app server',
+       'Environment' => node.chef_environment)
   action :update
 end
 ```
@@ -349,16 +326,16 @@ Assigning a set of tags to multiple resources, e.g. ebs volumes in a disk set:
 aws_resource_tag 'my awesome raid set' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
-  resource_id [ "vol-d0518cb2", "vol-fad31a9a", "vol-fb106a9f", "vol-74ed3b14" ]
-  tags({"Name" => "My awesome RAID disk set",
-        "Environment" => node.chef_environment})
+  resource_id ['vol-d0518cb2', 'vol-fad31a9a', 'vol-fb106a9f', 'vol-74ed3b14']
+  tags('Name' => 'My awesome RAID disk set',
+       'Environment' => node.chef_environment)
 end
 ```
 
 ```ruby
-aws_resource_tag "db_ebs_volume" do
+aws_resource_tag 'db_ebs_volume' do
   resource_id lazy { node['aws']['ebs_volume']['db_ebs_volume']['volume_id'] }
-  tags ({"Service" => "Frontend"})
+  tags ({ 'Service' => 'Frontend' })
 end
 ```
 
@@ -366,9 +343,9 @@ end
 `s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around `remote_file` and supports the same resource attributes as `remote_file`.
 
 ```ruby
-aws_s3_file "/tmp/foo" do
-  bucket "i_haz_an_s3_buckit"
-  remote_path "path/in/s3/bukket/to/foo"
+aws_s3_file '/tmp/foo' do
+  bucket 'i_haz_an_s3_buckit'
+  remote_path 'path/in/s3/bukket/to/foo'
   aws_access_key_id aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
 end
