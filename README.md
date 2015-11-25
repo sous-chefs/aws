@@ -10,6 +10,7 @@ This cookbook provides libraries, resources and providers to configure and manag
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 - [Route53](https://supermarket.chef.io/cookbooks/route53)
+- [aws_security](https://supermarket.chef.io/cookbooks/aws_security)
 
 ## Requirements
 ### Platforms
@@ -20,17 +21,18 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 
 ## Credentials
 In order to manage AWS components, authentication credentials need to be available to the node. There are 2 way to handle this:
+
 1. explicitly pass credentials parameter to the resource
 2. or let the resource pick up credentials from the IAM role assigned to the instance
 
 ### Using resource parameters
-To pass the credentials to the resource, credentials should be available to the node. There are a number of ways to handle this, such as node attributes or Chef roles.
+In order to pass the credentials to the resource, credentials must be available to the node. There are a number of ways to handle this, such as node attributes applied to the node or via Chef roles/environments.
 
-We recommend storing these in a databag (Chef 0.8+), and loading them in the recipe where the resources are needed.
+We recommend storing these in a databag, and loading them in the recipe where the resources are used.
 
 DataBag recommendation:
 
-```
+```json
 % knife data bag show aws main
 {
   "id": "main",
@@ -42,13 +44,13 @@ DataBag recommendation:
 
 This can be loaded in a recipe with:
 
-```
+```ruby
 aws = data_bag_item("aws", "main")
 ```
 
 And to access the values:
 
-```
+```ruby
 aws['aws_access_key_id']
 aws['aws_secret_access_key']
 aws['aws_session_token']
@@ -111,9 +113,9 @@ For resource tags:
 
 ## Recipes
 ### default.rb
-The default recipe installs the `aws-sdk` RubyGem, which this cookbook requires in order to work with the EC2 API. Make sure that the aws recipe is in the node or role `run_list` before any resources from this cookbook are used.
+The default recipe installs the `aws-sdk` Ruby Gem, which this cookbook requires in order to work with the EC2 API. Make sure that the aws recipe is in the node or role `run_list` before any resources from this cookbook are used.
 
-```
+```json
 "run_list": [
   "recipe[aws]"
 ]
@@ -127,7 +129,7 @@ This recipe is used to setup the ec2 hints for ohai in the case that an instance
 ## Libraries
 The cookbook has a library module, `Opscode::AWS::Ec2`, which can be included where necessary:
 
-```
+```ruby
 include Opscode::Aws::Ec2
 ```
 
@@ -249,7 +251,7 @@ Attribute Parameters:
 ## Usage
 The following examples assume that the recommended data bag item has been created and that the following has been included at the top of the recipe where they are used.
 
-```
+```ruby
 include_recipe "aws"
 aws = data_bag_item("aws", "main")
 ```
@@ -257,7 +259,7 @@ aws = data_bag_item("aws", "main")
 ### aws_ebs_volume
 The resource only handles manipulating the EBS volume, additional resources need to be created in the recipe to manage the attached volume as a filesystem or logical volume.
 
-```
+```ruby
 aws_ebs_volume "db_ebs_volume" do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
@@ -269,7 +271,7 @@ end
 
 This will create a 50G volume, attach it to the instance as `/dev/sdi`.
 
-```
+```ruby
 aws_ebs_volume "db_ebs_volume_from_snapshot" do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
@@ -287,7 +289,7 @@ The `elastic_ip` resource provider does not support allocating new IPs. This mus
 
 Databag structure:
 
-```
+```json
 % knife data bag show aws eip_load_balancer_production
 {
   "id": "eip_load_balancer_production",
@@ -297,7 +299,7 @@ Databag structure:
 
 Then to set up the Elastic IP on a system:
 
-```
+```ruby
 ip_info = data_bag_item("aws", "eip_load_balancer_production")
 
 aws_elastic_ip "eip_load_balancer_production" do
@@ -317,7 +319,7 @@ You can also store this in a role as an attribute or assign to the node directly
 
 For example, to register the node in the 'QA' ELB:
 
-```
+```ruby
 aws_elastic_lb "elb_qa" do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
@@ -331,7 +333,7 @@ end
 
 Assigning tags to a node to reflect it's role and environment:
 
-```
+```ruby
 aws_resource_tag node['ec2']['instance_id'] do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
@@ -343,7 +345,7 @@ end
 
 Assigning a set of tags to multiple resources, e.g. ebs volumes in a disk set:
 
-```
+```ruby
 aws_resource_tag 'my awesome raid set' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
@@ -363,7 +365,7 @@ end
 ### aws_s3_file
 `s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around `remote_file` and supports the same resource attributes as `remote_file`.
 
-```
+```ruby
 aws_s3_file "/tmp/foo" do
   bucket "i_haz_an_s3_buckit"
   remote_path "path/in/s3/bukket/to/foo"
@@ -375,7 +377,7 @@ end
 ## aws_instance_monitoring
 Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
-```
+```ruby
 aws_instance_monitoring "enable detailed monitoring"
 ```
 
