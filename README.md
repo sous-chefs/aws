@@ -141,14 +141,14 @@ This cookbook provides two resources and corresponding providers.
 ### ebs_volume.rb
 Manage Elastic Block Store (EBS) volumes with this resource.
 
-Actions:
+#### Actions:
 - `create` - create a new volume.
 - `attach` - attach the specified volume.
 - `detach` - detach the specified volume.
 - `snapshot` - create a snapshot of the volume.
 - `prune` - prune snapshots.
 
-Attribute Parameters:
+#### Properties:
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
 - `Opscode::AWS:Ec2` to authenticate required, unless using IAM roles for authentication.
 - `size` - size of the volume in gigabytes.
@@ -175,7 +175,7 @@ Attribute Parameters:
 ### ebs_raid.rb
 Manage Elastic Block Store (EBS) raid devices with this resource.
 
-Attribute Parameters:
+#### Properties:
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
 - `Opscode::AWS:Ec2` to authenticate, required.
 - `mount_point` - where to mount the RAID volume
@@ -199,28 +199,28 @@ Attribute Parameters:
 - (defaults to master key if not specified)
 
 ### elastic_ip.rb
-Actions:
+#### Actions:
 - `associate` - associate the IP.
 - `disassociate` - disassociate the IP.
 
-Attribute Parameters:
+#### Properties:
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
 - `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `ip` - the IP address.
 - `timeout` - connection timeout for EC2 API.
 
 ### elastic_lb.rb
-Actions:
+#### Actions:
 - `register` - Add this instance to the LB
 - `deregister` - Remove this instance from the LB
 
-Attribute Parameters:
+#### Properties:
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
 - `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `name` - the name of the LB, required.
 
 ### resource_tag.rb
-Actions:
+#### Actions:
 - `add` - Add tags to a resource.
 - `update` - Add or modify existing tags on a resource -- this is the
 - default action.
@@ -229,7 +229,7 @@ Actions:
 - `force_remove` - Remove tags from a resource, regardless of their
 - values.
 
-Attribute Parameters
+#### Properties:
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
 - `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `tags` - a hash of key value pairs to be used as resource tags,
@@ -240,11 +240,11 @@ Attribute Parameters
 - `resource_id` is specified the name attribute will be used.
 
 ### instance_monitoring.rb
-Actions:
+#### Actions:
 - `enable` - Enable detailed CloudWatch monitoring for this instance (Default).
 - `disable` - Disable detailed CloudWatch monitoring for this instance.
 
-Attribute Parameters:
+#### Properties:
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
 - `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 
