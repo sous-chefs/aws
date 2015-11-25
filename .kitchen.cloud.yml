@@ -7,7 +7,6 @@ driver_config:
 
 provisioner:
   name: chef_zero
-  require_chef_omnibus: 11.16.0
 
 platforms:
 - name: amazon-2014.09
