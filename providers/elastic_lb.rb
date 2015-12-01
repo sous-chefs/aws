@@ -74,23 +74,25 @@ def load_current_resource
 
   # Fetching attributes
   attrs = elb.describe_load_balancer_attributes(load_balancer_name: @current_resource.elb_name)
-  if attrs[:load_balancer_attributes]
-    t = attrs[:load_balancer_attributes][:connection_settings]
-    @current_resource.idle_timeout = t[:idle_timeout] if t
 
-    t = attrs[:load_balancer_attributes][:cross_zone_load_balancing]
-    @current_resource.cross_zone = t[:enabled] if t
+  # Ok, this is ugly, but makes rubocop happy
+  return unless attrs[:load_balancer_attributes]
 
-    t = attrs[:load_balancer_attributes][:access_log]
-    if t
-      @current_resource.enable_access_log = t[:enabled]
-      if t[:enabled]
-        @current_resource.log_emit_interval = t[:emit_interval]
-        @current_resource.log_s3_bucket_name = t[:s3_bucket_name]
-        @current_resource.log_s3_bucket_prefix = t[:s3_bucket_prefix]
-      end
-    end
-  end
+  t = attrs[:load_balancer_attributes][:connection_settings]
+  @current_resource.idle_timeout = t[:idle_timeout] if t
+
+  t = attrs[:load_balancer_attributes][:cross_zone_load_balancing]
+  @current_resource.cross_zone = t[:enabled] if t
+
+  t = attrs[:load_balancer_attributes][:access_log]
+  return unless t
+
+  @current_resource.enable_access_log = t[:enabled]
+  return unless t[:enabled]
+
+  @current_resource.log_emit_interval = t[:emit_interval]
+  @current_resource.log_s3_bucket_name = t[:s3_bucket_name]
+  @current_resource.log_s3_bucket_prefix = t[:s3_bucket_prefix]
 end
 
 def compare_attributes
