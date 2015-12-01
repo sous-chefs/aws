@@ -20,14 +20,14 @@
 directory '/etc/chef/ohai/hints' do
   recursive true
   action :create
-end
+end.run_action(:create)
 
 ec2_file = file '/etc/chef/ohai/hints/ec2.json' do
   content {}
   action :create
-end
+end.run_action(:create)
 
 ohai 'reload' do
   action :reload
   only_if {ec2_file.updated_by_last_action?}
-end
+end.run_action(:reload)
