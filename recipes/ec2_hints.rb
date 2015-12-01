@@ -29,5 +29,5 @@ end.run_action(:create)
 
 ohai 'reload' do
   action :reload
-  only_if {ec2_file.updated_by_last_action?}
+  only_if { ec2_file.updated_by_last_action? }
 end.run_action(:reload)

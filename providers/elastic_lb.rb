@@ -29,19 +29,23 @@ action :modify_attributes do
     new_attributes = {}
 
     # Idle timeout
-    if !@new_resource.idle_timeout.nil?
-      new_attributes[:connection_settings] = {:idle_timeout => @new_resource.idle_timeout}
+    unless @new_resource.idle_timeout.nil?
+      new_attributes[:connection_settings] = {
+        idle_timeout: @new_resource.idle_timeout
+      }
     end
 
     # Cross Zone Load Balancing
-    if !@new_resource.cross_zone.nil?
-      new_attributes[:cross_zone_load_balancing] = {:enabled => @new_resource.cross_zone}
+    unless @new_resource.cross_zone.nil?
+      new_attributes[:cross_zone_load_balancing] = {
+        enabled: @new_resource.cross_zone
+      }
     end
 
     # Access logs
-    if !@new_resource.enable_access_log.nil?
+    unless @new_resource.enable_access_log.nil?
       new_attributes[:access_log] = {
-        :enabled => @new_resource.enable_access_log
+        enabled: @new_resource.enable_access_log
       }
 
       # Only setting additional parameters when enable=true
@@ -52,18 +56,16 @@ action :modify_attributes do
       end
     end
     converge_by("Modifying load balancer attributes #{new_attributes}") do
-        Chef::Log.info("Changing connection idle timeout from #{@current_resource.idle_timeout}s \
-        to #{@new_resource.idle_timeout}s")
-        elb.modify_load_balancer_attributes({
-          load_balancer_name: @new_resource.elb_name,
-          load_balancer_attributes: new_attributes
-        })
+      Chef::Log.info("Changing connection idle timeout from #{@current_resource.idle_timeout}s to #{@new_resource.idle_timeout}s")
+      elb.modify_load_balancer_attributes(
+        load_balancer_name: @new_resource.elb_name,
+        load_balancer_attributes: new_attributes
+      )
     end
   else
     Chef::Log.debug "#{@new_resource.elb_name} doesn't require modifications"
   end
 end
-
 
 def load_current_resource
   @current_resource = Chef::Resource::AwsElasticLb.new(@new_resource.name)
@@ -71,7 +73,7 @@ def load_current_resource
   @current_resource.elb_name(@new_resource.elb_name)
 
   # Fetching attributes
-  attrs = elb.describe_load_balancer_attributes({load_balancer_name: @current_resource.elb_name})
+  attrs = elb.describe_load_balancer_attributes(load_balancer_name: @current_resource.elb_name)
   if attrs[:load_balancer_attributes]
     t = attrs[:load_balancer_attributes][:connection_settings]
     @current_resource.idle_timeout = t[:idle_timeout] if t
@@ -88,16 +90,15 @@ def load_current_resource
         @current_resource.log_s3_bucket_prefix = t[:s3_bucket_prefix]
       end
     end
-
   end
 end
 
 def compare_attributes
-  changed = [ :idle_timeout, :cross_zone, :enable_access_log ].select do |attrib|
+  changed = [:idle_timeout, :cross_zone, :enable_access_log].select do |attrib|
     !@new_resource.send(attrib).nil? && @new_resource.send(attrib) != @current_resource.send(attrib)
   end
 
-  changed += [ :log_emit_interval, :log_s3_bucket_name, :log_s3_bucket_prefix ].select do |attrib|
+  changed += [:log_emit_interval, :log_s3_bucket_name, :log_s3_bucket_prefix].select do |attrib|
     !@new_resource.send(attrib).nil? && @new_resource.send(attrib) != @current_resource.send(attrib)
   end if changed.include?(:enable_access_log)
 
