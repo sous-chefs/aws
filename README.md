@@ -199,10 +199,17 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 #### Actions:
 - `register` - Add this instance to the LB
 - `deregister` - Remove this instance from the LB
+- `modify_attributes` - Modify attributes of the LB
 
 #### Properties:
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
-- `name` - the name of the LB, required.
+- `elb_name` - the name of the LB, required.
+- `idle_timeout` - connection idle timeout, http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/config-idle-timeout.html
+- `cross_zone` - cross zone load balancing, http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-disable-crosszone-lb.html
+- `enable_access_log` - enable/disable access logging, http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-access-logs.html
+- `log_emit_interval` — how often to emit logs (requires enable_access_log to be true). Values allowed by AWS are every `5` or `60` minutes.
+- `log_s3_bucket_name` — which bucket to emit logs to (requires enable_access_log to be true)
+- `log_s3_bucket_prefix` — prefix for the logs within the bucket (requires enable_access_log to be true)
 
 ### resource_tag.rb
 #### Actions:
@@ -292,7 +299,7 @@ This will use the loaded `aws` and `ip_info` databags to pass the required value
 You can also store this in a role as an attribute or assign to the node directly, if preferred.
 
 ### aws_elastic_lb
-`elastic_lb` opererates similar to `elastic_ip'. Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
+`elastic_lb` operates similarly to `elastic_ip`. Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
 
 For example, to register the node in the 'QA' ELB:
 
@@ -300,8 +307,22 @@ For example, to register the node in the 'QA' ELB:
 aws_elastic_lb 'elb_qa' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
-  name 'QA'
+  elb_name 'QA'
   action :register
+end
+```
+
+Set the ELB attributes:
+
+```ruby
+aws_elastic_lb 'Configure attributes for the ELB' do
+  elb_name 'awseb-e-2-AWSEBLoa-7Z4D2SHF0EUY'
+  cross_zone true # Enable cross zone load balancing
+  idle_timeout 300 # 5 minutes before timing out
+  enable_access_log true # Enable logging
+  log_s3_bucket_name 'my-aws-logs-bucket'
+  log_s3_bucket_prefix "my-elb-logs/production-environment-logs"
+  log_emit_interval 5
 end
 ```
 
@@ -362,6 +383,8 @@ aws_instance_monitoring "enable detailed monitoring"
 - Author:: Chris Walters ([cw@chef.io](mailto:cw@chef.io))
 - Author:: AJ Christensen ([aj@chef.io](mailto:aj@chef.io))
 - Author:: Justin Huff ([jjhuff@mspin.net](mailto:jjhuff@mspin.net))
+- Author:: Marat Vyshegorodtsev ([marat.vyshegorodtsev@rakuten.com](mailto:marat.vyshegorodtsev@rakuten.com))
+
 
 Copyright 2009-2015, Chef Software, Inc.
 
