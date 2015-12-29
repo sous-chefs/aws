@@ -79,6 +79,11 @@ module Opscode
           Chef::Log.info('Attempting to use iam profile')
           creds = ::Aws::InstanceProfileCredentials.new
         end
+        if !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
+          Chef::Log.debug("Assuming role #{new_resource.aws_assume_role_arn}")
+          sts_client = ::Aws::STS::Client.new(credentials: creds, region: region)
+          creds = ::Aws::AssumeRoleCredentials.new(client: sts_client, role_arn: new_resource.aws_assume_role_arn, role_session_name: new_resource.aws_role_session_name)
+        end
         aws_interface.new(credentials: creds, region: region)
       end
 
