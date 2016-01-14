@@ -19,7 +19,7 @@ module Opscode
         rescue LoadError
           Chef::Log.error("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
         end
-        @@s3 ||= Hash.new
+        @@s3 ||= {}
         @@s3[new_resource.region] ||= create_aws_interface(::Aws::S3::Client)
       end
     end
