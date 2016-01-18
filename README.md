@@ -297,7 +297,7 @@ Actions:
 
 Attribute Parameters:
 
-* `aws_secret_access_key`, `aws_access_key` - passed to
+* `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
   `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 * `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
 * `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
@@ -378,7 +378,7 @@ node directly, if preferred.
 
 ## aws_elastic_lb
 
-`elastic_lb` opererates similar to `elastic_ip'. Make sure that you've
+`elastic_lb` operates similar to `elastic_ip`. Make sure that you've
 created the ELB and enabled your instances' availability zones prior
 to using this provider.
 
