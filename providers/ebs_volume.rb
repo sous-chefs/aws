@@ -68,6 +68,7 @@ action :attach do
     converge_by("attach the volume with aws_id=#{vol[:volume_id]} id=#{instance_id} device=#{new_resource.device} and update the node data with created volume's id") do
       # attach the volume and register its id in the node data
       attach_volume(vol[:volume_id], instance_id, new_resource.device, new_resource.timeout)
+      mark_delete_on_termination(new_resource.device, vol[:volume_id], instance_id) if new_resource.delete_on_termination
       # always use a symbol here, it is a Hash
       node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:volume_id]
       node.save unless Chef::Config[:solo]
@@ -92,7 +93,7 @@ end
 
 action :prune do
   vol = determine_volume
-  old_snapshots = Array.new
+  old_snapshots = []
   Chef::Log.info 'Checking for old snapshots'
   ec2.describe_snapshots[:snapshots].sort { |a, b| b[:start_time] <=> a[:start_time] }.each do |snapshot|
     if snapshot[:volume_id] == vol[:volume_id]
@@ -272,4 +273,9 @@ def detach_volume(volume_id, timeout)
   rescue Timeout::Error
     raise "Timed out waiting for volume detachment after #{timeout} seconds"
   end
+end
+
+def mark_delete_on_termination(device_name, volume_id, instance_id)
+  Chef::Log.debug("Marking volume #{volume_id} with device name #{device_name} attached to instance #{instance_id} #{new_resource.delete_on_termination} for deletion on instance termination")
+  ec2.modify_instance_attribute(block_device_mappings: [{ device_name: device_name, ebs: { volume_id: volume_id, delete_on_termination: new_resource.delete_on_termination } }], instance_id: instance_id)
 end
