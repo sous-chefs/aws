@@ -1,5 +1,5 @@
 #
-# Copyright:: Copyright (c) 2009 Opscode, Inc.
+# Copyright:: Copyright (c) 2009-2015 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,8 +62,16 @@ module Opscode
           Chef::Log.error("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
         end
 
-        region = instance_availability_zone
-        region = region[0, region.length - 1]
+        region = node['aws']['region']
+
+        if region.nil?
+          if node.attribute?('ec2')
+            region = instance_availability_zone
+            region = region[0, region.length - 1]
+          else
+            region = 'us-east-1'
+          end
+        end
 
         if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
           creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, new_resource.aws_session_token)

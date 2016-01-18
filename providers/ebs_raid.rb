@@ -34,7 +34,9 @@ action :auto_attach do # ~FC017 https://github.com/acrmp/foodcritic/issues/387
                       @new_resource.snapshots,
                       @new_resource.disk_type,
                       @new_resource.disk_piops,
-                      @new_resource.existing_raid)
+                      @new_resource.existing_raid,
+                      @new_resource.disk_encrypted,
+                      @new_resource.disk_kms_key_id)
 
     @new_resource.updated_by_last_action(true)
   end
@@ -313,7 +315,7 @@ end
 #              If it's not nil, must have exactly <num_disks> elements
 
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
-                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid)
+                      level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, disk_encrypted, disk_kms_key_id)
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
@@ -343,6 +345,8 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
       action [:create, :attach]
       snapshot_id creating_from_snapshot ? snapshots[i - 1] : nil
       provider 'aws_ebs_volume'
+      encrypted disk_encrypted
+      kms_key_id disk_kms_key_id
 
       # set up our data bag info
       devices[disk_dev_path] = 'pending'

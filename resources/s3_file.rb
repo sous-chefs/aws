@@ -1,4 +1,5 @@
 actions :create, :create_if_missing, :touch, :delete
+default_action :create
 
 state_attrs :aws_access_key_id,
             :backup,
@@ -39,7 +40,6 @@ end
 
 def initialize(*args)
   super
-  @action = :create
   @path = name
   @aws_access_key = @aws_access_key_id # Fix inconsistency in naming
 end
