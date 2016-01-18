@@ -7,6 +7,7 @@ This cookbook provides libraries, resources and providers to configure and manag
 - Elastic IPs (`elastic_ip`)
 - Elastic Load Balancer (`elastic_lb`)
 - AWS Resource Tags (`resource_tag`)
+- Secondary private IPs (`secondary_ip`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 - [Route53](https://supermarket.chef.io/cookbooks/route53)
@@ -362,6 +363,7 @@ aws_instance_monitoring "enable detailed monitoring"
 - Author:: Chris Walters ([cw@chef.io](mailto:cw@chef.io))
 - Author:: AJ Christensen ([aj@chef.io](mailto:aj@chef.io))
 - Author:: Justin Huff ([jjhuff@mspin.net](mailto:jjhuff@mspin.net))
+
 
 Copyright 2009-2015, Chef Software, Inc.
 

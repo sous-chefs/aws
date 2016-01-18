@@ -96,20 +96,25 @@ module Opscode
         availability_zone
       end
 
-      def query_mac_address(interface = 'eth0')
+      def query_mac_address(interface)
         node['network']['interfaces'][interface]['addresses'].select do |_, e|
           e['family'] == 'lladdr'
         end.keys.first.downcase
       end
 
-      def query_private_ip_addresses(interface = 'eth0')
+      def query_default_interface()
+        Chef::Log.debug("Default instance ID is #{node[:network]['default_interface']}")
+        node[:network]['default_interface']
+      end
+
+      def query_private_ip_addresses(interface)
         mac = query_mac_address(interface)
         ip_addresses = open("http://169.254.169.254/latest/meta-data/network/interfaces/macs/#{mac}/local-ipv4s", options = { proxy: false }) { |f| f.read.split("\n") }
         Chef::Log.debug("#{interface} assigned local ipv4s addresses is/are #{ip_addresses.join(',')}")
         ip_addresses
       end
 
-      def query_network_interface_id(interface = 'eth0')
+      def query_network_interface_id(interface)
         mac = query_mac_address(interface)
         eni_id = open("http://169.254.169.254/latest/meta-data/network/interfaces/macs/#{mac}/interface-id", options = { proxy: false }, &:gets)
         Chef::Log.debug("#{interface} eni id is #{eni_id}")
