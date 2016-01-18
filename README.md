@@ -10,6 +10,7 @@ API. Currently supported resources:
 * Elastic IPs (`elastic_ip`)
 * Elastic Load Balancer (`elastic_lb`)
 * AWS Resource Tags (`resource_tag`)
+* Secondary IPs (`secondary_ip`)
 
 Unsupported AWS resources that have other cookbooks include but are
 not limited to:
@@ -284,6 +285,24 @@ Attribute Parameters:
 * `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to
   `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 
+## secondary_ip.rb
+
+This feature is available only to instances in EC2-VPC. It allows you to assign
+multiple private IP addresses to a network interface.
+
+Actions:
+
+* `assign` - Assign a private IP to the instance.
+* `unassign` - Un-assign a private IP from the instance.
+
+Attribute Parameters:
+
+* `aws_secret_access_key`, `aws_access_key` - passed to
+  `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+* `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
+* `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
+* `timeout` - connection timeout for EC2 API.
+
 Usage
 =====
 
@@ -432,6 +451,23 @@ is a wrapper around `remote_file` and supports the same resource attributes as `
 Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
     aws_instance_monitoring "enable detailed monitoring"
+
+
+## aws_secondary_ip
+
+The `secondary_ip` resource provider allows one to assign/unassign multiple private secondary IPs on an instance in EC2-VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type.
+
+If no IP address is provided on assign, a random one from within the subnet will be assigned.
+
+If no interface is provided, the default interface (which is pulled from Ohai) will be used.
+
+    aws_secondary_ip "assign_additional_ip" do
+      aws_access_key aws['aws_access_key_id']
+      aws_secret_access_key aws['aws_secret_access_key']
+      ip ip_info['private_ip']
+      interface 'eth0'
+      action :assign
+    end
 
 License and Author
 ==================
