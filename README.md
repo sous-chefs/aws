@@ -15,23 +15,22 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 
 ## Requirements
 ### Platforms
-- Any platform supported by Chef
+- Any platform supported by Chef and the AWS-SDK
 
 ### Chef
 - Chef 11+
 
 ## Credentials
 In order to manage AWS components, authentication credentials need to be available to the node. There are 2 way to handle this:
-
 1. explicitly pass credentials parameter to the resource
 2. or let the resource pick up credentials from the IAM role assigned to the instance
 
 ### Using resource parameters
 In order to pass the credentials to the resource, credentials must be available to the node. There are a number of ways to handle this, such as node attributes applied to the node or via Chef roles/environments.
 
-We recommend storing these in a databag, and loading them in the recipe where the resources are used.
+We recommend storing these in an encrypted databag, and loading them in the recipe where the resources are used.
 
-DataBag recommendation:
+Example Data Bag:
 
 ```json
 % knife data bag show aws main

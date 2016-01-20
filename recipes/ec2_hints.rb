@@ -23,7 +23,7 @@ directory '/etc/chef/ohai/hints' do
 end.run_action(:create)
 
 file '/etc/chef/ohai/hints/ec2.json' do
-  content {}
+  content ''
   action :create
 end.run_action(:create)
 
