@@ -1,7 +1,7 @@
 # aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
-## Unreleased
+## v2.8.0 (2016-01-19)
 - [#185][] Update the aws-sdk dependency to the 2.2.X release, [@tas50][]
 - [#189][] Loosen the dependency on the aws-sdk to bring in current releases, [@philoserf][]
 - [#183][] Load the aws-sdk gem directly in the providers, [@shortdudey123][]
