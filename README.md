@@ -7,6 +7,7 @@ This cookbook provides libraries, resources and providers to configure and manag
 - Elastic IPs (`elastic_ip`)
 - Elastic Load Balancer (`elastic_lb`)
 - AWS Resource Tags (`resource_tag`)
+- AWS Cloudwatch Instance Monitoring (`aws_instance_monitoring`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 - [Route53](https://supermarket.chef.io/cookbooks/route53)
@@ -291,7 +292,7 @@ This will use the loaded `aws` and `ip_info` databags to pass the required value
 You can also store this in a role as an attribute or assign to the node directly, if preferred.
 
 ### aws_elastic_lb
-`elastic_lb` opererates similar to `elastic_ip'. Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
+`elastic_lb` functions similar to `elastic_ip'. Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
 
 For example, to register the node in the 'QA' ELB:
 
@@ -307,7 +308,7 @@ end
 ### aws_resource_tag
 `resource_tag` can be used to manipulate the tags assigned to one or more AWS resources, i.e. ec2 instances, ebs volumes or ebs volume snapshots.
 
-Assigning tags to a node to reflect it's role and environment:
+Assigning tags to a node to reflect its role and environment:
 
 ```ruby
 aws_resource_tag node['ec2']['instance_id'] do
