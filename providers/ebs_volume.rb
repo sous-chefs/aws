@@ -6,7 +6,7 @@ def whyrun_supported?
 end
 
 action :create do
-  fail 'Cannot create a volume with a specific id (EC2 chooses volume ids)' if new_resource.volume_id
+  fail 'Cannot create a volume with a specific volume_id as AWS chooses volume ids' if new_resource.volume_id
   if new_resource.snapshot_id =~ /vol/
     new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
   end
