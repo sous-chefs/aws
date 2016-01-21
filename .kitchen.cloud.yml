@@ -1,67 +1,50 @@
----
 driver_config:
-  aws_access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-  aws_secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+  name: ec2
   aws_ssh_key_id: <%= ENV['AWS_KEYPAIR_NAME'] %>
-  availability_zone: <%= ENV['AWS_AVAILABILITY_ZONE'] %>
+  region: us-west-2
+  availability_zone: us-west-2a
+
+transport:
+  ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
 
 provisioner:
   name: chef_zero
 
 platforms:
-- name: amazon-2014.09
-  driver_plugin: ec2
+- name: amazon-2015.09
   driver_config:
-    image_id: ami-50842d38
+    image_id: ami-f0091d91
+    instance_type: t2.small
+  transport:
     username: ec2-user
-    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-    flavor_id: m1.small
+
+- name: redhat-7.2
+  driver_config:
+    image_id: ami-775e4f16
+    instance_type: t2.small
+  transport:
+    username: ec2-user
 
 - name: ubuntu-12.04
-  driver_plugin: ec2
   driver_config:
-    image_id: ami-2ccc7a44
+    image_id: ami-6cb4ae0d
+    instance_type: t2.small
+  transport:
     username: ubuntu
-    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-    flavor_id: m1.small
-
-- name: ubuntu-12.04-hvm
-  driver_plugin: ec2
-  driver_config:
-    image_id: ami-3ccc7a54
-    username: ubuntu
-    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-    flavor_id: t2.small
 
 - name: ubuntu-14.04
-  driver_plugin: ec2
   driver_config:
-    image_id: ami-8caa1ce4
+    image_id: ami-22b9a343
+    instance_type: t2.small
+  transport:
     username: ubuntu
-    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-    flavor_id: m1.small
-
-- name: ubuntu-14.04-hvm
-  driver_plugin: ec2
-  driver_config:
-    image_id: ami-9aaa1cf2
-    username: ubuntu
-    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-    flavor_id: t2.small
-
-- name: amazon-2014.09-hvm
-  driver_plugin: ec2
-  driver_config:
-    image_id: ami-fccc6d94
-    username: ec2-user
-    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-    flavor_id: t2.small
 
 suites:
 
   - name: default
     run_list:
-    - recipe[aws]
+    - recipe[aws::default]
+    - recipe[aws::ec2_hints]
 
   - name: ebs_volume
     run_list:
