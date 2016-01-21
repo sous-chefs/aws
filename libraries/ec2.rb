@@ -113,7 +113,7 @@ module Opscode
         end.keys.first.downcase
       end
 
-      def query_default_interface()
+      def query_default_interface
         Chef::Log.debug("Default instance ID is #{node[:network]['default_interface']}")
         node[:network]['default_interface']
       end
