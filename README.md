@@ -150,7 +150,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `prune` - prune snapshots.
 
 #### Properties:
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `size` - size of the volume in gigabytes.
 - `snapshot_id` - snapshot to build EBS volume from.
 - `most_recent_snapshot` - use the most recent snapshot when creating a volume from an existing volume (defaults to false)
@@ -171,7 +171,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 Manage Elastic Block Store (EBS) raid devices with this resource.
 
 #### Properties:
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `mount_point` - where to mount the RAID volume
 - `mount_point_owner` - the owner of the mount point (default root)
 - `mount_point_group` - the group of the mount point (default root)
