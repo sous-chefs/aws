@@ -1,15 +1,13 @@
 include Opscode::Aws::Ec2
 
 action :auto_attach do # ~FC017 https://github.com/acrmp/foodcritic/issues/387
-  package 'mdadm' do
-    action :install
-  end
+  package 'mdadm'
 
-  # Baseline expectations.
+  # Set node['aws']['raid'] = {} if it doesn't already exist
   node.set['aws'] ||= {}
   node.set['aws']['raid'] ||= {}
 
-  # Mount point information.
+  # Save mount point information to the node if it doesn't already exist
   node.set['aws']['raid'][@new_resource.mount_point] ||= {}
 
   # we're done we successfully located what we needed

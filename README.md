@@ -170,18 +170,22 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 ### ebs_raid.rb
 Manage Elastic Block Store (EBS) raid devices with this resource.
 
+#### Actions:
+- `auto_attach` - create / mount raid array
+
 #### Properties:
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `mount_point` - where to mount the RAID volume
 - `mount_point_owner` - the owner of the mount point (default root)
 - `mount_point_group` - the group of the mount point (default root)
-- `mount_point_mode` - the file mode of the mount point (default 0755)
+- `mount_point_mode` - the file mode of the mount point (default 00755)
 - `disk_count` - number of EBS volumes to raid
 - `disk_size` - size of EBS volumes to raid
 - `level` - RAID level (default 10)
 - `filesystem` - filesystem to format raid array (default ext4)
+- `filesystem_options` - String of options to mount the filesystem with (default rw,noatime,nobootwait)
 - `snapshots` - array of EBS snapshots to restore. Snapshots must be taken using an ec2 consistent snapshot tool, and tagged with a number that indicates how many devices are in the array being backed up (e.g. "Logs Backup [0-4]" for a four-volume raid array snapshot)
-volume_type - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is provisioned iops SSD, "gp2" is general purpose SSD)
+- `disk_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is provisioned iops SSD, "gp2" is general purpose SSD)
 - `disk_piops` - number of Provisioned IOPS to provision per disk, must be > 100
 - `disk_encrypted` - specify if the EBS volumes should be encrypted
 - `disk_kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volumes (defaults to master key if not specified)
