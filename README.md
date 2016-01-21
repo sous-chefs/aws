@@ -160,7 +160,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `timeout` - connection timeout for EC2 API.
 - `snapshots_to_keep` - used with action `:prune` for number of snapshots to maintain.
 - `description` - used to set the description of an EBS snapshot
-- `volume_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is piops SSD, "gp2" is general purpose SSD)
+- `volume_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is provisioned SSD, "gp2" is general purpose SSD)
 - `piops` - number of Provisioned IOPS to provision, must be >= 100
 - `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
 - `encrypted` - specify if the EBS should be encrypted
@@ -181,7 +181,7 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 - `level` - RAID level (default 10)
 - `filesystem` - filesystem to format raid array (default ext4)
 - `snapshots` - array of EBS snapshots to restore. Snapshots must be taken using an ec2 consistent snapshot tool, and tagged with a number that indicates how many devices are in the array being backed up (e.g. "Logs Backup [0-4]" for a four-volume raid array snapshot)
-- `disk_type` - "standard" or "io1" (io1 is the type for IOPS volume)
+volume_type - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is provisioned iops SSD, "gp2" is general purpose SSD)
 - `disk_piops` - number of Provisioned IOPS to provision per disk, must be > 100
 - `disk_encrypted` - specify if the EBS volumes should be encrypted
 - `disk_kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volumes (defaults to master key if not specified)
