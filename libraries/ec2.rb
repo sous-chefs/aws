@@ -111,7 +111,6 @@ module Opscode
       end
 
       # fetch the mac address of an interface.
-      def query_mac_address(interface = 'eth0')
       def query_mac_address(interface)
         node['network']['interfaces'][interface]['addresses'].select do |_, e|
           e['family'] == 'lladdr'
