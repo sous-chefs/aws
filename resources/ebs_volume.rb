@@ -19,6 +19,8 @@ state_attrs :availability_zone,
 attribute :aws_access_key,        kind_of: String
 attribute :aws_secret_access_key, kind_of: String
 attribute :aws_session_token,     kind_of: String, default: nil
+attribute :aws_assume_role_arn,   kind_of: String
+attribute :aws_role_session_name, kind_of: String
 attribute :size,                  kind_of: Integer
 attribute :snapshot_id,           kind_of: String
 attribute :most_recent_snapshot,  kind_of: [TrueClass, FalseClass], default: false
