@@ -7,6 +7,7 @@ This cookbook provides libraries, resources and providers to configure and manag
 - Elastic IPs (`elastic_ip`)
 - Elastic Load Balancer (`elastic_lb`)
 - AWS Resource Tags (`resource_tag`)
+- Secondary IPs (`secondary_ip`)
 - AWS Cloudwatch Instance Monitoring (`aws_instance_monitoring`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
@@ -225,6 +226,22 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 #### Properties:
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 
+### secondary_ip.rb
+This feature is available only to instances in EC2-VPC. It allows you to assign
+multiple private IP addresses to a network interface.
+
+#### Actions:
+
+- `assign` - Assign a private IP to the instance.
+- `unassign` - Unassign a private IP from the instance.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
+- `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
+- `timeout` - connection timeout for EC2 API.
+
 ## Usage
 The following examples assume that the recommended data bag item has been created and that the following has been included at the top of the recipe where they are used.
 
@@ -292,7 +309,7 @@ This will use the loaded `aws` and `ip_info` databags to pass the required value
 You can also store this in a role as an attribute or assign to the node directly, if preferred.
 
 ### aws_elastic_lb
-`elastic_lb` functions similar to `elastic_ip'. Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
+`elastic_lb` functions similarly to `elastic_ip`. Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
 
 For example, to register the node in the 'QA' ELB:
 
@@ -356,6 +373,19 @@ Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
 ```ruby
 aws_instance_monitoring "enable detailed monitoring"
+```
+
+## aws_secondary_ip
+The `secondary_ip` resource provider allows one to assign/unassign multiple private secondary IPs on an instance in EC2-VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface (which is pulled from Ohai) will be used.
+
+```ruby
+aws_secondary_ip "assign_additional_ip" do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  ip ip_info['private_ip']
+  interface 'eth0'
+  action :assign
+end
 ```
 
 ## License and Authors
