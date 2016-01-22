@@ -2,7 +2,7 @@
 # Cookbook Name:: aws
 # Recipe:: ec2_hints
 #
-# Copyright 2008-2015, Chef Software, Inc.
+# Copyright 2008-2016, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,16 +17,10 @@
 # limitations under the License.
 #
 
-directory '/etc/chef/ohai/hints' do
-  recursive true
-  action :create
-end.run_action(:create)
-
-file '/etc/chef/ohai/hints/ec2.json' do
-  content ''
-  action :create
+ohai_hint 'ec2' do
+  action :nothing
 end.run_action(:create)
 
 ohai 'reload' do
-  action :reload
+  action :nothing
 end.run_action(:reload)

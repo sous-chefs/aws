@@ -21,10 +21,13 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 ### Chef
 - Chef 11+
 
+### Cookbooks
+- Ohai
+
 ## Credentials
 In order to manage AWS components, authentication credentials need to be available to the node. There are 2 way to handle this:
 1. explicitly pass credentials parameter to the resource
-2. or let the resource pick up credentials from the IAM role assigned to the instance
+2. let the resource pick up credentials from the IAM role assigned to the instance
 
 ### Using resource parameters
 In order to pass the credentials to the resource, credentials must be available to the node. There are a number of ways to handle this, such as node attributes applied to the node or via Chef roles/environments.
