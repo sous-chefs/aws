@@ -26,10 +26,10 @@ action :create do
     if new_resource.device && (attached_volume = currently_attached_volume(instance_id, new_resource.device)) # rubocop: disable Style/IfInsideElse
       Chef::Log.debug("There is already a volume attached at device #{new_resource.device}")
       compatible = volume_compatible_with_resource_definition?(attached_volume)
-      fail "Volume #{attached_volume[:volume_id]} attached at #{attached_volume[:aws_device]} but does not conform to this resource's specifications" unless compatible
+      fail "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments[0].device} but does not conform to this resource's specifications" unless compatible
       Chef::Log.debug("The volume matches the resource's definition, so the volume is assumed to be already created")
-      converge_by("update the node data with volume id: #{attached_volume[:volume_id]}") do
-        node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume[:volume_id]
+      converge_by("update the node data with volume id: #{attached_volume.volume_id}") do
+        node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume.volume_id
         node.save unless Chef::Config[:solo]
       end
     else
@@ -134,14 +134,17 @@ end
 
 # Retrieves information for a volume
 def volume_by_id(volume_id)
-  ec2.describe_volumes[:volumes].find { |v| v[:volume_id] == volume_id }
+	ec2.describe_volumes(volume_ids: [volume_id]).volumes[0]
 end
 
 # Returns the volume that's attached to the instance at the given device or nil if none matches
 def currently_attached_volume(instance_id, device)
-  ec2.describe_volumes[:volumes].find do |v|
-    v[:attachments].any? { |a| a[:device] == device && a[:instance_id] == instance_id }
-  end
+	ec2.describe_volumes(
+		filters: [
+			{ name: 'attachment.device', values: [device] },
+			{ name: 'attachment.instance-id', values: [instance_id] }
+		]
+	).volumes[0]
 end
 
 # Returns true if the given volume meets the resource's attributes
@@ -149,9 +152,9 @@ def volume_compatible_with_resource_definition?(volume)
   if new_resource.snapshot_id =~ /vol/
     new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
   end
-  (new_resource.size.nil? || new_resource.size == volume[:size]) &&
-    (new_resource.availability_zone.nil? || new_resource.availability_zone == volume[:zone]) &&
-    (new_resource.snapshot_id.nil? || new_resource.snapshot_id == volume[:snapshot_id])
+  (new_resource.size.nil? || new_resource.size == volume.size) &&
+    (new_resource.availability_zone.nil? || new_resource.availability_zone == volume.availability_zone) &&
+    (new_resource.snapshot_id.nil? || new_resource.snapshot_id == volume.snapshot_id)
 end
 
 # Creates a volume according to specifications and blocks until done (or times out)
@@ -173,11 +176,8 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
     fail 'IOPS param without piops volume type.' unless volume_type == 'io1'
   end
 
-  if snapshot_id
-    params[:snapshot_id] = snapshot_id
-  else
-    params[:size] = size
-  end
+  params[:snapshot_id] = snapshot_id if snapshot_id
+  params[:size] = size if size
 
   nv = ec2.create_volume(params)
   Chef::Log.debug("Created new #{nv[:encrypted] ? 'encryped' : ''} volume #{nv[:volume_id]}#{snapshot_id ? " based on #{snapshot_id}" : ''}")
