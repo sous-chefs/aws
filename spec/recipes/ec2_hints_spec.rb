@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'aws::ec2_hints' do
   let(:chef_run) { ChefSpec::SoloRunner.converge(described_recipe) }
 
-  it 'adds the hint file' do
+  it 'creates the ohai hint' do
     expect(chef_run).to create_ohai_hint('ec2').at_compile_time
   end
 
