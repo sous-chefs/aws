@@ -30,7 +30,7 @@ def do_s3_file(resource_action)
 
   remote_path = new_resource.remote_path
   remote_path.sub!(%r{^/*}, '')
-  skip_action == false
+  skip_action = false
 
   obj = ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
   s3url = obj.presigned_url(:get, expires_in: 300)
@@ -42,7 +42,7 @@ def do_s3_file(resource_action)
     end
   end
 
-  if not skip_action
+  unless skip_action
     remote_file new_resource.name do
       path new_resource.path
       source s3url.gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
