@@ -9,3 +9,4 @@ recipe 'aws', 'Installs the aws-sdk gem during compile time'
 recipe 'ec2_hints', 'Adds an EC2 hint file for Ohai cloud detection'
 source_url 'https://github.com/chef-cookbooks/aws' if respond_to?(:source_url)
 issues_url 'https://github.com/chef-cookbooks/aws/issues' if respond_to?(:issues_url)
+depends 'ohai'
