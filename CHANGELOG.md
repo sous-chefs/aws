@@ -1,7 +1,12 @@
 # aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
-## v2.9.0 (2016-01-25)
+## v2.9.1 (2016-01-26)
+- Require ohai 2.1.0 or later due to a bug in previous releases that prevented ohai hints from being created
+- Added inspec tests for the ohai hint file creation
+- Added supported platforms to the metadata so the platform badges will display on the Supermarket
+
+## v2.9.0 (2016-01-26)
 - [#191][] Add region attribute to s3_file provider, [@zl4bv][]
 - [#203][] Create the ec2 hint using the ohai provider for Windows compatibility, [@tas50][]
 - [#205][] Fix elb register/deregister, [@obazoud][]

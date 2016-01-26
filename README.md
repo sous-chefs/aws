@@ -22,7 +22,7 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 - Chef 11+
 
 ### Cookbooks
-- Ohai
+- Ohai 2.1.0+
 
 ## Credentials
 In order to manage AWS components, authentication credentials need to be available to the node. There are 2 way to handle this:
