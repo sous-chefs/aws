@@ -1,6 +1,11 @@
 # aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
+## v2.9.0 (2016-01-25)
+- [#191][] Add region attribute to s3_file provider, [@zl4bv][]
+- [#203][] Create the ec2 hint using the ohai provider for Windows compatibility, [@tas50][]
+- [#205][] Fix elb register/deregister, [@obazoud][]
+
 ## v2.8.0 (2016-01-21)
 - [#192][] Fix secondary_ip failure, add windows support, and document in the readme, [@Scythril][]
 - [#185][] Update the aws-sdk dependency to the 2.2.X release, [@tas50][]
@@ -179,7 +184,10 @@ This file is used to list changes made in each version of the aws cookbook.
 [#185]: https://github.com/opscode-cookbooks/aws/issues/185
 [#189]: https://github.com/opscode-cookbooks/aws/issues/189
 [#190]: https://github.com/opscode-cookbooks/aws/issues/190
+[#191]: https://github.com/opscode-cookbooks/aws/issues/191
 [#192]: https://github.com/opscode-cookbooks/aws/issues/192
+[#203]: https://github.com/opscode-cookbooks/aws/issues/203
+[#205]: https://github.com/opscode-cookbooks/aws/issues/205
 [@DrMerlin]: https://github.com/DrMerlin
 [@Scythril]: https://github.com/Scythril
 [@dhui]: https://github.com/dhui
@@ -187,8 +195,10 @@ This file is used to list changes made in each version of the aws cookbook.
 [@knorby]: https://github.com/knorby
 [@miketheman]: https://github.com/miketheman
 [@mkantor]: https://github.com/mkantor
+[@obazoud]: https://github.com/obazoud
 [@philoserf]: https://github.com/philoserf
 [@purgatorio]: https://github.com/purgatorio
 [@shortdudey123]: https://github.com/shortdudey123
 [@tas50]: https://github.com/tas50
 [@ubiquitousthey]: https://github.com/ubiquitousthey
+[@zl4bv]: https://github.com/zl4bv
