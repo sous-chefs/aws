@@ -1,5 +1,5 @@
 name 'aws'
-maintainer 'Chef Software, Inc'
+maintainer 'Chef Software, Inc.'
 maintainer_email 'cookbooks@chef.io'
 license 'Apache 2.0'
 description 'Custom resources for managing AWS resources'
@@ -11,7 +11,7 @@ recipe 'ec2_hints', 'Adds an EC2 hint file for Ohai cloud detection'
 
 source_url 'https://github.com/chef-cookbooks/aws' if respond_to?(:source_url)
 issues_url 'https://github.com/chef-cookbooks/aws/issues' if respond_to?(:issues_url)
-depends 'ohai'
+depends 'ohai', '>=2.1.0'
 
 %w(ubuntu debian centos redhat amazon scientific fedora oracle freebsd windows).each do |os|
   supports os
