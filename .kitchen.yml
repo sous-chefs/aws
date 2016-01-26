@@ -4,14 +4,17 @@ driver:
 provisioner:
   name: chef_zero
 
+verifier:
+  name: inspec
+
 platforms:
   - name: centos-5.11
   - name: centos-6.7
   - name: centos-7.1
-  - name: debian-7.8
-  - name: debian-8.1
-  - name: fedora-21
+  - name: debian-7.9
+  - name: debian-8.2
   - name: fedora-22
+  - name: fedora-23
   - name: ubuntu-12.04
   - name: ubuntu-14.04
 
