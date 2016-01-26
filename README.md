@@ -372,6 +372,7 @@ aws_s3_file '/tmp/foo' do
   remote_path 'path/in/s3/bukket/to/foo'
   aws_access_key_id aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
+  region 'us-west-1'
 end
 ```
 
