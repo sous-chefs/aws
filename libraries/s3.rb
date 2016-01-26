@@ -9,7 +9,7 @@ module Opscode
         if new_resource.region
           new_resource.region
         else
-          super
+          query_aws_region
         end
       end
 
