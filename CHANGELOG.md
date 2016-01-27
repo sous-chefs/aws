@@ -1,6 +1,9 @@
 # aws Cookbook CHANGELOG
 This file is used to list changes made in each version of the aws cookbook.
 
+## v2.9.2 (2016-01-26)
+- Fix a missing space in the ohai dependency
+
 ## v2.9.1 (2016-01-26)
 - Require ohai 2.1.0 or later due to a bug in previous releases that prevented ohai hints from being created
 - Added inspec tests for the ohai hint file creation
