@@ -119,8 +119,8 @@ module Opscode
 
       # fetch the private IP address of an interface from the metadata endpoint.
       def query_default_interface
-        Chef::Log.debug("Default instance ID is #{node[:network]['default_interface']}")
-        node[:network]['default_interface']
+        Chef::Log.debug("Default instance ID is #{node['network']['default_interface']}")
+        node['network']['default_interface']
       end
 
       def query_private_ip_addresses(interface)
