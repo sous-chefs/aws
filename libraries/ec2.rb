@@ -71,16 +71,18 @@ module Opscode
           region = region[0, region.length - 1]
         end
 
+        aws_interface_opts = { region: region }
+
         if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
-          creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, new_resource.aws_session_token)
-        elsif (::Aws::SharedCredentials.new).loadable?
-          Chef::Log.info('Using shared credentials in config file')
-          creds = (::Aws::SharedCredentials.new).credentials
+          Chef::Log.info('Using resource-defined credentials')
+          aws_interface_opts[:credentials] = ::Aws::Credentials.new(
+            new_resource.aws_access_key,
+            new_resource.aws_secret_access_key,
+            new_resource.aws_session_token)
         else
-          Chef::Log.info('Attempting to use iam profile')
-          creds = ::Aws::InstanceProfileCredentials.new
+          Chef::Log.info('Using local credential chain')
         end
-        aws_interface.new(credentials: creds, region: region)
+        aws_interface.new(aws_interface_opts)
       end
 
       def query_instance_id
