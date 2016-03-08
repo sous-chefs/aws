@@ -17,6 +17,10 @@ Encoding:
   Enabled: false
 Style/FileName:
   Enabled: false
+Style/Alias:
+  Enabled: false
+Style/SpaceBeforeFirstArg:
+  Enabled: false
 LineLength:
   Enabled: false
 MethodLength:
@@ -26,8 +30,4 @@ Metrics/AbcSize:
 PerceivedComplexity:
   Enabled: false
 Style/ClassAndModuleChildren:
-  Enabled: false
-Style/ConditionalAssignment:
-  Enabled: false
-Style/FileName:
   Enabled: false
