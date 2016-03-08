@@ -34,7 +34,7 @@ module Opscode
             end
           end
         end
-        fail 'Cannot find snapshot id!' unless snapshot_id
+        raise 'Cannot find snapshot id!' unless snapshot_id
         Chef::Log.debug("Snapshot ID is #{snapshot_id}")
         snapshot_id
       end
@@ -97,7 +97,7 @@ module Opscode
       # fetch the instance ID from the metadata endpoint
       def query_instance_id
         instance_id = open('http://169.254.169.254/latest/meta-data/instance-id', options = { proxy: false }, &:gets)
-        fail 'Cannot find instance id!' unless instance_id
+        raise 'Cannot find instance id!' unless instance_id
         Chef::Log.debug("Instance ID is #{instance_id}")
         instance_id
       end
@@ -105,7 +105,7 @@ module Opscode
       # fetch the availability zone from the metadata endpoint
       def query_instance_availability_zone
         availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/', options = { proxy: false }, &:gets)
-        fail 'Cannot find availability zone!' unless availability_zone
+        raise 'Cannot find availability zone!' unless availability_zone
         Chef::Log.debug("Instance's availability zone is #{availability_zone}")
         availability_zone
       end

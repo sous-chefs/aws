@@ -9,8 +9,8 @@ action :associate do
   ip = new_resource.ip || node['aws']['elastic_ip'][new_resource.name]['ip']
   addr = address(ip)
 
-  if addr.nil?
-    fail "Elastic IP #{ip} does not exist"
+  if addr.nil? # rubocop: disable Style/GuardClause
+    raise "Elastic IP #{ip} does not exist"
   elsif addr[:instance_id] == instance_id
     Chef::Log.debug("Elastic IP #{ip} is already attached to the instance")
   else
@@ -73,7 +73,7 @@ def attach(ip, timeout)
       loop do
         addr = address(ip)
         if addr.nil?
-          fail 'Elastic IP has been deleted while waiting for attachment'
+          raise 'Elastic IP has been deleted while waiting for attachment'
         elsif addr[:instance_id] == instance_id
           Chef::Log.debug('Elastic IP is attached to this instance')
           break

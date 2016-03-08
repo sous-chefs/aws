@@ -6,7 +6,7 @@ def whyrun_supported?
 end
 
 action :create do
-  fail 'Cannot create a volume with a specific volume_id as AWS chooses volume ids' if new_resource.volume_id
+  raise 'Cannot create a volume with a specific volume_id as AWS chooses volume ids' if new_resource.volume_id
   if new_resource.snapshot_id =~ /vol/
     new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
   end
@@ -17,7 +17,7 @@ action :create do
     vol = volume_by_id(nvid)
     exists = vol && vol[:state] != 'deleting'
     # TODO: determine whether this should be an error or just cause a new volume to be created. Currently erring on the side of failing loudly
-    fail "Volume with id #{nvid} is registered with the node but does not exist in EC2. To clear this error, remove the ['aws']['ebs_volume']['#{new_resource.name}']['volume_id'] entry from this node's data." unless exists
+    raise "Volume with id #{nvid} is registered with the node but does not exist in EC2. To clear this error, remove the ['aws']['ebs_volume']['#{new_resource.name}']['volume_id'] entry from this node's data." unless exists
   else
     # Determine if there is a volume that meets the resource's specifications and is attached to the current
     # instance in case a previous [:create, :attach] run created and attached a volume but for some reason was
@@ -26,7 +26,7 @@ action :create do
     if new_resource.device && (attached_volume = currently_attached_volume(instance_id, new_resource.device)) # rubocop: disable Style/IfInsideElse
       Chef::Log.debug("There is already a volume attached at device #{new_resource.device}")
       compatible = volume_compatible_with_resource_definition?(attached_volume)
-      fail "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments[0].device} but does not conform to this resource's specifications" unless compatible
+      raise "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments[0].device} but does not conform to this resource's specifications" unless compatible
       Chef::Log.debug("The volume matches the resource's definition, so the volume is assumed to be already created")
       converge_by("update the node data with volume id: #{attached_volume.volume_id}") do
         node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume.volume_id
@@ -59,7 +59,7 @@ action :attach do
     Chef::Log.info("Vol: #{vol}")
     vol[:attachments].each do |attachment|
       if attachment[:instance_id] != instance_id
-        fail "Volume with id #{vol[:volume_id]} exists but is attached to instance #{attachment[:instance_id]}"
+        raise "Volume with id #{vol[:volume_id]} exists but is attached to instance #{attachment[:instance_id]}"
       else
         Chef::Log.debug('Volume is already attached')
       end
@@ -123,11 +123,11 @@ end
 def determine_volume
   vol = currently_attached_volume(instance_id, new_resource.device)
   vol_id = new_resource.volume_id || volume_id_in_node_data || (vol ? vol[:volume_id] : nil)
-  fail 'volume_id attribute not set and no volume id is set in the node data for this resource (which is populated by action :create) and no volume is attached at the device' unless vol_id
+  raise 'volume_id attribute not set and no volume id is set in the node data for this resource (which is populated by action :create) and no volume is attached at the device' unless vol_id
 
   # check that volume exists
   vol = volume_by_id(vol_id)
-  fail "No volume with id #{vol_id} exists" unless vol
+  raise "No volume with id #{vol_id} exists" unless vol
 
   vol
 end
@@ -162,18 +162,18 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
   availability_zone ||= instance_availability_zone
 
   # Sanity checks so we don't shoot ourselves.
-  fail "Invalid volume type: #{volume_type}" unless %w(standard io1 gp2).include?(volume_type)
+  raise "Invalid volume type: #{volume_type}" unless %w(standard io1 gp2).include?(volume_type)
 
   params = { availability_zone: availability_zone, volume_type: volume_type, encrypted: encrypted, kms_key_id: kms_key_id }
   # PIOPs requested. Must specify an iops param and probably won't be "low".
   if volume_type == 'io1'
-    fail 'IOPS value not specified.' unless piops >= 100
+    raise 'IOPS value not specified.' unless piops >= 100
     params[:iops] = piops
   end
 
   # Shouldn't see non-zero piops param without appropriate type.
   if piops > 0
-    fail 'IOPS param without piops volume type.' unless volume_type == 'io1'
+    raise 'IOPS param without piops volume type.' unless volume_type == 'io1'
   end
 
   params[:snapshot_id] = snapshot_id if snapshot_id
@@ -196,7 +196,7 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
           end
           sleep 3
         else
-          fail "Volume #{nv[:volume_id]} no longer exists"
+          raise "Volume #{nv[:volume_id]} no longer exists"
         end
       end
     end
@@ -224,14 +224,14 @@ def attach_volume(volume_id, instance_id, device, timeout)
               Chef::Log.info("Volume #{volume_id} is attached to #{instance_id}")
               break
             else
-              fail "Volume is attached to instance #{vol[:aws_instance_id]} instead of #{instance_id}"
+              raise "Volume is attached to instance #{vol[:aws_instance_id]} instead of #{instance_id}"
             end
           else
             Chef::Log.debug("Volume is #{vol[:state]}")
           end
           sleep 3
         else
-          fail "Volume #{volume_id} no longer exists"
+          raise "Volume #{volume_id} no longer exists"
         end
       end
     end

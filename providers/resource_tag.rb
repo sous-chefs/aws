@@ -1,11 +1,11 @@
 include Opscode::Aws::Ec2
 
 action :add do
-  unless @new_resource.resource_id
-    resource_id = @new_resource.name
-  else
-    resource_id = @new_resource.resource_id
-  end
+  resource_id = unless @new_resource.resource_id
+                  @new_resource.name
+                else
+                  @new_resource.resource_id
+                end
 
   @new_resource.tags.each do |k, v|
     unless @current_resource.tags.keys.include?(k)
@@ -20,11 +20,11 @@ action :add do
 end
 
 action :update do
-  unless @new_resource.resource_id
-    resource_id = @new_resource.name
-  else
-    resource_id = @new_resource.resource_id
-  end
+  resource_id = unless @new_resource.resource_id
+                  @new_resource.name
+                else
+                  @new_resource.resource_id
+                end
 
   updated_tags = @current_resource.tags.merge(@new_resource.tags)
   unless updated_tags.eql?(@current_resource.tags)
@@ -40,11 +40,11 @@ action :update do
 end
 
 action :remove do
-  unless @new_resource.resource_id
-    resource_id = @new_resource.name
-  else
-    resource_id = @new_resource.resource_id
-  end
+  resource_id = unless @new_resource.resource_id
+                  @new_resource.name
+                else
+                  @new_resource.resource_id
+                end
 
   tags_to_delete = @new_resource.tags.keys
 
@@ -58,11 +58,11 @@ action :remove do
 end
 
 action :force_remove do
-  unless @new_resource.resource_id
-    resource_id = @new_resource.name
-  else
-    resource_id = @new_resource.resource_id
-  end
+  resource_id = unless @new_resource.resource_id
+                  @new_resource.name
+                else
+                  @new_resource.resource_id
+                end
 
   @new_resource.tags.keys do |key|
     if @current_resource.tags.keys.include?(key)

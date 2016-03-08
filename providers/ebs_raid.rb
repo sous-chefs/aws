@@ -117,6 +117,7 @@ end
 
 private
 
+# execute udevadm commands
 def udev(cmd, log)
   execute log do
     Chef::Log.debug(log)
@@ -124,6 +125,7 @@ def udev(cmd, log)
   end
 end
 
+# update initramfs to persist raid config
 def update_initramfs
   execute 'updating initramfs' do
     Chef::Log.debug('updating initramfs to ensure RAID config persists reboots')
@@ -315,7 +317,7 @@ end
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
                       level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, disk_encrypted, disk_kms_key_id)
 
-  creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
+  creating_from_snapshot = !(snapshots.nil? || snapshots.size.empty?)
 
   disk_dev = find_free_volume_device_prefix
   Chef::Log.debug("vol device prefix is #{disk_dev}")
