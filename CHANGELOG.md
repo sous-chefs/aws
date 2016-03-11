@@ -4,7 +4,8 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## UNRELEASED
 
-- [#63][] Add xfs support for ebs_raid filesystem [@bazbremner][]
+- [#63][] Add xfs support for ebs_raid filesystem, [@bazbremner][]
+- [#218][] Remove support for Chef < 11.6.0, [@tas50][]
 
 ## v2.9.3 (2016-03-07)
 
@@ -229,6 +230,7 @@ This file is used to list changes made in each version of the aws cookbook.
 
 
 [#60]: https://github.com/opscode-cookbooks/aws/issues/60
+[#63]: https://github.com/opscode-cookbooks/aws/issues/63
 [#64]: https://github.com/opscode-cookbooks/aws/issues/64
 [#65]: https://github.com/opscode-cookbooks/aws/issues/65
 [#74]: https://github.com/opscode-cookbooks/aws/issues/74
@@ -253,6 +255,7 @@ This file is used to list changes made in each version of the aws cookbook.
 [#192]: https://github.com/opscode-cookbooks/aws/issues/192
 [#203]: https://github.com/opscode-cookbooks/aws/issues/203
 [#205]: https://github.com/opscode-cookbooks/aws/issues/205
+[#218]: https://github.com/opscode-cookbooks/aws/issues/218
 [@drmerlin]: https://github.com/DrMerlin
 [@scythril]: https://github.com/Scythril
 [@dhui]: https://github.com/dhui
@@ -267,3 +270,4 @@ This file is used to list changes made in each version of the aws cookbook.
 [@tas50]: https://github.com/tas50
 [@ubiquitousthey]: https://github.com/ubiquitousthey
 [@zl4bv]: https://github.com/zl4bv
+[@bazbremner]: https://github.com/bazbremner 
