@@ -26,7 +26,3 @@ long_description  IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version           "2.1.2"
 recipe            "aws", "Installs the right_aws gem during compile time"
 
-<<<<<<< HEAD
-=======
-depends "xfs"
->>>>>>> da0347b554ab0bcdf6fd4b252af82a8277765ea9
