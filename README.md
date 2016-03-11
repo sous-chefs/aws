@@ -1,7 +1,9 @@
 # aws Cookbook
+
 [![Build Status](https://travis-ci.org/chef-cookbooks/aws.svg?branch=master)](https://travis-ci.org/chef-cookbooks/aws) [![Cookbook Version](https://img.shields.io/cookbook/v/aws.svg)](https://supermarket.chef.io/cookbooks/aws)
 
 This cookbook provides libraries, resources and providers to configure and manage Amazon Web Services components and offerings with the EC2 API. Currently supported resources:
+
 - EBS Volumes (`ebs_volume`)
 - EBS Raid (`ebs_raid`)
 - Elastic IPs (`elastic_ip`)
@@ -11,25 +13,33 @@ This cookbook provides libraries, resources and providers to configure and manag
 - AWS Cloudwatch Instance Monitoring (`aws_instance_monitoring`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
+
 - [Route53](https://supermarket.chef.io/cookbooks/route53)
 - [aws_security](https://supermarket.chef.io/cookbooks/aws_security)
 
 ## Requirements
+
 ### Platforms
+
 - Any platform supported by Chef and the AWS-SDK
 
 ### Chef
-- Chef 11+
+
+- Chef 11.6+
 
 ### Cookbooks
+
 - Ohai 2.1.0+
 
 ## Credentials
+
 In order to manage AWS components, authentication credentials need to be available to the node. There are 2 way to handle this:
+
 1. explicitly pass credentials parameter to the resource
 2. let the resource pick up credentials from the IAM role assigned to the instance
 
 ### Using resource parameters
+
 In order to pass the credentials to the resource, credentials must be available to the node. There are a number of ways to handle this, such as node attributes applied to the node or via Chef roles/environments.
 
 We recommend storing these in an encrypted databag, and loading them in the recipe where the resources are used.
@@ -63,6 +73,7 @@ aws['aws_session_token']
 We'll look at specific usage below.
 
 ### Using IAM instance role
+
 If your instance has an IAM role, then the credentials can be automatically resolved by the cookbook using Amazon instance metadata API.
 
 You can then omit the resource parameters `aws_secret_access_key` and `aws_access_key`.
@@ -116,7 +127,9 @@ For resource tags:
 ```
 
 ## Recipes
+
 ### default.rb
+
 The default recipe installs the `aws-sdk` Ruby Gem, which this cookbook requires in order to work with the EC2 API. Make sure that the aws recipe is in the node or role `run_list` before any resources from this cookbook are used.
 
 ```json
@@ -128,9 +141,11 @@ The default recipe installs the `aws-sdk` Ruby Gem, which this cookbook requires
 The `gem_package` is created as a Ruby Object and thus installed during the Compile Phase of the Chef run.
 
 ### ec2_hints.rb
+
 This recipe is used to setup the ec2 hints for ohai in the case that an instance is not created using knife-ec2.
 
 ## Libraries
+
 The cookbook has a library module, `Opscode::AWS::Ec2`, which can be included where necessary:
 
 ```ruby
@@ -140,12 +155,15 @@ include Opscode::Aws::Ec2
 This is needed in any providers in the cookbook. Along with some helper methods used in the providers, it sets up a class variable, `ec2` that is used along with the access and secret access keys
 
 ## Resources and Providers
+
 This cookbook provides two resources and corresponding providers.
 
 ### ebs_volume.rb
+
 Manage Elastic Block Store (EBS) volumes with this resource.
 
 #### Actions:
+
 - `create` - create a new volume.
 - `attach` - attach the specified volume.
 - `detach` - detach the specified volume.
@@ -153,6 +171,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `prune` - prune snapshots.
 
 #### Properties:
+
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `size` - size of the volume in gigabytes.
 - `snapshot_id` - snapshot to build EBS volume from.
@@ -171,12 +190,15 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil).  Only applies to `:attach` action.
 
 ### ebs_raid.rb
+
 Manage Elastic Block Store (EBS) raid devices with this resource.
 
 #### Actions:
+
 - `auto_attach` - create / mount raid array
 
 #### Properties:
+
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `mount_point` - where to mount the RAID volume
 - `mount_point_owner` - the owner of the mount point (default root)
@@ -194,48 +216,60 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 - `disk_kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volumes (defaults to master key if not specified)
 
 ### elastic_ip.rb
+
 #### Actions:
+
 - `associate` - associate the IP.
 - `disassociate` - disassociate the IP.
 
 #### Properties:
+
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `ip` - the IP address.
 - `timeout` - connection timeout for EC2 API.
 
 ### elastic_lb.rb
+
 #### Actions:
+
 - `register` - Add this instance to the LB
 - `deregister` - Remove this instance from the LB
 
 #### Properties:
+
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `name` - the name of the LB, required.
 
 ### resource_tag.rb
+
 #### Actions:
+
 - `add` - Add tags to a resource.
 - `update` - Add or modify existing tags on a resource -- this is the default action.
 - `remove` - Remove tags from a resource, but only if the specified values match the existing ones.
 - `force_remove` - Remove tags from a resource, regardless of their values.
 
 #### Properties:
+
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
 - `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no
 - `resource_id` is specified the name attribute will be used.
 
 ### instance_monitoring.rb
+
 #### Actions:
+
 - `enable` - Enable detailed CloudWatch monitoring for this instance (Default).
 - `disable` - Disable detailed CloudWatch monitoring for this instance.
 
 #### Properties:
+
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 
 ### secondary_ip.rb
-This feature is available only to instances in EC2-VPC. It allows you to assign
-multiple private IP addresses to a network interface.
+
+This feature is available only to instances in EC2-VPC. It allows you to assign multiple private IP addresses to a network interface.
 
 #### Actions:
 
@@ -250,6 +284,7 @@ multiple private IP addresses to a network interface.
 - `timeout` - connection timeout for EC2 API.
 
 ## Usage
+
 The following examples assume that the recommended data bag item has been created and that the following has been included at the top of the recipe where they are used.
 
 ```ruby
@@ -258,6 +293,7 @@ aws = data_bag_item('aws', 'main')
 ```
 
 ### aws_ebs_volume
+
 The resource only handles manipulating the EBS volume, additional resources need to be created in the recipe to manage the attached volume as a filesystem or logical volume.
 
 ```ruby
@@ -286,6 +322,7 @@ end
 This will create a new 50G volume from the snapshot ID provided and attach it as `/dev/sdi`.
 
 ### aws_elastic_ip
+
 The `elastic_ip` resource provider does not support allocating new IPs. This must be done before running a recipe that uses the resource. After allocating a new Elastic IP, we recommend storing it in a databag and loading the item in the recipe.
 
 Databag structure:
@@ -316,6 +353,7 @@ This will use the loaded `aws` and `ip_info` databags to pass the required value
 You can also store this in a role as an attribute or assign to the node directly, if preferred.
 
 ### aws_elastic_lb
+
 `elastic_lb` functions similarly to `elastic_ip`. Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
 
 For example, to register the node in the 'QA' ELB:
@@ -330,6 +368,7 @@ end
 ```
 
 ### aws_resource_tag
+
 `resource_tag` can be used to manipulate the tags assigned to one or more AWS resources, i.e. ec2 instances, ebs volumes or ebs volume snapshots.
 
 Assigning tags to a node to reflect its role and environment:
@@ -364,6 +403,7 @@ end
 ```
 
 ### aws_s3_file
+
 `s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around `remote_file` and supports the same resource attributes as `remote_file`.
 
 ```ruby
@@ -377,6 +417,7 @@ end
 ```
 
 ## aws_instance_monitoring
+
 Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
 ```ruby
@@ -384,6 +425,7 @@ aws_instance_monitoring "enable detailed monitoring"
 ```
 
 ## aws_secondary_ip
+
 The `secondary_ip` resource provider allows one to assign/unassign multiple private secondary IPs on an instance in EC2-VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface (which is pulled from Ohai) will be used.
 
 ```ruby
@@ -397,6 +439,7 @@ end
 ```
 
 ## License and Authors
+
 - Author:: Chris Walters ([cw@chef.io](mailto:cw@chef.io))
 - Author:: AJ Christensen ([aj@chef.io](mailto:aj@chef.io))
 - Author:: Justin Huff ([jjhuff@mspin.net](mailto:jjhuff@mspin.net))
