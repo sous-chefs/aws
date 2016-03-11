@@ -16,3 +16,4 @@ depends 'ohai', '>= 2.1.0'
 %w(ubuntu debian centos redhat amazon scientific fedora oracle freebsd windows).each do |os|
   supports os
 end
+
