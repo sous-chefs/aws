@@ -185,7 +185,7 @@ Manage Elastic Block Store (EBS) raid devices with this resource.
 - `disk_count` - number of EBS volumes to raid
 - `disk_size` - size of EBS volumes to raid
 - `level` - RAID level (default 10)
-- `filesystem` - filesystem to format raid array (default ext4)
+- `filesystem` - filesystem to format raid array (default ext4 supported ext4 or xfs) *NOTE* Using xfs assumes that you provide the underlying packages required for xfs to work. 
 - `filesystem_options` - String of options to mount the filesystem with (default rw,noatime,nobootwait)
 - `snapshots` - array of EBS snapshots to restore. Snapshots must be taken using an ec2 consistent snapshot tool, and tagged with a number that indicates how many devices are in the array being backed up (e.g. "Logs Backup [0-4]" for a four-volume raid array snapshot)
 - `disk_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is provisioned iops SSD, "gp2" is general purpose SSD)
