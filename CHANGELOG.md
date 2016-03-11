@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## UNRELEASED
+
+- [#63][] Add xfs support for ebs_raid filesystem [@bazbremner][]
+
 ## v2.9.3 (2016-03-07)
 
 - Resolved a default value warning in ebs_raid when running Chef 12.7.2+
