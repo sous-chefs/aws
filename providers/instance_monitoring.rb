@@ -10,7 +10,7 @@ action :enable do
   else
     converge_by('enable monitoring for this instance') do
       Chef::Log.info('Enabling monitoring for this instance')
-      ec2.monitor_instances(instance_ids: [instance_id])
+      ec2.monitor_instances(instance_ids: [node['ec2']['instance_id']])
     end
   end
 end
@@ -19,7 +19,7 @@ action :disable do
   if monitoring_enabled?
     converge_by('disable monitoring for this instance') do
       Chef::Log.info('Disabling monitoring for this instance')
-      ec2.unmonitor_instances(instance_ids: [instance_id])
+      ec2.unmonitor_instances(instance_ids: [node['ec2']['instance_id']])
     end
   else
     Chef::Log.debug('Monitoring is already disabled for this instance')
@@ -29,7 +29,7 @@ end
 private
 
 def monitoring_enabled?
-  monitoring_state = ec2.describe_instances(instance_ids: [instance_id])[:reservations][0][:instances][0][:monitoring][:state]
+  monitoring_state = ec2.describe_instances(instance_ids: [node['ec2']['instance_id']])[:reservations][0][:instances][0][:monitoring][:state]
   Chef::Log.info("Current monitoring state for this instance is #{monitoring_state}")
   monitoring_state == 'enabled'
 end
