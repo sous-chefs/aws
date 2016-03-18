@@ -9,7 +9,7 @@ module Opscode
         if new_resource.region
           new_resource.region
         else
-          query_aws_region
+          node['ec2']['placement_availability_zone'].chop
         end
       end
 

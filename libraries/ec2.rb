@@ -49,35 +49,11 @@ module Opscode
         @@ec2 ||= create_aws_interface(::Aws::EC2::Client)
       end
 
-      def instance_id
-        @@instance_id ||= query_instance_id
-      end
-
-      def instance_availability_zone
-        @@instance_availability_zone ||= query_instance_availability_zone
-      end
-
       private
-
-      # determine the AWS region of the node
-      # Priority: User set node attribute -> ohai data -> us-east-1
-      def query_aws_region
-        region = node['aws']['region']
-
-        if region.nil?
-          if node.attribute?('ec2')
-            region = instance_availability_zone
-            region = region[0, region.length - 1]
-          else
-            region = 'us-east-1'
-          end
-        end
-        region
-      end
 
       # setup AWS instance using passed creds, iam profile, or assumed role
       def create_aws_interface(aws_interface)
-        region = query_aws_region
+        region = node['ec2']['placement_availability_zone'].chop
 
         if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
           creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, new_resource.aws_session_token)
@@ -92,22 +68,6 @@ module Opscode
           creds = ::Aws::AssumeRoleCredentials.new(client: sts_client, role_arn: new_resource.aws_assume_role_arn, role_session_name: new_resource.aws_role_session_name)
         end
         aws_interface.new(credentials: creds, region: region)
-      end
-
-      # fetch the instance ID from the metadata endpoint
-      def query_instance_id
-        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id', options = { proxy: false }, &:gets)
-        raise 'Cannot find instance id!' unless instance_id
-        Chef::Log.debug("Instance ID is #{instance_id}")
-        instance_id
-      end
-
-      # fetch the availability zone from the metadata endpoint
-      def query_instance_availability_zone
-        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/', options = { proxy: false }, &:gets)
-        raise 'Cannot find availability zone!' unless availability_zone
-        Chef::Log.debug("Instance's availability zone is #{availability_zone}")
-        availability_zone
       end
 
       # fetch the mac address of an interface.

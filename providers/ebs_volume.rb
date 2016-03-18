@@ -7,6 +7,7 @@ end
 
 action :create do
   raise 'Cannot create a volume with a specific volume_id as AWS chooses volume ids' if new_resource.volume_id
+
   if new_resource.snapshot_id =~ /vol/
     new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
   end
@@ -23,7 +24,7 @@ action :create do
     # instance in case a previous [:create, :attach] run created and attached a volume but for some reason was
     # not registered in the node data (e.g. an exception is thrown after the attach_volume request was accepted
     # by EC2, causing the node data to not be stored on the server)
-    if new_resource.device && (attached_volume = currently_attached_volume(instance_id, new_resource.device)) # rubocop: disable Style/IfInsideElse
+    if new_resource.device && (attached_volume = currently_attached_volume(node['ec2']['instance_id'], new_resource.device))
       Chef::Log.debug("There is already a volume attached at device #{new_resource.device}")
       compatible = volume_compatible_with_resource_definition?(attached_volume)
       raise "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments[0].device} but does not conform to this resource's specifications" unless compatible
@@ -58,17 +59,17 @@ action :attach do
   if vol[:state] == 'in-use'
     Chef::Log.info("Vol: #{vol}")
     vol[:attachments].each do |attachment|
-      if attachment[:instance_id] != instance_id
+      if attachment[:instance_id] != node['ec2']['instance_id']
         raise "Volume with id #{vol[:volume_id]} exists but is attached to instance #{attachment[:instance_id]}"
       else
         Chef::Log.debug('Volume is already attached')
       end
     end
   else
-    converge_by("attach the volume with aws_id=#{vol[:volume_id]} id=#{instance_id} device=#{new_resource.device} and update the node data with created volume's id") do
+    converge_by("attach the volume with aws_id=#{vol[:volume_id]} id=#{node['ec2']['instance_id']} device=#{new_resource.device} and update the node data with created volume's id") do
       # attach the volume and register its id in the node data
-      attach_volume(vol[:volume_id], instance_id, new_resource.device, new_resource.timeout)
-      mark_delete_on_termination(new_resource.device, vol[:volume_id], instance_id) if new_resource.delete_on_termination
+      attach_volume(vol[:volume_id], node['ec2']['instance_id'], new_resource.device, new_resource.timeout)
+      mark_delete_on_termination(new_resource.device, vol[:volume_id], node['ec2']['instance_id']) if new_resource.delete_on_termination
       # always use a symbol here, it is a Hash
       node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:volume_id]
       node.save unless Chef::Config[:solo]
@@ -121,7 +122,7 @@ end
 
 # Pulls the volume id from the volume_id attribute or the node data and verifies that the volume actually exists
 def determine_volume
-  vol = currently_attached_volume(instance_id, new_resource.device)
+  vol = currently_attached_volume(node['ec2']['instance_id'], new_resource.device)
   vol_id = new_resource.volume_id || volume_id_in_node_data || (vol ? vol[:volume_id] : nil)
   raise 'volume_id attribute not set and no volume id is set in the node data for this resource (which is populated by action :create) and no volume is attached at the device' unless vol_id
 
@@ -220,11 +221,11 @@ def attach_volume(volume_id, instance_id, device, timeout)
         if vol && vol[:state] != 'deleting'
           attachment = vol[:attachments].find { |a| a[:state] == 'attached' }
           if !attachment.nil?
-            if attachment[:instance_id] == instance_id
-              Chef::Log.info("Volume #{volume_id} is attached to #{instance_id}")
+            if attachment[:instance_id] == node['ec2']['instance_id']
+              Chef::Log.info("Volume #{volume_id} is attached to #{node['ec2']['instance_id']}")
               break
             else
-              raise "Volume is attached to instance #{vol[:aws_instance_id]} instead of #{instance_id}"
+              raise "Volume is attached to instance #{vol[:aws_instance_id]} instead of #{node['ec2']['instance_id']}"
             end
           else
             Chef::Log.debug("Volume is #{vol[:state]}")
@@ -243,7 +244,7 @@ end
 # Detaches the volume and blocks until done (or times out)
 def detach_volume(volume_id, timeout)
   vol = volume_by_id(volume_id)
-  if vol[:instance_id] != instance_id
+  if vol[:instance_id] != node['ec2']['instance_id']
     Chef::Log.debug("EBS Volume #{volume_id} is not attached to this instance (attached to #{vol[:instance_id]}). Skipping...")
     return
   end
