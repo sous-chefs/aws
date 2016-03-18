@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/chef-cookbooks/aws.svg?branch=master)](https://travis-ci.org/chef-cookbooks/aws) [![Cookbook Version](https://img.shields.io/cookbook/v/aws.svg)](https://supermarket.chef.io/cookbooks/aws)
 
-This cookbook provides libraries, resources and providers to configure and manage Amazon Web Services components and offerings with the EC2 API. Currently supported resources:
+This cookbook includes resources and providers to configure and manage Amazon Web Services components and offerings with the EC2 API. Currently supported resources:
 
 - EBS Volumes (`ebs_volume`)
 - EBS Raid (`ebs_raid`)
@@ -143,16 +143,6 @@ The `gem_package` is created as a Ruby Object and thus installed during the Comp
 ### ec2_hints.rb
 
 This recipe is used to setup the ec2 hints for ohai in the case that an instance is not created using knife-ec2.
-
-## Libraries
-
-The cookbook has a library module, `Opscode::AWS::Ec2`, which can be included where necessary:
-
-```ruby
-include Opscode::Aws::Ec2
-```
-
-This is needed in any providers in the cookbook. Along with some helper methods used in the providers, it sets up a class variable, `ec2` that is used along with the access and secret access keys
 
 ## Resources and Providers
 
