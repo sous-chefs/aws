@@ -60,30 +60,33 @@ module Opscode
       private
 
       # determine the AWS region of the node
-      # Priority: User set node attribute -> ohai data -> us-east-1
+      # Priority: provider attribute, User set node attribute -> ohai data -> us-east-1
       def query_aws_region
-        region = node['aws']['region']
-
-        if region.nil?
-          if node.attribute?('ec2')
-            region = instance_availability_zone
-            region = region[0, region.length - 1]
-          else
-            region = 'us-east-1'
-          end
+        # facilitate support for region in resource name
+        if !new_resource.region.to_s.empty?
+          Chef::Log.info('Using overridden region name in resource')
+          new_resource.region
+        elsif node['aws']['region']
+          node['aws']['region']
+        elsif node.attribute?('ec2')
+          instance_availability_zone[0, region.length - 1]
+        else
+          'us-east-1'
         end
-        region
       end
 
       # setup AWS instance using passed creds, iam profile, or assumed role
       def create_aws_interface(aws_interface)
-        region = query_aws_region
+        aws_interface_opts = { region: query_aws_region }
 
         if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
-          creds = ::Aws::Credentials.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, new_resource.aws_session_token)
+          Chef::Log.info('Using resource-defined credentials')
+          aws_interface_opts[:credentials] = ::Aws::Credentials.new(
+            new_resource.aws_access_key,
+            new_resource.aws_secret_access_key,
+            new_resource.aws_session_token)
         else
-          Chef::Log.info('Attempting to use iam profile')
-          creds = ::Aws::InstanceProfileCredentials.new
+          Chef::Log.info('Using local credential chain')
         end
 
         if !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
@@ -91,7 +94,7 @@ module Opscode
           sts_client = ::Aws::STS::Client.new(credentials: creds, region: region)
           creds = ::Aws::AssumeRoleCredentials.new(client: sts_client, role_arn: new_resource.aws_assume_role_arn, role_session_name: new_resource.aws_role_session_name)
         end
-        aws_interface.new(credentials: creds, region: region)
+        aws_interface.new(aws_interface_opts)
       end
 
       # fetch the instance ID from the metadata endpoint
