@@ -14,6 +14,7 @@ This cookbook includes resources and providers to configure and manage Amazon We
 - CloudFormation Stack Management (`cfn_stack`)
 - Kinesis Stream Management (`kinesis_stream`)
 - IAM User, Group, Policy, and Role Management:
+
   - (`iam_user`)
   - (`iam_group`)
   - (`iam_policy`)
@@ -156,7 +157,7 @@ This assumes you have also stored the `cfn_role_arn`, and `mfa_serial` attribute
 
 Note that MFA codes cannot be recycled, hence the importance of creating a single STS session and passing that to resources. If multiple roles need to be assumed using MFA, it is probably prudent that these be broken up into different recipes and `chef-client` runs.
 
-```
+```ruby
 require 'aws-sdk'
 require 'securerandom'
 
@@ -194,7 +195,7 @@ echo '{ "aws": { "mfa_code": "123456" } }' > mfa.json && chef-client -z -o 'reci
 
 `region` can be specified if the cookbook is being run outside of an AWS instance. This can prevent some kinds of failures that happen when resources try to detect region.
 
-```
+```ruby
 aws_cfn_stack 'kitchen-test-stack' do
   action :create
   template_source 'kitchen-test-stack.tpl'
@@ -510,7 +511,7 @@ Manage CloudFormation stacks with Chef!
 
 Example:
 
-```
+```ruby
 aws_cfn_stack 'example-stack' do
   region 'us-east-1'
   template_source 'example-stack.tpl'
@@ -535,25 +536,17 @@ Actions:
 
 Attribute parameters are:
 
-- `template_source`: Required - the location of the CloudFormation template file.
-- The file should be stored in the `files` directory in the cookbook.
-- `parameters`: An array of `parameter_key` and `parameter_value` pairs for
-- parameters in the template. Follow the syntax in the example above.
-- `disable_rollback`: Set this to `true` if you want stack rollback to be disabled
-- if creation of the stack fails. Default: `false`
-- `stack_policy_body`: Optionally define a stack policy to apply to the stack,
-- mainly used in protecting stack resources after they are created. For more
-- information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
-- in the CloudFormation user guide.
-- `iam_capability`: Set to `true` to allow the CloudFormation template to
-- create IAM resources. This is the equivalent of setting `CAPABILITY_IAM`
-- When using the SDK or CLI. Default: `false`
+- `template_source`: Required - the location of the CloudFormation template file. The file should be stored in the `files` directory in the cookbook.
+- `parameters`: An array of `parameter_key` and `parameter_value` pairs for parameters in the template. Follow the syntax in the example above.
+- `disable_rollback`: Set this to `true` if you want stack rollback to be disabled if creation of the stack fails. Default: `false`
+- `stack_policy_body`: Optionally define a stack policy to apply to the stack, mainly used in protecting stack resources after they are created. For more information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the CloudFormation user guide.
+- `iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources. This is the equivalent of setting `CAPABILITY_IAM` When using the SDK or CLI. Default: `false`
 
 ## aws_dynamodb_table
 
 Use this resource to create and delete DynamoDB tables. This includes the ability to add global secondary indexes to existing tables.
 
-```
+```ruby
 aws_dynamodb_table 'example-table' do
   action :create
   attribute_definitions [
@@ -615,26 +608,18 @@ Actions:
 
 - `create`: Creates the table. Will update the following if the table exists:
 
-  - `global_secondary_indexes`: Will remove non-existent indexes, add new ones,
-  - and update throughput for existing ones. All attributes need to be present
-  - in `attribute_definitions`. No effect if the resource is omitted.
-  - `stream_specification`: Will update as shown. No effect is the resource is
-  - omitted.
+  - `global_secondary_indexes`: Will remove non-existent indexes, add new ones, and update throughput for existing ones. All attributes need to be present in `attribute_definitions`. No effect if the resource is omitted.
+  - `stream_specification`: Will update as shown. No effect is the resource is omitted.
   - `provisioned_throughput`: Will update as shown.
 
 - `delete`: Deletes the index.
 
 Attributes:
 
-- `attribute_definitions`: Required. Attributes to create for the table.
-- Mainly this is used to specify attributes that are used in keys, as otherwise
-- one can add any attribute they want to a DynamoDB table.
-- `key_schema`: Required. Used to create the primary key for the table.
-- Attributes need to be present in `attribute_definitions`.
-- `local_secondary_indexes`: Used to create any local secondary indexes for the
-- table. Attributes need to be present in `attribute_definitions`.
-- `global_secondary_indexes`: Used to create any global secondary indexes. Can
-- be done to an existing table. Attributes need to be present in
+- `attribute_definitions`: Required. Attributes to create for the table. Mainly this is used to specify attributes that are used in keys, as otherwise one can add any attribute they want to a DynamoDB table.
+- `key_schema`: Required. Used to create the primary key for the table. Attributes need to be present in `attribute_definitions`.
+- `local_secondary_indexes`: Used to create any local secondary indexes for the table. Attributes need to be present in `attribute_definitions`.
+- `global_secondary_indexes`: Used to create any global secondary indexes. Can be done to an existing table. Attributes need to be present in
 - `attribute_definitions`.
 - `provisioned_throughput`: Define the throughput for this table.
 - `stream_specification`: Specify if there should be a stream for this table.
@@ -645,7 +630,7 @@ Several of the attributes shown here take parameters as shown in the [AWS Ruby S
 
 Use this resource to create and delete Kinesis streams. Note that this resource cannot be used to modify the shard count as shard splitting is a somewhat complex operation (for example, even CloudFormation replaces streams upon update).
 
-```
+```ruby
 aws_kinesis_stream 'example-stream' do
  action :create
  starting_shard_count 1
@@ -663,7 +648,7 @@ Use `starting_shard_count` to control the amount of shards the stream starts wit
 
 Use this resource to manage IAM users.
 
-```
+```ruby
 aws_iam_user 'example-user' do
   action :create
   path '/'
@@ -673,8 +658,7 @@ end
 Actions:
 
 - `create`: Creates the user. No effect if the user already exists.
-- `delete`: Gracefully deletes the user (detatches from all attached entities,
-- and deletes the user).
+- `delete`: Gracefully deletes the user (detaches from all attached entities, and deletes the user).
 
 The IAM user takes the name of the resource. A `path` can be specified as well. For more information about paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
 
@@ -682,7 +666,7 @@ The IAM user takes the name of the resource. A `path` can be specified as well. 
 
 Use this resource to manage IAM groups. The group takes the name of the resource.
 
-```
+```ruby
 aws_iam_group 'example-group' do
   action :create
   path '/'
@@ -699,30 +683,22 @@ end
 
 Actions:
 
-- `create`: Creates the group, and updates members and attached policies if the
-- group already exists.
-- `delete`: Gracefully deletes the group (detatches from all attached entities,
-- and deletes the group).
+- `create`: Creates the group, and updates members and attached policies if the group already exists.
+- `delete`: Gracefully deletes the group (detaches from all attached entities, and deletes the group).
 
 Attribute parameters are:
 
-- `path`: A path can be supplied for the group. For information on paths, see
-- [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
-- in the Using IAM guide.
+- `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
 - `members`: An array of IAM users that are a member of this group.
-- `remove_members`: Set to `false` to ensure that members are not removed from
-- the group when they are not present in the defined resource. Default: `true`
-- `policy_members`: An array of ARNs of IAM managed policies to attach to this
-- resource. Accepts both user-defined and AWS-defined policy ARNs.
-- `remove_policy_members`: Set to `false` to ensure that policies are not
-- detached from the group when they are not present in the defined resource.
-- Default: `true`
+- `remove_members`: Set to `false` to ensure that members are not removed from the group when they are not present in the defined resource. Default: `true`
+- `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
+- `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
 
 ## aws_iam_policy
 
 Use this resource to create an IAM policy. The policy takes the name of the resource.
 
-```
+```ruby
 aws_iam_policy 'example-policy' do
   action :create
   path '/'
@@ -750,23 +726,19 @@ end
 Actions:
 
 - `create`: Creates or updates the policy.
-- `delete`: Gracefully deletes the policy (detatches from all attached entities,
-- deletes all non-default policy versions, then deletes the policy).
+- `delete`: Gracefully deletes the policy (detaches from all attached entities, deletes all non-default policy versions, then deletes the policy).
 
 Attribute parameters are:
 
-- `path`: A path can be supplied for the group. For information on paths, see
-- [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
-- in the Using IAM guide.
+- `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
 - `policy_document`: The JSON document for the policy.
-- `account_id`: The AWS account ID that the policy is going in. Required if
-- using non-user credentials (ie: IAM role through STS or instance role).
+- `account_id`: The AWS account ID that the policy is going in. Required if using non-user credentials (ie: IAM role through STS or instance role).
 
 ## aws_iam_role
 
 Use this resource to create an IAM role. The policy takes the name of the resource.
 
-```
+```ruby
 aws_iam_role 'example-role' do
   action :create
   path '/'
@@ -792,23 +764,15 @@ aws_iam_role 'example-role' do
 end
 ```
 
-- `create`: Creates the role if it does not exist. If the role exists, updates
-- attached policies and the `assume_role_policy_document`.
-- `delete`: Gracefully deletes the role (detatches from all attached entities,
-- and deletes the role).
+- `create`: Creates the role if it does not exist. If the role exists, updates attached policies and the `assume_role_policy_document`.
+- `delete`: Gracefully deletes the role (detaches from all attached entities, and deletes the role).
 
 Attribute parameters are:
 
-- `path`: A path can be supplied for the group. For information on paths, see
-- [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
-- in the Using IAM guide.
-- `policy_members`: An array of ARNs of IAM managed policies to attach to this
-- resource. Accepts both user-defined and AWS-defined policy ARNs.
-- `remove_policy_members`: Set to `false` to ensure that policies are not
-- detached from the group when they are not present in the defined resource.
-- Default: `true`
-- `assume_role_policy_document`: The JSON policy document to apply to this role
-- for trust relationships. Dictates what entities can assume this role.
+- `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
+- `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
+- `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
+- `assume_role_policy_document`: The JSON policy document to apply to this role for trust relationships. Dictates what entities can assume this role.
 
 ## License and Authors
 
