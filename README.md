@@ -14,7 +14,6 @@ This cookbook includes resources and providers to configure and manage Amazon We
 - CloudFormation Stack Management (`cfn_stack`)
 - Kinesis Stream Management (`kinesis_stream`)
 - IAM User, Group, Policy, and Role Management:
-
   - (`iam_user`)
   - (`iam_group`)
   - (`iam_policy`)
