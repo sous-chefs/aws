@@ -11,7 +11,7 @@ This cookbook includes resources and providers to configure and manage Amazon We
 - AWS Resource Tags (`resource_tag`)
 - Secondary IPs (`secondary_ip`)
 - AWS Cloudwatch Instance Monitoring (`aws_instance_monitoring`)
-- CloudFormation Stack Management (`cfn_stack`)
+- CloudFormation Stack Management (`cloudformation_stack`)
 - Kinesis Stream Management (`kinesis_stream`)
 - IAM User, Group, Policy, and Role Management:
   - (`iam_user`)
@@ -175,7 +175,7 @@ sts = ::Aws::AssumeRoleCredentials.new(
   token_code: node['aws']['mfa_code']
 )
 
-aws_cfn_stack 'kitchen-test-stack' do
+aws_cloudformation_stack 'kitchen-test-stack' do
   action :create
   template_source 'kitchen-test-stack.tpl'
   aws_access_key sts.access_key_id
@@ -195,7 +195,7 @@ echo '{ "aws": { "mfa_code": "123456" } }' > mfa.json && chef-client -z -o 'reci
 `region` can be specified if the cookbook is being run outside of an AWS instance. This can prevent some kinds of failures that happen when resources try to detect region.
 
 ```ruby
-aws_cfn_stack 'kitchen-test-stack' do
+aws_cloudformation_stack 'kitchen-test-stack' do
   action :create
   template_source 'kitchen-test-stack.tpl'
   region 'us-east-1'
@@ -504,14 +504,14 @@ aws_secondary_ip "assign_additional_ip" do
 end
 ```
 
-## aws_cfn_stack
+## aws_cloudformation_stack
 
 Manage CloudFormation stacks with Chef!
 
 Example:
 
 ```ruby
-aws_cfn_stack 'example-stack' do
+aws_cloudformation_stack 'example-stack' do
   region 'us-east-1'
   template_source 'example-stack.tpl'
 
