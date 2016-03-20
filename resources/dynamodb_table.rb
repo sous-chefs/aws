@@ -4,15 +4,15 @@ actions :create, :delete
 attribute :table_name, kind_of: String, name_attribute: true
 attribute :attribute_definitions, kind_of: Array, required: true
 attribute :key_schema, kind_of: Array, required: true
-attribute :local_secondary_indexes, kind_of: Array, default: nil
-attribute :global_secondary_indexes, kind_of: Array, default: nil
+attribute :local_secondary_indexes, kind_of: Array
+attribute :global_secondary_indexes, kind_of: Array
 attribute :provisioned_throughput, kind_of: Hash, required: true
-attribute :stream_specification, kind_of: Hash, default: nil
+attribute :stream_specification, kind_of: Hash
 # AWS common attributes
-attribute :region, kind_of: String, default: nil
-attribute :aws_access_key, kind_of: String, default: nil
-attribute :aws_secret_access_key, kind_of: String, default: nil
-attribute :aws_session_token, kind_of: String, default: nil
+attribute :region, kind_of: String
+attribute :aws_access_key, kind_of: String
+attribute :aws_secret_access_key, kind_of: String
+attribute :aws_session_token, kind_of: String
 
 private
 
