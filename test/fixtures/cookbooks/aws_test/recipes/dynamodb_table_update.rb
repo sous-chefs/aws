@@ -1,4 +1,8 @@
+include_recipe 'aws::default'
+
 aws_dynamodb_table 'test-dynamodb-table-create' do
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
   table_name 'test-dynamodb-table'
   action :create
   attribute_definitions [
