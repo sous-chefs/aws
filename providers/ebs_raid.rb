@@ -4,7 +4,6 @@ action :auto_attach do # ~FC017 https://github.com/acrmp/foodcritic/issues/387
   package 'mdadm'
 
   # Set node['aws']['raid'] = {} if it doesn't already exist
-  node.set['aws'] ||= {}
   node.set['aws']['raid'] ||= {}
 
   # Save mount point information to the node if it doesn't already exist
@@ -433,13 +432,8 @@ end
 
 def aws_creds
   h = {}
-  if new_resource.aws_access_key && new_resource.aws_secret_access_key
-    h['aws_access_key_id'] = new_resource.aws_access_key
-    h['aws_secret_access_key'] = new_resource.aws_secret_access_key
-    h['aws_session_token'] = new_resource.aws_session_token
-  elsif node['aws']['databag_name'] && node['aws']['databag_entry']
-    Chef::Log.warn("DEPRECATED: node['aws']['databag_name'] and node['aws']['databag_entry'] are deprecated. Use LWRP parameters instead.")
-    h = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
-  end
+  h['aws_access_key_id'] = new_resource.aws_access_key
+  h['aws_secret_access_key'] = new_resource.aws_secret_access_key
+  h['aws_session_token'] = new_resource.aws_session_token
   h
 end
