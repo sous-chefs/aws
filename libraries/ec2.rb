@@ -69,7 +69,7 @@ module Opscode
           Chef::Log.debug("Using overridden region name, #{new_resource.region}, from resource")
           new_resource.region
         elsif node.attribute?('ec2')
-          Chef::Log.debug('Using region from Ohai attributes')
+          Chef::Log.debug("Using region #{instance_availability_zone.chop} from Ohai attributes")
           instance_availability_zone.chop
         else
           Chef::Log.debug('Falling back to region us-east-1 as Ohai data and resource defined region not present')
