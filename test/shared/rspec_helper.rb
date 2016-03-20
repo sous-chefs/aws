@@ -15,8 +15,8 @@ class ChefAwsDDBTest
     availability_zone = open(
       'http://169.254.169.254' \
       '/latest/meta-data/placement/availability-zone/',
-      proxy: nil
-    ) { |fd| fd.gets }
+      proxy: nil, &:gets
+    )
     region = availability_zone.chop
     region
   end

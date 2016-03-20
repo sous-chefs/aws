@@ -92,7 +92,7 @@ private
 
 # check to see if table stream spec has changed (API spec first)
 def stream_changed?(api_spec, res_spec)
-  return true if api_spec.nil? and res_spec[:stream_enabled]
+  return true if api_spec.nil? && res_spec[:stream_enabled]
   if api_spec.stream_enabled != res_spec[:stream_enabled] ||
      api_spec.stream_view_type != res_spec[:stream_view_type]
     true

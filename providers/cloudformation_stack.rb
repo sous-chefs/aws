@@ -95,7 +95,7 @@ def load_template_path
   cookbook = run_context.cookbook_collection[new_resource.cookbook_name]
   file_cache_location = cookbook.preferred_filename_on_disk_location(run_context.node, :files, new_resource.template_source)
   if file_cache_location.nil?
-    fail "Cannot find #{new_resource.template_source} in cookbook!"
+    raise "Cannot find #{new_resource.template_source} in cookbook!"
   else
     @template_path = file_cache_location
   end
