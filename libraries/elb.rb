@@ -14,7 +14,7 @@ module Opscode
         end
 
         Chef::Log.debug('Initializing the AWS Client')
-        @@elb ||= create_aws_interface(::Aws::ElasticLoadBalancing::Client)
+        @elb ||= create_aws_interface(::Aws::ElasticLoadBalancing::Client)
       end
     end
   end

@@ -22,8 +22,8 @@ module Opscode
         end
 
         Chef::Log.debug('Initializing the AWS Client')
-        @@s3 ||= {}
-        @@s3[new_resource.region] ||= create_aws_interface(::Aws::S3::Client)
+        @s3 ||= {}
+        @s3[new_resource.region] ||= create_aws_interface(::Aws::S3::Client)
       end
     end
   end

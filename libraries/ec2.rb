@@ -48,7 +48,7 @@ module Opscode
         end
 
         Chef::Log.debug('Initializing the AWS Client')
-        @@ec2 ||= create_aws_interface(::Aws::EC2::Client)
+        @ec2 ||= create_aws_interface(::Aws::EC2::Client)
       end
 
       def instance_id
