@@ -9,8 +9,11 @@ module Opscode
         begin
           require 'aws-sdk'
         rescue LoadError
-          Chef::Log.error("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
+          Chef::Log.fatal("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
+          raise
         end
+
+        Chef::Log.debug('Initializing the AWS Client')
         @@elb ||= create_aws_interface(::Aws::ElasticLoadBalancing::Client)
       end
     end
