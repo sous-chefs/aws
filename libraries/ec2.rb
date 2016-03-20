@@ -60,16 +60,16 @@ module Opscode
       private
 
       # determine the AWS region of the node
-      # Priority: provider attribute, User set node attribute -> ohai data -> us-east-1
+      # Priority: resource property, user set node attribute -> ohai data -> us-east-1
       def query_aws_region
         # facilitate support for region in resource name
-        if !new_resource.region.to_s.empty?
-          Chef::Log.info('Using overridden region name in resource')
+        if new_resource.region
+          Chef::Log.info("Using overridden region name, #{new_resource.region}, from resource")
           new_resource.region
         elsif node['aws']['region']
           node['aws']['region']
         elsif node.attribute?('ec2')
-          instance_availability_zone[0, region.length - 1]
+          instance_availability_zone.chop
         else
           'us-east-1'
         end
