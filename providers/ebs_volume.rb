@@ -34,7 +34,7 @@ action :create do
       end
     else
       # If not, create volume and register its id in the node data
-      converge_by("create a volume with id=#{new_resource.snapshot_id} size=#{new_resource.size} availability_zone=#{new_resource.availability_zone} and update the node data with created volume's id") do
+      converge_by("create a volume with snapshot_id=#{new_resource.snapshot_id || 'not_set'} size=#{new_resource.size} availability_zone=#{new_resource.availability_zone || node['ec2']['placement_availability_zone']} and update the node data with created volume's id") do
         nvid = create_volume(new_resource.snapshot_id,
                              new_resource.size,
                              new_resource.availability_zone,
