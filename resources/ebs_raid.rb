@@ -20,12 +20,9 @@ state_attrs :aws_access_key,
 attribute :aws_access_key,        kind_of: String
 attribute :aws_secret_access_key, kind_of: String
 attribute :aws_session_token,     kind_of: String, default: nil
-<<<<<<< HEAD
 attribute :aws_assume_role_arn,   kind_of: String
 attribute :aws_role_session_name, kind_of: String
-=======
 attribute :region,                kind_of: String, default: nil
->>>>>>> f49567286fa118019b85daebde7d07caa68d6d75
 attribute :mount_point,           kind_of: String
 attribute :mount_point_owner,     kind_of: String, default: 'root'
 attribute :mount_point_group,     kind_of: String, default: 'root'
