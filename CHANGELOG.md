@@ -4,8 +4,17 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## UNRELEASED
 
+### Breaking changes:
+  - Removed the ability to use databags for credentials with the ebs_raid provider. You must now pass the credentials in via the resource, [@tas50][]
+  - [#218][] Remove support for Chef < 11.6.0, [@tas50][]
+  
+### Other Changes
+- [#172][] Several new features (AWS CloudFormation Support, IAM Support, Kinesis, DynamoDB, and local auth options) [@vancluever][]
 - [#63][] Add xfs support for ebs_raid filesystem, [@bazbremner][]
-- [#218][] Remove support for Chef < 11.6.0, [@tas50][]
+- Fixed nil default value deprecation warnings in the providers, [@tas50][]
+- Fixed errors in the ebs_raid provider, [@tas50][]
+- Fixed missing values in the converge messaging in the ebs_volume provider, [@tas50][]
+
 
 ## v2.9.3 (2016-03-07)
 
@@ -247,6 +256,7 @@ This file is used to list changes made in each version of the aws cookbook.
 [#160]: https://github.com/opscode-cookbooks/aws/issues/160
 [#162]: https://github.com/opscode-cookbooks/aws/issues/162
 [#165]: https://github.com/opscode-cookbooks/aws/issues/165
+[#172]: https://github.com/opscode-cookbooks/aws/issues/183
 [#183]: https://github.com/opscode-cookbooks/aws/issues/183
 [#185]: https://github.com/opscode-cookbooks/aws/issues/185
 [#189]: https://github.com/opscode-cookbooks/aws/issues/189
@@ -271,3 +281,4 @@ This file is used to list changes made in each version of the aws cookbook.
 [@ubiquitousthey]: https://github.com/ubiquitousthey
 [@zl4bv]: https://github.com/zl4bv
 [@bazbremner]: https://github.com/bazbremner 
+[@vancluever]: https://github.com/vancluever
