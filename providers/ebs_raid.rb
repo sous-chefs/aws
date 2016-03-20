@@ -316,7 +316,7 @@ end
 def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_point_mode, num_disks, disk_size,
                       level, filesystem, filesystem_options, snapshots, disk_type, disk_piops, existing_raid, disk_encrypted, disk_kms_key_id)
 
-  creating_from_snapshot = !(snapshots.nil? || snapshots.size.empty?)
+  creating_from_snapshot = !snapshots.empty?
 
   disk_dev = find_free_volume_device_prefix
   Chef::Log.debug("vol device prefix is #{disk_dev}")
