@@ -1,3 +1,5 @@
+include_recipe 'aws::default'
+
 aws_iam_role 'test-kitchen-role' do
   action :create
   assume_role_policy_document <<-EOH.gsub(/^ {4}/, '')
