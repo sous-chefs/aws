@@ -9,6 +9,10 @@ attribute :disable_rollback, kind_of: [TrueClass, FalseClass], default: false
 attribute :iam_capability, kind_of: [TrueClass, FalseClass], default: false
 attribute :stack_policy_body, kind_of: String
 attribute :region, kind_of: String
+
+# aws credential attributes
 attribute :aws_access_key, kind_of: String
 attribute :aws_secret_access_key, kind_of: String
 attribute :aws_session_token, kind_of: String
+attribute :aws_assume_role_arn, kind_of: String
+attribute :aws_role_session_name, kind_of: String
