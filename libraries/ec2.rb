@@ -50,11 +50,11 @@ module Opscode
       end
 
       def instance_id
-        @@instance_id ||= query_instance_id
+        node['ec2']['instance_id']
       end
 
       def instance_availability_zone
-        @@instance_availability_zone ||= query_instance_availability_zone
+        node['ec2']['placement_availability_zone']
       end
 
       private
@@ -64,13 +64,13 @@ module Opscode
       def query_aws_region
         # facilitate support for region in resource name
         if new_resource.region
-          Chef::Log.info("Using overridden region name, #{new_resource.region}, from resource")
+          Chef::Log.debug("Using overridden region name, #{new_resource.region}, from resource")
           new_resource.region
-        elsif node['aws']['region']
-          node['aws']['region']
         elsif node.attribute?('ec2')
+          Chef::Log.debug('Using region from Ohai attributes')
           instance_availability_zone.chop
         else
+          Chef::Log.debug('Falling back to region us-east-1 as Ohai data and resource defined region not present')
           'us-east-1'
         end
       end
@@ -80,13 +80,13 @@ module Opscode
         aws_interface_opts = { region: query_aws_region }
 
         if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
-          Chef::Log.info('Using resource-defined credentials')
+          Chef::Log.debug('Using resource-defined credentials')
           aws_interface_opts[:credentials] = ::Aws::Credentials.new(
             new_resource.aws_access_key,
             new_resource.aws_secret_access_key,
             new_resource.aws_session_token)
         else
-          Chef::Log.info('Using local credential chain')
+          Chef::Log.debug('Using local credential chain')
         end
 
         if !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
@@ -95,22 +95,6 @@ module Opscode
           creds = ::Aws::AssumeRoleCredentials.new(client: sts_client, role_arn: new_resource.aws_assume_role_arn, role_session_name: new_resource.aws_role_session_name)
         end
         aws_interface.new(aws_interface_opts)
-      end
-
-      # fetch the instance ID from the metadata endpoint
-      def query_instance_id
-        instance_id = open('http://169.254.169.254/latest/meta-data/instance-id', options = { proxy: false }, &:gets)
-        raise 'Cannot find instance id!' unless instance_id
-        Chef::Log.debug("Instance ID is #{instance_id}")
-        instance_id
-      end
-
-      # fetch the availability zone from the metadata endpoint
-      def query_instance_availability_zone
-        availability_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone/', options = { proxy: false }, &:gets)
-        raise 'Cannot find availability zone!' unless availability_zone
-        Chef::Log.debug("Instance's availability zone is #{availability_zone}")
-        availability_zone
       end
 
       # fetch the mac address of an interface.
