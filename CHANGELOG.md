@@ -7,6 +7,7 @@ This file is used to list changes made in each version of the aws cookbook.
 ### Breaking changes:
   - Removed the ability to use databags for credentials with the ebs_raid provider. You must now pass the credentials in via the resource, [@tas50][]
   - [#218][] Remove support for Chef < 11.6.0, [@tas50][]
+  - Switched to Ohai to gather information on the AWS instance instead of direct AWS metadata calls. This also removes the node['region'] attribute, which is no longer necessary.  If you would like to mock the region for some reason in local testing set `node['ec2']['placement_availability_zone']` to the AZ, as this is used to determine the region, [@tas50][]
   
 ### Other Changes
 - [#172][] Several new features (AWS CloudFormation Support, IAM Support, Kinesis, DynamoDB, and local auth options) [@vancluever][]
