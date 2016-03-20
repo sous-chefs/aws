@@ -1,3 +1,5 @@
+include_recipe 'aws::default'
+
 # this document is a copy of the AWS ReadOnly managed policy v3
 aws_iam_policy 'test-kitchen-policy' do
   action :create
@@ -112,4 +114,12 @@ aws_iam_policy 'test-kitchen-policy' do
       ]
     }
   EOH
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
+aws_iam_policy 'test-kitchen-policy' do
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  action :delete
 end

@@ -1,5 +1,3 @@
-include_recipe 'aws'
-
 aws_dynamodb_table 'test-dynamodb-table' do
   action :create
   attribute_definitions [

@@ -1,4 +1,4 @@
-include_recipe 'aws'
+include_recipe 'aws::default'
 
 aws_elastic_ip 'elastic_ip' do
   aws_access_key node['aws_test']['key_id']

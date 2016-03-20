@@ -1,4 +1,4 @@
-include_recipe 'aws'
+include_recipe 'aws::default'
 
 aws_s3_file '/tmp/an_file' do
   bucket node['aws_test']['bucket']

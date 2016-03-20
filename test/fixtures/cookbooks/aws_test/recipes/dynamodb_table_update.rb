@@ -1,5 +1,3 @@
-include_recipe 'aws'
-
 aws_dynamodb_table 'test-dynamodb-table-create' do
   table_name 'test-dynamodb-table'
   action :create
