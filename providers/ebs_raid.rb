@@ -1,5 +1,7 @@
 include Opscode::Aws::Ec2
 
+use_inline_resources
+
 action :auto_attach do # ~FC017 https://github.com/acrmp/foodcritic/issues/387
   package 'mdadm'
 

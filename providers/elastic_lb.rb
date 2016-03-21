@@ -1,4 +1,6 @@
-include Opscode::Aws::Elb
+include Opscode::Aws
+
+use_inline_resources
 
 action :register do
   converge_by("add the node #{new_resource.name} to ELB") do

@@ -1,6 +1,7 @@
 include Opscode::Aws::Ec2
 
-# Support whyrun
+use_inline_resources
+
 def whyrun_supported?
   true
 end

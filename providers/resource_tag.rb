@@ -1,5 +1,7 @@
 include Opscode::Aws::Ec2
 
+use_inline_resources
+
 action :add do
   resource_id = unless @new_resource.resource_id
                   @new_resource.name

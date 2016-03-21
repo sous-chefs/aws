@@ -1,5 +1,7 @@
 include Opscode::Aws::DynamoDB
 
+use_inline_resources
+
 def whyrun_supported?
   true
 end

@@ -2,6 +2,8 @@ include Opscode::Aws::IAM
 
 require 'json'
 
+use_inline_resources
+
 def whyrun_supported?
   true
 end
