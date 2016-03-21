@@ -271,7 +271,7 @@ This file is used to list changes made in each version of the aws cookbook.
 [#160]: https://github.com/opscode-cookbooks/aws/issues/160
 [#162]: https://github.com/opscode-cookbooks/aws/issues/162
 [#165]: https://github.com/opscode-cookbooks/aws/issues/165
-[#172]: https://github.com/opscode-cookbooks/aws/issues/183
+[#172]: https://github.com/opscode-cookbooks/aws/issues/172
 [#183]: https://github.com/opscode-cookbooks/aws/issues/183
 [#185]: https://github.com/opscode-cookbooks/aws/issues/185
 [#189]: https://github.com/opscode-cookbooks/aws/issues/189
