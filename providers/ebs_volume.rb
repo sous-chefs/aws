@@ -243,12 +243,14 @@ end
 # Detaches the volume and blocks until done (or times out)
 def detach_volume(volume_id, timeout)
   vol = volume_by_id(volume_id)
-  if vol[:instance_id] != instance_id
-    Chef::Log.debug("EBS Volume #{volume_id} is not attached to this instance (attached to #{vol[:instance_id]}). Skipping...")
+  attachment = vol[:attachments].find { |a| a[:instance_id] == instance_id }
+  if attachment.nil?
+    attached_instance_ids = vol[:attachments].collect { |a| a[:instance_id] }
+    Chef::Log.debug("EBS Volume #{volume_id} is not attached to this instance (attached to #{attached_instance_ids}). Skipping...")
     return
   end
   Chef::Log.debug("Detaching #{volume_id}")
-  orig_instance_id = vol[:instance_id]
+  orig_instance_id = attachment[:instance_id]
   ec2.detach_volume(volume_id: volume_id)
 
   # block until detached
@@ -257,7 +259,8 @@ def detach_volume(volume_id, timeout)
       loop do
         vol = volume_by_id(volume_id)
         if vol && vol[:state] != 'deleting'
-          if vol[:instance_id] != orig_instance_id
+          poll_attachment = vol[:attachments].find { |a| a[:instance_id] == instance_id }
+          if poll_attachment.nil?
             Chef::Log.info("Volume detached from #{orig_instance_id}")
             break
           else
