@@ -17,6 +17,7 @@ This file is used to list changes made in each version of the aws cookbook.
 - Fixed errors in the ebs_raid provider, [@tas50][]
 - Fixed missing values in the converge messaging in the ebs_volume provider, [@tas50][]
 - Fixed a failure when detaching ebs volumes, [@dhui][]
+- Added use_inline_resources to all providers, [@tas50][]
 
 
 ## v2.9.3 (2016-03-07)
