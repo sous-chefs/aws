@@ -11,10 +11,12 @@ This file is used to list changes made in each version of the aws cookbook.
   
 ### Other Changes
 - [#172][] Several new features (AWS CloudFormation Support, IAM Support, Kinesis, DynamoDB, and local auth options) [@vancluever][]
+- Changes the AWS connect to not be shared accross resources.  This allows each resource to run against a different region or use different credentials, [@tas50[]
 - [#63][] Add xfs support for ebs_raid filesystem, [@bazbremner][]
 - Fixed nil default value deprecation warnings in the providers, [@tas50][]
 - Fixed errors in the ebs_raid provider, [@tas50][]
 - Fixed missing values in the converge messaging in the ebs_volume provider, [@tas50][]
+- Fixed a failure when detaching ebs volumes, [@dhui][]
 
 
 ## v2.9.3 (2016-03-07)
