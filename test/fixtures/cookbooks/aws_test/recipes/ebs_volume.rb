@@ -8,3 +8,7 @@ aws_ebs_volume 'db_ebs_volume' do
   delete_on_termination true
   action [:create, :attach]
 end
+
+aws_ebs_volume 'db_ebs_volume' do
+  action [:detach]
+end
