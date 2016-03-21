@@ -16,10 +16,6 @@ env:
   - INSTANCE=default-ubuntu-1404
   - INSTANCE=default-centos-6
   - INSTANCE=default-centos-7
-  - INSTANCE=ohai-hint-ubuntu-1204
-  - INSTANCE=ohai-hint-ubuntu-1404
-  - INSTANCE=ohai-hint-centos-6
-  - INSTANCE=ohai-hint-centos-7
 
 # Don't `bundle install`
 install: echo "skip bundle install"
