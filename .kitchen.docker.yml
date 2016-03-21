@@ -45,6 +45,6 @@ platforms:
 
 suites:
   - name: default
-    run_list: aws::default
-  - name: ohai_hint
-    run_list: aws::ec2_hints
+    run_list:
+    - recipe[aws::default]
+    - recipe[aws::ec2_hints]
