@@ -31,7 +31,7 @@ def do_s3_file(resource_action)
   s3url = obj.presigned_url(:get, expires_in: 300)
 
   if resource_action == :create
-    if Opscode::Aws::S3.compare_md5s(obj, new_resource.path)
+    if compare_md5s(obj, new_resource.path)
       Chef::Log.info("Remote and local files appear to be identical, skipping #{resource_action} operation.")
       skip_action == true
     end
