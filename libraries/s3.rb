@@ -25,7 +25,7 @@ module Opscode
       def compare_md5s(remote_object, local_file_path)
         return false unless ::File.exist?(local_file_path)
         local_md5 = ::Digest::MD5.new
-        remote_hash = remote_object.etag
+        remote_hash = remote_object.etag.delete('"') # etags are always quoted
 
         ::File.open(local_file_path, 'rb') do |f|
           f.each_line do |line|
