@@ -2,6 +2,9 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## UNRELEASED
+- Added the sensitive attribute to the s3_file provider
+
 ## v3.0.0 (2016-03-20)
 
 ### Breaking changes:
