@@ -25,29 +25,39 @@ end
 def do_s3_file(resource_action)
   remote_path = new_resource.remote_path
   remote_path.sub!(%r{^/*}, '')
+  skip_action = false
 
   obj = ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
   s3url = obj.presigned_url(:get, expires_in: 300)
 
-  remote_file new_resource.name do
-    path new_resource.path
-    source s3url.gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
-    owner new_resource.owner
-    group new_resource.group
-    mode new_resource.mode
-    checksum new_resource.checksum
-    backup new_resource.backup
-    headers new_resource.headers
-    use_etag new_resource.use_etag
-    use_last_modified new_resource.use_last_modified
-    atomic_update new_resource.atomic_update
-    force_unlink new_resource.force_unlink
-    manage_symlink_source new_resource.manage_symlink_source
-    if node['platform_family'] == 'windows'
-      inherits new_resource.inherits
-      rights new_resource.rights
+  if resource_action == :create
+    if Opscode::Aws::S3.compare_md5s(obj, new_resource.path)
+      Chef::Log.info("Remote and local files appear to be identical, skipping #{resource_action} operation.")
+      skip_action == true
     end
-    sensitive new_resource.sensitive
-    action resource_action
+  end
+
+  unless skip_action
+    remote_file new_resource.name do
+      path new_resource.path
+      source s3url.gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
+      owner new_resource.owner
+      group new_resource.group
+      mode new_resource.mode
+      checksum new_resource.checksum
+      backup new_resource.backup
+      headers new_resource.headers
+      use_etag new_resource.use_etag
+      use_last_modified new_resource.use_last_modified
+      atomic_update new_resource.atomic_update
+      force_unlink new_resource.force_unlink
+      manage_symlink_source new_resource.manage_symlink_source
+      sensitive new_resource.sensitive
+      if node['platform_family'] == 'windows'
+        inherits new_resource.inherits
+        rights new_resource.rights
+      end
+      action resource_action
+    end
   end
 end
