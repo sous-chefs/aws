@@ -25,19 +25,19 @@ end
 def do_s3_file(resource_action)
   remote_path = new_resource.remote_path
   remote_path.sub!(%r{^/*}, '')
-  skip_action = false
+  md5s_match = false
 
-  obj = ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
-  s3url = obj.presigned_url(:get, expires_in: 300)
+  s3_obj = ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
+  s3url = s3_obj.presigned_url(:get, expires_in: 300)
 
   if resource_action == :create
-    if compare_md5s(obj, new_resource.path)
+    if compare_md5s(s3_obj, new_resource.path)
       Chef::Log.info("Remote and local files appear to be identical, skipping #{resource_action} operation.")
-      skip_action == true
+      md5s_match == true
     end
   end
 
-  unless skip_action
+  unless md5s_match
     remote_file new_resource.name do
       path new_resource.path
       source s3url.gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue

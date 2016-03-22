@@ -27,10 +27,10 @@ module Opscode
       end
 
       def compare_md5s(remote_object, local_file_path)
-        local_md5 = Digest::MD5.new
+        local_md5 = ::Digest::MD5.new
         remote_hash = remote_object.etag
 
-        File.open(local_file_path, 'rb') do |f|
+        ::File.open(local_file_path, 'rb') do |f|
           f.each_line do |line|
             local_md5.update line
           end
