@@ -37,27 +37,26 @@ def do_s3_file(resource_action)
     end
   end
 
-  unless md5s_match
-    remote_file new_resource.name do
-      path new_resource.path
-      source s3url.gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
-      owner new_resource.owner
-      group new_resource.group
-      mode new_resource.mode
-      checksum new_resource.checksum
-      backup new_resource.backup
-      headers new_resource.headers
-      use_etag new_resource.use_etag
-      use_last_modified new_resource.use_last_modified
-      atomic_update new_resource.atomic_update
-      force_unlink new_resource.force_unlink
-      manage_symlink_source new_resource.manage_symlink_source
-      sensitive new_resource.sensitive
-      if node['platform_family'] == 'windows'
-        inherits new_resource.inherits
-        rights new_resource.rights
-      end
-      action resource_action
+  remote_file new_resource.name do
+    path new_resource.path
+    source s3url.gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
+    owner new_resource.owner
+    group new_resource.group
+    mode new_resource.mode
+    checksum new_resource.checksum
+    backup new_resource.backup
+    headers new_resource.headers
+    use_etag new_resource.use_etag
+    use_last_modified new_resource.use_last_modified
+    atomic_update new_resource.atomic_update
+    force_unlink new_resource.force_unlink
+    manage_symlink_source new_resource.manage_symlink_source
+    sensitive new_resource.sensitive
+    if node['platform_family'] == 'windows'
+      inherits new_resource.inherits
+      rights new_resource.rights
     end
+    action resource_action
+    not_if { md5s_match }
   end
 end
