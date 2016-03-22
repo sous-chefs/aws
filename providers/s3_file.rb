@@ -35,6 +35,8 @@ def do_s3_file(resource_action)
     if compare_md5s(s3_obj, new_resource.path)
       Chef::Log.info("Remote and local files appear to be identical, skipping #{resource_action} operation.")
       md5s_match == true
+    else
+      Chef::Log.info("Remote and local files do not match, running #{resource_action} operation.")
     end
   end
 
