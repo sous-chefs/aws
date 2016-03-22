@@ -14,8 +14,9 @@ env:
   matrix:
   - INSTANCE=default-ubuntu-1204
   - INSTANCE=default-ubuntu-1404
-  - INSTANCE=default-centos-6
-  - INSTANCE=default-centos-7
+  # disable these until the sudo issue with TK are resolved
+  #- INSTANCE=default-centos-6
+  #- INSTANCE=default-centos-7
 
 # Don't `bundle install`
 install: echo "skip bundle install"
