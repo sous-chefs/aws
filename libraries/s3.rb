@@ -6,11 +6,7 @@ module Opscode
       include Opscode::Aws::Ec2
 
       def region
-        if new_resource.region
-          new_resource.region
-        else
-          query_aws_region
-        end
+        query_aws_region
       end
 
       def s3
