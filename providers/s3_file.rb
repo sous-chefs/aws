@@ -28,7 +28,8 @@ def do_s3_file(resource_action)
   md5s_match = false
 
   s3_obj = ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
-  s3url = s3_obj.presigned_url(:get, expires_in: 300)
+  s3url = s3_obj.presigned_url(:get, expires_in: 300).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
+  Chef::Log.debug("Using S3 URL #{s3url}")
 
   if resource_action == :create
     if compare_md5s(s3_obj, new_resource.path)
@@ -39,7 +40,7 @@ def do_s3_file(resource_action)
 
   remote_file new_resource.name do
     path new_resource.path
-    source s3url.gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
+    source s3url
     owner new_resource.owner
     group new_resource.group
     mode new_resource.mode
