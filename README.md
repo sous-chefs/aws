@@ -470,7 +470,7 @@ end
 
 ### aws_s3_file
 
-`s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around `remote_file` and supports the same resource attributes as `remote_file`.
+`s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (https://docs.chef.io/resource_remote_file.html) for a complete list of available attributes.
 
 ```ruby
 aws_s3_file '/tmp/foo' do
