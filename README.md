@@ -257,7 +257,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 
 ### ebs_raid.rb
 
-Manage Elastic Block Store (EBS) raid devices with this resource.
+Manage Elastic Block Store (EBS) raid devices with this resource. This resource is linux specific and creates a mdadm array using EBS volumes.
 
 #### Actions:
 
