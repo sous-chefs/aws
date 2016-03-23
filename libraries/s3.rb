@@ -18,8 +18,7 @@ module Opscode
         end
 
         Chef::Log.debug('Initializing the AWS Client')
-        @s3 ||= {}
-        @s3[new_resource.region] ||= create_aws_interface(::Aws::S3::Client)
+        @s3 ||= create_aws_interface(::Aws::S3::Client)
       end
 
       def compare_md5s(remote_object, local_file_path)
