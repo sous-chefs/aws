@@ -2,6 +2,9 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## UNRELEASED
+- Add the :delete action to the ebs_volume provider
+
 ## v3.1.0 (2016-03-22)
 
 - Added the sensitive attribute to the s3_file provider
