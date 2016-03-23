@@ -5,10 +5,6 @@ module Opscode
     module S3
       include Opscode::Aws::Ec2
 
-      def region
-        query_aws_region
-      end
-
       def s3
         begin
           require 'aws-sdk'
