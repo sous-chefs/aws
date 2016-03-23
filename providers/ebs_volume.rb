@@ -12,6 +12,7 @@ action :create do
     new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
   end
 
+  # fetch volume data from node
   nvid = volume_id_in_node_data
   if nvid
     # volume id is registered in the node data, so check that the volume in fact exists in EC2
@@ -35,7 +36,10 @@ action :create do
       end
     else
       # If not, create volume and register its id in the node data
-      converge_by("create a volume with snapshot_id=#{new_resource.snapshot_id || 'not_set'} size=#{new_resource.size} availability_zone=#{new_resource.availability_zone || node['ec2']['placement_availability_zone']} and update the node data with created volume's id") do
+      converge_message = "create a #{new_resource.size}GB volume in #{query_aws_region} "
+      converge_message += "using snapshot #{new_resource.snapshot_id} " if new_resource.snapshot_id
+      converge_message += "and update the node data with created volume's id"
+      converge_by(converge_message) do
         nvid = create_volume(new_resource.snapshot_id,
                              new_resource.size,
                              new_resource.availability_zone,
@@ -66,7 +70,7 @@ action :attach do
       end
     end
   else
-    converge_by("attach the volume with aws_id=#{vol[:volume_id]} id=#{instance_id} device=#{new_resource.device} and update the node data with created volume's id") do
+    converge_by("attach the volume #{vol[:volume_id]} to instance #{instance_id} as #{new_resource.device} and update the node data with created volume's id") do
       # attach the volume and register its id in the node data
       attach_volume(vol[:volume_id], instance_id, new_resource.device, new_resource.timeout)
       mark_delete_on_termination(new_resource.device, vol[:volume_id], instance_id) if new_resource.delete_on_termination
@@ -81,6 +85,13 @@ action :detach do
   vol = determine_volume
   converge_by("detach volume with id: #{vol[:volume_id]}") do
     detach_volume(vol[:volume_id], new_resource.timeout)
+  end
+end
+
+action :delete do
+  vol = determine_volume
+  converge_by("delete volume with id: #{vol[:volume_id]}") do
+    delete_volume(vol[:volume_id], new_resource.timeout)
   end
 end
 
@@ -276,6 +287,32 @@ def detach_volume(volume_id, timeout)
     end
   rescue Timeout::Error
     raise "Timed out waiting for volume detachment after #{timeout} seconds"
+  end
+end
+
+# Deletes the volume and blocks until done (or times out)
+def delete_volume(volume_id, timeout)
+  vol = volume_by_id(volume_id)
+  raise "Cannot delete volume #{volume_id} as it is currently attached to #{vol[:attachments].size} node(s)" unless vol[:attachments].empty?
+
+  Chef::Log.debug("Deleting #{volume_id}")
+  ec2.delete_volume(volume_id: volume_id)
+
+  # block until deleted
+  begin
+    Timeout.timeout(timeout) do
+      loop do
+        vol = volume_by_id(volume_id)
+        if vol[:state] == 'deleting' || vol[:state] == 'deleted'
+          Chef::Log.debug("Volume #{volume_id} entered #{vol[:state]} state")
+          node.set['aws']['ebs_volume'][new_resource.name] = {}
+          break
+        end
+        sleep 3
+      end
+    end
+  rescue Timeout::Error
+    raise "Timed out waiting for volume to enter after #{timeout} seconds"
   end
 end
 

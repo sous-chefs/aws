@@ -1,4 +1,4 @@
-actions :create, :attach, :detach, :snapshot, :prune
+actions :create, :attach, :detach, :snapshot, :prune, :delete
 default_action :create
 
 state_attrs :availability_zone,

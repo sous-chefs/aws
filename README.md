@@ -233,6 +233,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `create` - create a new volume.
 - `attach` - attach the specified volume.
 - `detach` - detach the specified volume.
+- `delete` - delete the specified volume.
 - `snapshot` - create a snapshot of the volume.
 - `prune` - prune snapshots.
 
