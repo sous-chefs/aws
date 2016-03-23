@@ -233,6 +233,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `create` - create a new volume.
 - `attach` - attach the specified volume.
 - `detach` - detach the specified volume.
+- `delete` - delete the specified volume.
 - `snapshot` - create a snapshot of the volume.
 - `prune` - prune snapshots.
 
@@ -257,7 +258,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 
 ### ebs_raid.rb
 
-Manage Elastic Block Store (EBS) raid devices with this resource.
+Manage Elastic Block Store (EBS) raid devices with this resource. This resource is linux specific and creates a mdadm array using EBS volumes.
 
 #### Actions:
 
