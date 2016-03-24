@@ -206,7 +206,7 @@ end
 
 ### default.rb
 
-The default recipe installs the `aws-sdk` Ruby Gem, which this cookbook requires in order to work with the EC2 API. Make sure that the aws recipe is in the node or role `run_list` before any resources from this cookbook are used.
+The default recipe installs the `aws-sdk` Ruby Gem, which this cookbook requires in order to work with the EC2 API. The gem will be automatically installed if a provider is run and the gem is not present, but in order to manage specific versions of the gem you'll need this default recipe.
 
 ```json
 "run_list": [
@@ -471,7 +471,7 @@ end
 
 ### aws_s3_file
 
-`s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (https://docs.chef.io/resource_remote_file.html) for a complete list of available attributes.
+`s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (<https://docs.chef.io/resource_remote_file.html>) for a complete list of available attributes.
 
 ```ruby
 aws_s3_file '/tmp/foo' do

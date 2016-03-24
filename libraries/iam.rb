@@ -9,8 +9,13 @@ module Opscode
         begin
           require 'aws-sdk'
         rescue LoadError
-          Chef::Log.fatal("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
-          raise
+          chef_gem 'aws-sdk' do
+            version node['aws']['aws_sdk_version']
+            compile_time true
+            action :install
+          end
+
+          require 'aws-sdk'
         end
 
         Chef::Log.debug('Initializing the AWS Client')
