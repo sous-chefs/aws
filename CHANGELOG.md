@@ -2,6 +2,9 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## v3.3.1 (2016-03-25)
+- Only install the aws-sdk gem at compile_time if chef-client supports that
+
 ## v3.3.0 (2016-03-25)
 
 - The AWS gem is now automatically installed as needed by the providers
