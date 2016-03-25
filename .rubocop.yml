@@ -23,6 +23,8 @@ Style/SpaceBeforeFirstArg:
   Enabled: false
 LineLength:
   Enabled: false
+Lint/AmbiguousRegexpLiteral:
+  Enabled: false
 MethodLength:
   Enabled: false
 Metrics/AbcSize:
