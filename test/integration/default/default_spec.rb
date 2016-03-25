@@ -1,7 +1,3 @@
-describe command('/opt/chef/embedded/bin/gem list') do
-  its('stdout') { should match /aws-sdk \(/ }
-end
-
 hint_path = case os[:family]
             when 'windows'
               'C:/chef/ohai/hints'

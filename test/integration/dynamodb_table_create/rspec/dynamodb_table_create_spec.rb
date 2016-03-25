@@ -1,5 +1,9 @@
 require_relative '../../../kitchen/data/rspec_helper'
 
+describe command('/opt/chef/embedded/bin/gem list') do
+  its('stdout') { should match /aws-sdk \(/ }
+end
+
 describe ChefAwsDDBTest do
   dynamodb = ChefAwsDDBTest.new.dynamodb
   resp = dynamodb.describe_table(table_name: 'test-dynamodb-table')
