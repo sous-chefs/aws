@@ -1,9 +1,13 @@
 require 'spec_helper'
 
-describe 'aws::default' do
+describe 'aws::ec2_hints' do
   let(:chef_run) { ChefSpec::SoloRunner.converge(described_recipe) }
 
-  it 'installs chef_gem aws-sdk' do
-    expect(chef_run).to install_chef_gem('aws-sdk')
+  it 'creates the ohai hint' do
+    expect(chef_run).to create_ohai_hint('ec2').at_compile_time
+  end
+
+  it 'reloads ohai' do
+    expect(chef_run).to reload_ohai('reload')
   end
 end
