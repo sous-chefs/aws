@@ -18,7 +18,6 @@ module Opscode
   module Aws
     def require_aws_sdk
       # require the version of the aws-sdk specified in the node attribute
-      require 'rubygems'
       gem 'aws-sdk', node['aws']['aws_sdk_version']
       require 'aws-sdk'
       Chef::Log.debug("Node had aws-sdk #{node['aws']['aws_sdk_version']} installed. No need to install gem.")
