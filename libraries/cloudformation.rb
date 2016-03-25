@@ -6,14 +6,9 @@ module Opscode
       include Opscode::Aws::Ec2
 
       def cfn
-        begin
-          require 'aws-sdk'
-        rescue LoadError
-          Chef::Log.fatal("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
-          raise
-        end
+        require_aws_sdk
 
-        Chef::Log.debug('Initializing the AWS Client')
+        Chef::Log.debug('Initializing the CloudFormation Client')
         @cfn ||= create_aws_interface(::Aws::CloudFormation::Client)
       end
     end

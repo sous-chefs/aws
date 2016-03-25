@@ -206,23 +206,13 @@ end
 
 ### default.rb
 
-The default recipe installs the `aws-sdk` Ruby Gem, which this cookbook requires in order to work with the EC2 API. Make sure that the aws recipe is in the node or role `run_list` before any resources from this cookbook are used.
-
-```json
-"run_list": [
-  "recipe[aws]"
-]
-```
-
-The `gem_package` is created as a Ruby Object and thus installed during the Compile Phase of the Chef run.
+This recipe is empty.  In previous releases it installed the aws-sdk gem, but this is now performed automatically in the providers.
 
 ### ec2_hints.rb
 
-This recipe is used to setup the ec2 hints for ohai in the case that an instance is not created using knife-ec2.
+This recipe is used to setup the EC2 hints for Ohai in the case that an instance is not created using knife-ec2.
 
 ## Resources and Providers
-
-This cookbook provides two resources and corresponding providers.
 
 ### ebs_volume.rb
 
@@ -471,7 +461,7 @@ end
 
 ### aws_s3_file
 
-`s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (https://docs.chef.io/resource_remote_file.html) for a complete list of available attributes.
+`s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (<https://docs.chef.io/resource_remote_file.html>) for a complete list of available attributes.
 
 ```ruby
 aws_s3_file '/tmp/foo' do

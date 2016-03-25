@@ -6,14 +6,9 @@ module Opscode
       include Opscode::Aws::Ec2
 
       def dynamodb
-        begin
-          require 'aws-sdk'
-        rescue LoadError
-          Chef::Log.fatal("Missing gem 'aws-sdk'. Use the default aws recipe to install it first.")
-          raise
-        end
+        require_aws_sdk
 
-        Chef::Log.debug('Initializing the AWS Client')
+        Chef::Log.debug('Initializing the DynamoDB Client')
         @dynamodb ||= create_aws_interface(::Aws::DynamoDB::Client)
       end
     end

@@ -1,5 +1,3 @@
-include_recipe 'aws::default'
-
 # this document is a copy of the AWS ReadOnly managed policy v3
 aws_iam_policy 'test-kitchen-policy' do
   action :create
