@@ -190,9 +190,9 @@ When running the cookbook, ensure that an attribute JSON is passed that supplies
 echo '{ "aws": { "mfa_code": "123456" } }' > mfa.json && chef-client -z -o 'recipe[aws_test]' -j mfa.json
 ```
 
-### Running outside of an AWS instance
+### Specifying Region in Resources
 
-`region` can be specified if the cookbook is being run outside of an AWS instance. This can prevent some kinds of failures that happen when resources try to detect region.
+`region` can be specified if the cookbook is being run on nodes not in AWS or on nodes in a region that differs from that where your resources are located.
 
 ```ruby
 aws_cloudformation_stack 'kitchen-test-stack' do
