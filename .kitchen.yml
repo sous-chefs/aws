@@ -9,7 +9,7 @@ transport:
 
 provisioner:
   name: chef_zero
-  
+
 verifier:
   name: inspec
 
@@ -46,7 +46,6 @@ suites:
 
   - name: default
     run_list:
-    - recipe[aws::default]
     - recipe[aws::ec2_hints]
 
   - name: ebs_volume

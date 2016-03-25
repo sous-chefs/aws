@@ -6,18 +6,9 @@ module Opscode
       include Opscode::Aws::Ec2
 
       def s3
-        begin
-          require 'aws-sdk'
-        rescue LoadError
-          chef_gem 'aws-sdk' do
-            version node['aws']['aws_sdk_version']
-            compile_time true
-            action :install
-          end
+        require_aws_sdk
 
-          require 'aws-sdk'
-        end
-        Chef::Log.debug('Initializing the AWS Client')
+        Chef::Log.debug('Initializing the S3 Client')
         @s3 ||= create_aws_interface(::Aws::S3::Client)
       end
 

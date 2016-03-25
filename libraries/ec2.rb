@@ -15,25 +15,18 @@
 # limitations under the License.
 #
 
+require File.join(File.dirname(__FILE__), 'aws')
 require 'open-uri'
 
 module Opscode
   module Aws
     module Ec2
+      include Opscode::Aws
+
       def ec2
-        begin
-          require 'aws-sdk'
-        rescue LoadError
-          chef_gem 'aws-sdk' do
-            version node['aws']['aws_sdk_version']
-            compile_time true
-            action :install
-          end
+        require_aws_sdk
 
-          require 'aws-sdk'
-        end
-
-        Chef::Log.debug('Initializing the AWS Client')
+        Chef::Log.debug('Initializing the EC2 Client')
         @ec2 ||= create_aws_interface(::Aws::EC2::Client)
       end
 

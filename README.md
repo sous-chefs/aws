@@ -206,23 +206,13 @@ end
 
 ### default.rb
 
-The default recipe installs the `aws-sdk` Ruby Gem, which this cookbook requires in order to work with the EC2 API. The gem will be automatically installed if a provider is run and the gem is not present, but in order to manage specific versions of the gem you'll need this default recipe.
-
-```json
-"run_list": [
-  "recipe[aws]"
-]
-```
-
-The `gem_package` is created as a Ruby Object and thus installed during the Compile Phase of the Chef run.
+This recipe is empty.  In previous releases it installed the aws-sdk gem, but this is now performed automatically in the providers.
 
 ### ec2_hints.rb
 
-This recipe is used to setup the ec2 hints for ohai in the case that an instance is not created using knife-ec2.
+This recipe is used to setup the EC2 hints for Ohai in the case that an instance is not created using knife-ec2.
 
 ## Resources and Providers
-
-This cookbook provides two resources and corresponding providers.
 
 ### ebs_volume.rb
 
