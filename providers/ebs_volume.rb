@@ -36,7 +36,7 @@ action :create do
       end
     else
       # If not, create volume and register its id in the node data
-      converge_message = "create a #{new_resource.size}GB volume in #{query_aws_region} "
+      converge_message = "create a #{new_resource.size}GB volume in #{aws_region} "
       converge_message += "using snapshot #{new_resource.snapshot_id} " if new_resource.snapshot_id
       converge_message += "and update the node data with created volume's id"
       converge_by(converge_message) do

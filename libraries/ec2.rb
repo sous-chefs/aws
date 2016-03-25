@@ -57,11 +57,9 @@ module Opscode
         snapshot_id
       end
 
-      private
-
       # determine the AWS region of the node
       # Priority: resource property, user set node attribute -> ohai data -> us-east-1
-      def query_aws_region
+      def aws_region
         # facilitate support for region in resource name
         if new_resource.region
           Chef::Log.debug("Using overridden region name, #{new_resource.region}, from resource")
@@ -75,9 +73,11 @@ module Opscode
         end
       end
 
+      private
+
       # setup AWS instance using passed creds, iam profile, or assumed role
       def create_aws_interface(aws_interface)
-        aws_interface_opts = { region: query_aws_region }
+        aws_interface_opts = { region: aws_region }
 
         if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
           Chef::Log.debug('Using resource-defined credentials')
