@@ -1,28 +1,25 @@
 if defined?(ChefSpec)
+  # cloudformation_stack
+  def create_aws_cloudformation_stack(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_cloudformation_stack, :create, resource_name)
+  end
+
+  def delete_aws_cloudformation_stack(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_cloudformation_stack, :delete, resource_name)
+  end
+
+  # dynamodb_table
+  def create_aws_dynamodb_table(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_dynamodb_table, :create, resource_name)
+  end
+
+  def delete_aws_dynamodb_table(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_dynamodb_table, :delete, resource_name)
+  end
+
   # ebs_raid
   def auto_attach_aws_ebs_raid(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_ebs_raid, :auto_attach, resource_name)
-  end
-
-  # ebs_volume
-  def create_aws_ebs_volume(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:aws_ebs_volume, :create, resource_name)
-  end
-
-  def attach_aws_ebs_volume(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:aws_ebs_volume, :attach, resource_name)
-  end
-
-  def detach_aws_ebs_volume(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:aws_ebs_volume, :detach, resource_name)
-  end
-
-  def snapshot_aws_ebs_volume(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:aws_ebs_volume, :snapshot, resource_name)
-  end
-
-  def prune_aws_ebs_volume(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:aws_ebs_volume, :prune, resource_name)
   end
 
   # ebs_volume
@@ -59,6 +56,51 @@ if defined?(ChefSpec)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_elastic_ip, :allocate, resource_name)
   end
 
+  # elastic_lb
+  def associate_aws_elastic_lb(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_elastic_lb, :register, resource_name)
+  end
+
+  def disassociate_aws_elastic_lb(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_elastic_lb, :deregister, resource_name)
+  end
+
+  # iam_group
+  def create_aws_iam_group(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_iam_group, :create, resource_name)
+  end
+
+  def delete_aws_iam_group(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_iam_group, :delete, resource_name)
+  end
+
+  # iam_policy
+  def create_aws_iam_policy(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_iam_policy, :create, resource_name)
+  end
+
+  def delete_aws_iam_policy(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_iam_policy, :delete, resource_name)
+  end
+
+  # iam_role
+  def create_aws_iam_role(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_iam_role, :create, resource_name)
+  end
+
+  def delete_aws_iam_role(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_iam_role, :delete, resource_name)
+  end
+
+  # iam_user
+  def create_aws_iam_user(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_iam_user, :create, resource_name)
+  end
+
+  def delete_aws_iam_user(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_iam_user, :delete, resource_name)
+  end
+
   # instance_monitoring
   def enable_aws_instance_monitoring(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_instance_monitoring, :enable, resource_name)
@@ -66,6 +108,15 @@ if defined?(ChefSpec)
 
   def disable_aws_instance_monitoring(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_instance_monitoring, :disable, resource_name)
+  end
+
+  # kinetic_stream
+  def create_aws_kinetic_stream(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_kinetic_stream, :create, resource_name)
+  end
+
+  def delete_aws_kinetic_stream(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_kinetic_stream, :delete, resource_name)
   end
 
   # resource_tag
@@ -100,5 +151,10 @@ if defined?(ChefSpec)
 
   def delete_aws_s3_file(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_s3_file, :delete, resource_name)
+  end
+
+  # secondary_ip
+  def assign_aws_secondary_ip(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_secondary_ip, :assign, resource_name)
   end
 end

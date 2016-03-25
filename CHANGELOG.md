@@ -5,6 +5,7 @@ This file is used to list changes made in each version of the aws cookbook.
 ## UNRELEASED
 
 - The AWS gem is now automatically installed as needed
+- Added ChefSpec matchers for: cloudformation_stack, dynamodb_table, elastic_lb, iam_*, kinetic_stream, scondary_ip.
 
 ## v3.2.0 (2016-03-23)
 
