@@ -23,11 +23,8 @@ action :touch do
 end
 
 def do_s3_file(resource_action)
-  remote_path = new_resource.remote_path
-  remote_path.sub!(%r{^/*}, '')
   md5s_match = false
 
-  s3_obj = ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
   s3url = s3_obj.presigned_url(:get, expires_in: 300).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
   Chef::Log.debug("Using S3 URL #{s3url}")
 
