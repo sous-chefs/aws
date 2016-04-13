@@ -2,7 +2,13 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## v3.3.2 (2016-04-13)
+
+- Resolved no method error when using the elb resource
+- Fixed a bug in the md5 check in the s3_file resource
+
 ## v3.3.1 (2016-03-25)
+
 - Only install the aws-sdk gem at compile_time if chef-client supports that
 
 ## v3.3.0 (2016-03-25)
