@@ -1,4 +1,4 @@
-include Opscode::Aws
+include Opscode::Aws::Elb
 
 use_inline_resources
 
