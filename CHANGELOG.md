@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## v3.3.3 (2016-05-10)
+
+- Add support for new ebs volume types: sc1 st1
+
 ## v3.3.2 (2016-04-13)
 
 - Resolved no method error when using the elb resource
@@ -33,20 +37,20 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ### Breaking changes:
 
-- Removed the ability to use databags for credentials with the ebs_raid provider. You must now pass the credentials in via the resource, [@tas50][]
-- [#218][] Remove support for Chef < 11.6.0, [@tas50][]
-- Switched to Ohai to gather information on the AWS instance instead of direct AWS metadata calls. This also removes the node['region'] attribute, which is no longer necessary.  If you would like to mock the region for some reason in local testing set `node['ec2']['placement_availability_zone']` to the AZ, as this is used to determine the region, [@tas50][]
+- Removed the ability to use databags for credentials with the ebs_raid provider. You must now pass the credentials in via the resource, [@tas50]
+- [#218] Remove support for Chef < 11.6.0, [@tas50]
+- Switched to Ohai to gather information on the AWS instance instead of direct AWS metadata calls. This also removes the node['region'] attribute, which is no longer necessary. If you would like to mock the region for some reason in local testing set `node['ec2']['placement_availability_zone']` to the AZ, as this is used to determine the region, [@tas50]
 
 ### Other Changes
 
-- [#172][] Several new features (AWS CloudFormation Support, IAM Support, Kinesis, DynamoDB, and local auth options) [@vancluever][]
-- Changes the AWS connect to not be shared accross resources.  This allows each resource to run against a different region or use different credentials, [@tas50][]
-- [#63][] Add xfs support for ebs_raid filesystem, [@bazbremner][]
-- Fixed nil default value deprecation warnings in the providers, [@tas50][]
-- Fixed errors in the ebs_raid provider, [@tas50][]
-- Fixed missing values in the converge messaging in the ebs_volume provider, [@tas50][]
-- Fixed a failure when detaching ebs volumes, [@dhui][]
-- Added use_inline_resources to all providers, [@tas50][]
+- [#172] Several new features (AWS CloudFormation Support, IAM Support, Kinesis, DynamoDB, and local auth options) [@vancluever]
+- Changes the AWS connect to not be shared accross resources. This allows each resource to run against a different region or use different credentials, [@tas50]
+- [#63] Add xfs support for ebs_raid filesystem, [@bazbremner]
+- Fixed nil default value deprecation warnings in the providers, [@tas50]
+- Fixed errors in the ebs_raid provider, [@tas50]
+- Fixed missing values in the converge messaging in the ebs_volume provider, [@tas50]
+- Fixed a failure when detaching ebs volumes, [@dhui]
+- Added use_inline_resources to all providers, [@tas50]
 
 ## v2.9.3 (2016-03-07)
 
@@ -66,20 +70,20 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## v2.9.0 (2016-01-26)
 
-- [#191][] Add region attribute to s3_file provider, [@zl4bv][]
-- [#203][] Create the ec2 hint using the ohai provider for Windows compatibility, [@tas50][]
-- [#205][] Fix elb register/deregister, [@obazoud][]
+- [#191] Add region attribute to s3_file provider, [@zl4bv]
+- [#203] Create the ec2 hint using the ohai provider for Windows compatibility, [@tas50]
+- [#205] Fix elb register/deregister, [@obazoud]
 
 ## v2.8.0 (2016-01-21)
 
-- [#192][] Fix secondary_ip failure, add windows support, and document in the readme, [@Scythril][]
-- [#185][] Update the aws-sdk dependency to the 2.2.X release, [@tas50][]
-- [#189][] Loosen the dependency on the aws-sdk to bring in current releases, [@philoserf][]
-- [#183][] Load the aws-sdk gem directly in the providers, [@shortdudey123][]
-- [#165][] Fix encryption support in ebs_raid provider, [@DrMerlin][]
-- [#190][] Add support for AssumeRole granted credentials using the either provided key or an instance profile, [@knorby][]
-- [#160][] Add an attribute to define the region if you're not running in AWS [@ubiquitousthey][]
-- [#162][] Update the Berksfile syntax, [@miketheman][]
+- [#192] Fix secondary_ip failure, add windows support, and document in the readme, [@Scythril]
+- [#185] Update the aws-sdk dependency to the 2.2.X release, [@tas50]
+- [#189] Loosen the dependency on the aws-sdk to bring in current releases, [@philoserf]
+- [#183] Load the aws-sdk gem directly in the providers, [@shortdudey123]
+- [#165] Fix encryption support in ebs_raid provider, [@DrMerlin]
+- [#190] Add support for AssumeRole granted credentials using the either provided key or an instance profile, [@knorby]
+- [#160] Add an attribute to define the region if you're not running in AWS [@ubiquitousthey]
+- [#162] Update the Berksfile syntax, [@miketheman]
 - Added testing in Travis CI
 - Added a Gemfile with testing dependencies
 - Added cookbook version and Travis CI status badges to the readme
@@ -91,12 +95,12 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## v2.7.2 (2015-06-29)
 
-- [#124][] Retain compatibility with Chef 11, [@dhui][]
-- [#128][] Use correct pageable response from `aws-sdk` v2 update, [@drywheat][]
-- [#133][] Fix ELB registration to detect correctly, deregister fix, [@purgatorio][]
-- [#154][] Update the contributing guide, [@miketheman][]
-- [#156][] Fix `ebs_raid` behavior without a `snapshot_id`, [@mkantor][]
-- Updates for ignores, use correct supermarket url, [@tas50][]
+- [#124] Retain compatibility with Chef 11, [@dhui]
+- [#128] Use correct pageable response from `aws-sdk` v2 update, [@drywheat]
+- [#133] Fix ELB registration to detect correctly, deregister fix, [@purgatorio]
+- [#154] Update the contributing guide, [@miketheman]
+- [#156] Fix `ebs_raid` behavior without a `snapshot_id`, [@mkantor]
+- Updates for ignores, use correct supermarket url, [@tas50]
 
 ## v2.7.1 (2015-06-04)
 
@@ -111,11 +115,11 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## v2.6.6 (2015-05-06)
 
-- [#123][] Cleans up README and adds more metadata
+- [#123] Cleans up README and adds more metadata
 
 ## v2.6.5 (2015-03-19)
 
-- [#110][] Fix `chef_gem` compile time usage, also in conjunction with `chef-sugar` and Chef 11
+- [#110] Fix `chef_gem` compile time usage, also in conjunction with `chef-sugar` and Chef 11
 
 ## v2.6.4 (2015-02-18)
 
@@ -140,16 +144,16 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## v2.5.0 (2014-10-22)
 
-- [#60][] Updates to CHANGELOG
-- [#85][] Lots of testing harness goodness
-- [#89][] Add a recipe to setup ec2 hints in ohai
-- [#74][] README and CHANGELOG updates
-- [#65][] Add a resource for enabling CloudWatch Detailed Monitoring
-- [#90][] Add tests for aws_instance_monitoring
+- [#60] Updates to CHANGELOG
+- [#85] Lots of testing harness goodness
+- [#89] Add a recipe to setup ec2 hints in ohai
+- [#74] README and CHANGELOG updates
+- [#65] Add a resource for enabling CloudWatch Detailed Monitoring
+- [#90] Add tests for aws_instance_monitoring
 
 ## v2.4.0 (2014-08-07)
 
-- [#64][] - force proxy off for metadata queries
+- [#64] - force proxy off for metadata queries
 
 ## v2.3.0 (2014-07-02)
 
