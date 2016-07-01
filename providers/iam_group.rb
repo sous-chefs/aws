@@ -9,7 +9,7 @@ end
 # group_exists - logic for checking if the group exists
 def group_exists?(group_name)
   resp = iam.get_group(group_name: group_name)
-  if resp.length > 0
+  if !resp.empty?
     true
   else
     false
@@ -42,7 +42,7 @@ action :create do
       end
     end
     # add any leftover new policies if they exist.
-    if new_policies.length > 0
+    unless new_policies.empty?
       converge_by("attach new policies to group #{new_resource.group_name}: #{new_policies.join(',')}") do
         Chef::Log.debug("attach new policies to group #{new_resource.group_name}: #{new_policies.join(',')}")
         new_policies.each do |policy|
@@ -76,7 +76,7 @@ action :create do
       end
     end
     # add any leftover new policies if they exist.
-    if new_users.length > 0
+    unless new_users.empty?
       converge_by("add new users to group #{new_resource.group_name}: #{new_users.join(',')}") do
         Chef::Log.debug("add new users to group #{new_resource.group_name}: #{new_users.join(',')}")
         new_users.each do |user|

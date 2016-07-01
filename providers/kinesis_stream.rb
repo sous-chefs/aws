@@ -9,7 +9,7 @@ end
 # does_stream_exist - logic for checking if the stream exists
 def stream_exists?
   resp = kinesis.describe_stream(stream_name: new_resource.stream_name)
-  if resp.length > 0
+  if !resp.empty?
     true
   else
     false

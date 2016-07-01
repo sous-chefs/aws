@@ -9,7 +9,7 @@ end
 # user_exists - logic for checking if the user exists
 def user_exists?(user_name)
   resp = iam.get_user(user_name: user_name)
-  if resp.length > 0
+  if !resp.empty?
     true
   else
     false

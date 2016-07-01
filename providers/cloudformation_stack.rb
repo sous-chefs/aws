@@ -49,7 +49,7 @@ end
 # does_stack_exist - logic for checking if the stack exists
 def stack_exists?(stack_name)
   resp = cfn.describe_stacks(stack_name: stack_name)
-  if resp.length > 0
+  if !resp.empty?
     true
   else
     false

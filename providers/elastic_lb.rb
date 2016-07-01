@@ -5,11 +5,11 @@ use_inline_resources
 action :register do
   converge_by("add the node #{new_resource.name} to ELB") do
     target_lb = elb.describe_load_balancers[:load_balancer_descriptions].find { |lb| lb[:load_balancer_name] == new_resource.name }
-    unless target_lb[:instances].detect { |instance| instance.instance_id == instance_id }
+    if target_lb[:instances].detect { |instance| instance.instance_id == instance_id }
+      Chef::Log.debug("Node #{instance_id} is already present in ELB instances, no action required.")
+    else
       Chef::Log.info("Adding node to ELB #{new_resource.name}")
       elb.register_instances_with_load_balancer(load_balancer_name: new_resource.name, instances: [{ instance_id: instance_id }])
-    else
-      Chef::Log.debug("Node #{instance_id} is already present in ELB instances, no action required.")
     end
   end
 end

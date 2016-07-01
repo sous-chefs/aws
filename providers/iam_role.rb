@@ -11,7 +11,7 @@ end
 # role_exists - logic for checking if the user exists
 def role_exists?(role_name)
   resp = iam.get_role(role_name: role_name)
-  if resp.length > 0
+  if !resp.empty?
     true
   else
     false
@@ -65,7 +65,7 @@ action :create do
       end
     end
     # add any leftover new policies if they exist.
-    if new_policies.length > 0
+    unless new_policies.empty?
       converge_by("attach new policies to role #{new_resource.role_name}: #{new_policies.join(',')}") do
         Chef::Log.debug("attach new policies to role #{new_resource.role_name}: #{new_policies.join(',')}")
         new_policies.each do |policy|

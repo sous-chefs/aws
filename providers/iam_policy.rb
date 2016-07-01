@@ -24,7 +24,7 @@ end
 # policy_exists - logic for checking if the user exists
 def policy_exists?(policy_name)
   resp = iam.get_policy(policy_arn: make_policy_arn(policy_name))
-  if resp.length > 0
+  if !resp.empty?
     true
   else
     false
