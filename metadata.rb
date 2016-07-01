@@ -13,6 +13,8 @@ source_url 'https://github.com/chef-cookbooks/aws' if respond_to?(:source_url)
 issues_url 'https://github.com/chef-cookbooks/aws/issues' if respond_to?(:issues_url)
 depends 'ohai', '>= 2.1.0'
 
-%w(ubuntu debian centos redhat amazon scientific fedora oracle freebsd windows).each do |os|
+%w(ubuntu debian centos redhat amazon scientific fedora oracle freebsd windows suse opensuse opensuseleap).each do |os|
   supports os
 end
+
+chef_version '>= 11.6' if respond_to?(:chef_version)
