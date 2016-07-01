@@ -2,6 +2,14 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## v3.4.0 (2016-06-30)
+
+- Added retries property to s3_file
+- Switched docker based test kitchen testing to kitchen-dokken
+- Added chef_version support metadata
+- Added suse, opensuse, and opensuseleap as supported platforms
+- Fixed Assume role credentials bug
+
 ## v3.3.3 (2016-05-10)
 
 - Add support for new ebs volume types: sc1 st1
@@ -269,14 +277,6 @@ This file is used to list changes made in each version of the aws cookbook.
 - [COOK-819] - fix documentation bug in aws readme
 - [COOK-829] - AWS cookbook does not work with most recent right_aws gem but no version is locked in the recipe
 
-[#60]: https://github.com/chef-cookbooks/aws/issues/60
-[#63]: https://github.com/chef-cookbooks/aws/issues/63
-[#64]: https://github.com/chef-cookbooks/aws/issues/64
-[#65]: https://github.com/chef-cookbooks/aws/issues/65
-[#74]: https://github.com/chef-cookbooks/aws/issues/74
-[#85]: https://github.com/chef-cookbooks/aws/issues/85
-[#89]: https://github.com/chef-cookbooks/aws/issues/89
-[#90]: https://github.com/chef-cookbooks/aws/issues/90
 [#110]: https://github.com/chef-cookbooks/aws/issues/110
 [#123]: https://github.com/chef-cookbooks/aws/issues/123
 [#124]: https://github.com/chef-cookbooks/aws/issues/124
@@ -297,9 +297,17 @@ This file is used to list changes made in each version of the aws cookbook.
 [#203]: https://github.com/chef-cookbooks/aws/issues/203
 [#205]: https://github.com/chef-cookbooks/aws/issues/205
 [#218]: https://github.com/chef-cookbooks/aws/issues/218
-[@drmerlin]: https://github.com/DrMerlin
-[@scythril]: https://github.com/Scythril
+[#60]: https://github.com/chef-cookbooks/aws/issues/60
+[#63]: https://github.com/chef-cookbooks/aws/issues/63
+[#64]: https://github.com/chef-cookbooks/aws/issues/64
+[#65]: https://github.com/chef-cookbooks/aws/issues/65
+[#74]: https://github.com/chef-cookbooks/aws/issues/74
+[#85]: https://github.com/chef-cookbooks/aws/issues/85
+[#89]: https://github.com/chef-cookbooks/aws/issues/89
+[#90]: https://github.com/chef-cookbooks/aws/issues/90
+[@bazbremner]: https://github.com/bazbremner
 [@dhui]: https://github.com/dhui
+[@drmerlin]: https://github.com/DrMerlin
 [@drywheat]: https://github.com/drywheat
 [@knorby]: https://github.com/knorby
 [@miketheman]: https://github.com/miketheman
@@ -307,9 +315,9 @@ This file is used to list changes made in each version of the aws cookbook.
 [@obazoud]: https://github.com/obazoud
 [@philoserf]: https://github.com/philoserf
 [@purgatorio]: https://github.com/purgatorio
+[@scythril]: https://github.com/Scythril
 [@shortdudey123]: https://github.com/shortdudey123
 [@tas50]: https://github.com/tas50
 [@ubiquitousthey]: https://github.com/ubiquitousthey
-[@zl4bv]: https://github.com/zl4bv
-[@bazbremner]: https://github.com/bazbremner
 [@vancluever]: https://github.com/vancluever
+[@zl4bv]: https://github.com/zl4bv
