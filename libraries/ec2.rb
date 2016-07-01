@@ -91,8 +91,11 @@ module Opscode
 
         if !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
           Chef::Log.debug("Assuming role #{new_resource.aws_assume_role_arn}")
-          sts_client = ::Aws::STS::Client.new(credentials: creds, region: region)
+          sts_client = ::Aws::STS::Client.new(region: aws_region,
+                                              access_key_id: new_resource.aws_access_key,
+                                              secret_access_key: new_resource.aws_secret_access_key)
           creds = ::Aws::AssumeRoleCredentials.new(client: sts_client, role_arn: new_resource.aws_assume_role_arn, role_session_name: new_resource.aws_role_session_name)
+          aws_interface_opts[:credentials] = creds
         end
         aws_interface.new(aws_interface_opts)
       end
