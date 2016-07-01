@@ -12,6 +12,7 @@ provisioner:
 
 verifier:
   name: inspec
+  format: doc
 
 platforms:
 - name: amazon-2015.09
