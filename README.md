@@ -14,6 +14,7 @@ This cookbook includes resources and providers to configure and manage Amazon We
 - CloudFormation Stack Management (`cloudformation_stack`)
 - Kinesis Stream Management (`kinesis_stream`)
 - IAM User, Group, Policy, and Role Management:
+
   - (`iam_user`)
   - (`iam_group`)
   - (`iam_policy`)
@@ -206,7 +207,7 @@ end
 
 ### default.rb
 
-This recipe is empty.  In previous releases it installed the aws-sdk gem, but this is now performed automatically in the providers.
+This recipe is empty. In previous releases it installed the aws-sdk gem, but this is now performed automatically in the providers.
 
 ### ec2_hints.rb
 
@@ -244,7 +245,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
 - `encrypted` - specify if the EBS should be encrypted
 - `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
-- `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil).  Only applies to `:attach` action.
+- `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil). Only applies to `:attach` action.
 
 ### ebs_raid.rb
 
@@ -461,7 +462,7 @@ end
 
 ### aws_s3_file
 
-`s3_file` can be used to download a file from s3 that requires aws authorization.  This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (<https://docs.chef.io/resource_remote_file.html>) for a complete list of available attributes.
+`s3_file` can be used to download a file from s3 that requires aws authorization. This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (<https://docs.chef.io/resource_remote_file.html>) for a complete list of available attributes.
 
 ```ruby
 aws_s3_file '/tmp/foo' do
