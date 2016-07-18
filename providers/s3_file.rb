@@ -22,10 +22,19 @@ action :touch do
   do_s3_file(:touch)
 end
 
+def estimate_expires_time(size)
+  # Assumes 8MB can be transferred between S3 per second
+  # (conservative estimate based on http://cache.nasuni.com/Resources/Nasuni_Cloud_Storage_Benchmark_Report.pdf)
+  return [300, (size / (1024 * 1024) / 8).ceil].max
+end
+
 def do_s3_file(resource_action)
   md5s_match = false
 
-  s3url = s3_obj.presigned_url(:get, expires_in: 300).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
+  raise Chef::Exception::FileNotFound.new("File #{remote_path} does not exist on S3 bucket #{new_resource.bucket}!") unless s3_obj.exists?
+
+  # Estimate a reasonable expiration time given the possibility of transferring a really large file
+  s3url = s3_obj.presigned_url(:get, expires_in: new_resource.expires || estimate_expires_time(s3_obj.size.to_f)).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
   Chef::Log.debug("Using S3 URL #{s3url}")
 
   if resource_action == :create
