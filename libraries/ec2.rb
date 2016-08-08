@@ -39,22 +39,23 @@ module Opscode
       end
 
       def find_snapshot_id(volume_id = '', find_most_recent = false)
-        snapshot_id = nil
-        response = if find_most_recent
-                     ec2.describe_snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
-                   else
-                     ec2.describe_snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
-                   end
-        response.each do |page|
-          page.snapshots.each do |snapshot|
-            if snapshot[:volume_id] == volume_id && snapshot[:state] == 'completed'
-              snapshot_id = snapshot[:snapshot_id]
-            end
-          end
-        end
-        raise 'Cannot find snapshot id!' unless snapshot_id
-        Chef::Log.debug("Snapshot ID is #{snapshot_id}")
-        snapshot_id
+        response = ec2.describe_snapshots(
+          filters: [
+            { name: 'volume-id', values: [volume_id] },
+            { name: 'status', values: ['completed'] }
+          ]
+        )
+        snapshots = if find_most_recent
+                      # bring the latest snapshot to the front
+                      response.snapshots.sort { |a, b| b[:start_time] <=> a[:start_time] }
+                    else
+                      response.snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
+                    end
+
+        raise 'Cannot find snapshot id!' if snapshots.empty?
+
+        Chef::Log.debug("Snapshot ID is #{snapshots.first[:snapshot_id]}")
+        snapshots.first[:snapshot_id]
       end
 
       # determine the AWS region of the node
