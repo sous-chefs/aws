@@ -11,7 +11,6 @@ provisioner:
 
 verifier:
   name: inspec
-  format: doc
 
 platforms:
 - name: debian-7
@@ -87,14 +86,14 @@ platforms:
     image: opensuse:13.2
     pid_one_command: /bin/systemd
     intermediate_instructions:
-      - RUN zypper --non-interactive install aaa_base perl-Getopt-Long-Descriptive
+      - RUN zypper --non-interactive install aaa_base perl-Getopt-Long-Descriptive which
 
 - name: opensuse-42.1
   driver:
     image: opensuse:42.1
     pid_one_command: /bin/systemd
     intermediate_instructions:
-      - RUN zypper --non-interactive install aaa_base perl-Getopt-Long-Descriptive
+      - RUN zypper --non-interactive install aaa_base perl-Getopt-Long-Descriptive which
 
 suites:
   - name: default
