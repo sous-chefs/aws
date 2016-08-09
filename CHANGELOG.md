@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 3.4.1 (2016-08-09)
+
+- Modified find_snapshot_id method to make it work as intended
+- Testing framework updates
+
 ## v3.4.0 (2016-06-30)
 
 - Added retries property to s3_file
