@@ -1,5 +1,7 @@
 #!/usr/bin/env rake
 
+require_relative 'tasks/maintainers'
+
 # Style tests. cookstyle (rubocop) and Foodcritic
 namespace :style do
   begin
@@ -47,10 +49,8 @@ namespace :integration do
 
     desc 'Run kitchen integration tests'
     Kitchen::RakeTasks.new
-  rescue LoadError => e
-    puts ">>> Gem load error: #{e}, omitting #{task.name}" unless ENV['CI']
-  rescue Kitchen::UserError => e
-    puts ">>> Test Kitchen error: #{e}" unless ENV['CI']
+  rescue StandardError => e
+    puts ">>> Kitchen error: #{e}, omitting #{task.name}" unless ENV['CI']
   end
 end
 
