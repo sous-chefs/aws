@@ -33,7 +33,7 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 
 ### Chef
 
-- Chef 11.6+
+- Chef 12.0+
 
 ### Cookbooks
 

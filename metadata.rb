@@ -17,4 +17,4 @@ depends 'ohai', '>= 2.1.0'
   supports os
 end
 
-chef_version '>= 11.6' if respond_to?(:chef_version)
+chef_version '>= 12.0' if respond_to?(:chef_version)
