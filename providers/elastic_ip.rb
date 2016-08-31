@@ -18,7 +18,7 @@ action :associate do
     converge_by("attach Elastic IP #{ip} to the instance") do
       Chef::Log.info("Attaching Elastic IP #{ip} to the instance")
       attach(ip, new_resource.timeout)
-      node.set['aws']['elastic_ip'][new_resource.name]['ip'] = ip
+      node.normal['aws']['elastic_ip'][new_resource.name]['ip'] = ip
       node.save unless Chef::Config[:solo]
     end
   end
@@ -48,7 +48,7 @@ action :allocate do
     converge_by("allocate new Elastic IP for #{new_resource.name}") do
       addr = ec2.allocate_address(domain: new_resource.domain)
       Chef::Log.info("Allocated Elastic IP #{addr[:public_ip]} from the instance")
-      node.set['aws']['elastic_ip'][new_resource.name]['ip'] = addr[:public_ip]
+      node.normal['aws']['elastic_ip'][new_resource.name]['ip'] = addr[:public_ip]
       node.save unless Chef::Config[:solo]
     end
   end

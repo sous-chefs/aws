@@ -33,7 +33,7 @@ action :assign do
       rescue Timeout::Error
         raise "Timed out waiting for assignment after #{timeout} seconds"
       end
-      node.set['aws']['secondary_ip'][new_resource.name]['ip'] =
+      node.normal['aws']['secondary_ip'][new_resource.name]['ip'] =
         (query_private_ip_addresses(interface) - assigned_addreses).flatten.first
       node.save unless Chef::Config[:solo]
       Chef::Log.debug("Secondary IP #{ip} assigned to #{interface}")
@@ -66,7 +66,7 @@ action :unassign do
       rescue Timeout::Error
         raise "Timed out waiting for unassignment after #{timeout} seconds"
       end
-      node.set['aws']['secondary_ip'][new_resource.name]['ip'] = nil
+      node.normal['aws']['secondary_ip'][new_resource.name]['ip'] = nil
       node.save unless Chef::Config[:solo]
       Chef::Log.debug("Secondary IP #{ip} unassigned from #{interface}")
     end

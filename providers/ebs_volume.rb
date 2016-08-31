@@ -31,7 +31,7 @@ action :create do
       raise "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments[0].device} but does not conform to this resource's specifications" unless compatible
       Chef::Log.debug("The volume matches the resource's definition, so the volume is assumed to be already created")
       converge_by("update the node data with volume id: #{attached_volume.volume_id}") do
-        node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume.volume_id
+        node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume.volume_id
         node.save unless Chef::Config[:solo]
       end
     else
@@ -48,7 +48,7 @@ action :create do
                              new_resource.piops,
                              new_resource.encrypted,
                              new_resource.kms_key_id)
-        node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
+        node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
         node.save unless Chef::Config[:solo]
       end
     end
@@ -75,7 +75,7 @@ action :attach do
       attach_volume(vol[:volume_id], instance_id, new_resource.device, new_resource.timeout)
       mark_delete_on_termination(new_resource.device, vol[:volume_id], instance_id) if new_resource.delete_on_termination
       # always use a symbol here, it is a Hash
-      node.set['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:volume_id]
+      node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:volume_id]
       node.save unless Chef::Config[:solo]
     end
   end
@@ -305,7 +305,7 @@ def delete_volume(volume_id, timeout)
         vol = volume_by_id(volume_id)
         if vol[:state] == 'deleting' || vol[:state] == 'deleted'
           Chef::Log.debug("Volume #{volume_id} entered #{vol[:state]} state")
-          node.set['aws']['ebs_volume'][new_resource.name] = {}
+          node.normal['aws']['ebs_volume'][new_resource.name] = {}
           break
         end
         sleep 3
