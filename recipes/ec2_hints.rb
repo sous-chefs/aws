@@ -20,7 +20,3 @@
 ohai_hint 'ec2' do
   action :nothing
 end.run_action(:create)
-
-ohai 'reload' do
-  action :nothing
-end.run_action(:reload)

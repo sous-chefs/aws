@@ -20,16 +20,16 @@ services: docker
 
 env:
   matrix:
-  - INSTANCE=default-centos-6
-  - INSTANCE=default-centos-7
-  - INSTANCE=default-debian-7
-  - INSTANCE=default-debian-8
-  - INSTANCE=default-fedora-latest
-  - INSTANCE=default-opensuse-132
-  - INSTANCE=default-opensuse-421
-  - INSTANCE=default-ubuntu-1204
-  - INSTANCE=default-ubuntu-1404
-  - INSTANCE=default-ubuntu-1604
+  - INSTANCE=ec2_hints-centos-6
+  - INSTANCE=ec2_hints-centos-7
+  - INSTANCE=ec2_hints-debian-7
+  - INSTANCE=ec2_hints-debian-8
+  - INSTANCE=ec2_hints-fedora-latest
+  - INSTANCE=ec2_hints-opensuse-132
+  - INSTANCE=ec2_hints-opensuse-421
+  - INSTANCE=ec2_hints-ubuntu-1204
+  - INSTANCE=ec2_hints-ubuntu-1404
+  - INSTANCE=ec2_hints-ubuntu-1604
 
   fast_finish: true
 

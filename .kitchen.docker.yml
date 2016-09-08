@@ -96,6 +96,6 @@ platforms:
       - RUN zypper --non-interactive install aaa_base perl-Getopt-Long-Descriptive which
 
 suites:
-  - name: default
+  - name: ec2_hints
     run_list:
     - recipe[aws::ec2_hints]

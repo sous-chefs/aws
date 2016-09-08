@@ -6,8 +6,4 @@ describe 'aws::ec2_hints' do
   it 'creates the ohai hint' do
     expect(chef_run).to create_ohai_hint('ec2').at_compile_time
   end
-
-  it 'reloads ohai' do
-    expect(chef_run).to reload_ohai('reload')
-  end
 end
