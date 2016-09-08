@@ -771,7 +771,7 @@ Attribute parameters are:
 - Author:: AJ Christensen ([aj@chef.io](mailto:aj@chef.io))
 - Author:: Justin Huff ([jjhuff@mspin.net](mailto:jjhuff@mspin.net))
 
-Copyright 2009-2015, Chef Software, Inc.
+Copyright 2009-2016, Chef Software, Inc.
 
 ```
 Licensed under the Apache License, Version 2.0 (the "License");
