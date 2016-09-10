@@ -199,7 +199,11 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
     Timeout.timeout(timeout) do
       loop do
         vol = volume_by_id(nv[:volume_id])
-        if vol && vol[:state] != 'deleting'
+        # In some scenarios the return comes back as nil.
+        # Retry, and its all fine.
+        if vol.nil?
+          sleep 3
+        elsif vol && vol[:state] != 'deleting'
           if ['in-use', 'available'].include?(vol[:state])
             Chef::Log.info("Volume #{nv[:volume_id]} is available")
             break
