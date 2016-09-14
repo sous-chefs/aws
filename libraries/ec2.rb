@@ -62,7 +62,7 @@ module Opscode
       # Priority: resource property, user set node attribute -> ohai data -> us-east-1
       def aws_region
         # facilitate support for region in resource name
-        if new_resource.region
+        if (defined? new_resource) && new_resource.region
           Chef::Log.debug("Using overridden region name, #{new_resource.region}, from resource")
           new_resource.region
         elsif node.attribute?('ec2')
@@ -80,7 +80,7 @@ module Opscode
       def create_aws_interface(aws_interface)
         aws_interface_opts = { region: aws_region }
 
-        if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
+        if (defined? new_resource) && !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
           Chef::Log.debug('Using resource-defined credentials')
           aws_interface_opts[:credentials] = ::Aws::Credentials.new(
             new_resource.aws_access_key,
@@ -90,7 +90,7 @@ module Opscode
           Chef::Log.debug('Using local credential chain')
         end
 
-        if !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
+        if (defined? new_resource) &&  !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
           Chef::Log.debug("Assuming role #{new_resource.aws_assume_role_arn}")
           sts_client = ::Aws::STS::Client.new(region: aws_region,
                                               access_key_id: new_resource.aws_access_key,
