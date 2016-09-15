@@ -2,6 +2,14 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 4.0.0 (2016-09-15)
+- Testing updates
+- Require Chef 12.1 or later
+- Use node.normal instead of node.set to avoid deprecation notices
+- Warn in the logs if the default recipe is included
+- Remove the ohai reload on every run in the hint recipe
+- Remove chef 11 compat in the metadata
+
 ## 3.4.1 (2016-08-09)
 
 - Modified find_snapshot_id method to make it work as intended
