@@ -1,7 +1,7 @@
 sudo: required
 dist: trusty
 
-# install the pre-release chef-dk.  Use chef-stable-precise to install the stable release
+# install the pre-release chef-dk.  Use chef-stable-trusty to install the stable release
 addons:
   apt:
     sources:
@@ -30,8 +30,6 @@ env:
   - INSTANCE=ec2-hints-ubuntu-1204
   - INSTANCE=ec2-hints-ubuntu-1404
   - INSTANCE=ec2-hints-ubuntu-1604
-
-  fast_finish: true
 
 before_script:
   - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
