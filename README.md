@@ -207,7 +207,7 @@ end
 
 ### default.rb
 
-This recipe is empty. In previous releases it installed the aws-sdk gem, but this is now performed automatically in the providers.
+This recipe includes an `instance_tags` helper method, which returns a dictionary of all the instance's AWS Resource tags. In previous releases it installed the aws-sdk gem, but this is now performed automatically in the providers.
 
 ### ec2_hints.rb
 

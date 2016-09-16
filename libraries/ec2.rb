@@ -90,7 +90,7 @@ module Opscode
           Chef::Log.debug('Using local credential chain')
         end
 
-        if (defined? new_resource) &&  !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
+        if (defined? new_resource) && !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
           Chef::Log.debug("Assuming role #{new_resource.aws_assume_role_arn}")
           sts_client = ::Aws::STS::Client.new(region: aws_region,
                                               access_key_id: new_resource.aws_access_key,
