@@ -53,6 +53,7 @@ def do_s3_file(resource_action)
     manage_symlink_source new_resource.manage_symlink_source
     sensitive new_resource.sensitive
     retries new_resource.retries
+    retry_delay new_resource.retry_delay
     if node['platform_family'] == 'windows'
       inherits new_resource.inherits
       rights new_resource.rights
