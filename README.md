@@ -37,7 +37,7 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 
 ### Cookbooks
 
-- Ohai 2.1.0+
+- Ohai 4.0+
 
 ## Credentials
 
