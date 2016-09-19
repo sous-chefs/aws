@@ -18,5 +18,5 @@
 #
 
 ohai_hint 'ec2' do
-  action :nothing
-end.run_action(:create)
+  compile_time true
+end

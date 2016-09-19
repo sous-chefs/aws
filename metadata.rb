@@ -11,7 +11,7 @@ recipe 'ec2_hints', 'Adds an EC2 hint file for Ohai cloud detection'
 
 source_url 'https://github.com/chef-cookbooks/aws'
 issues_url 'https://github.com/chef-cookbooks/aws/issues'
-depends 'ohai', '>= 2.1.0'
+depends 'ohai', '>= 4.0'
 
 %w(ubuntu debian centos redhat amazon scientific fedora oracle freebsd windows suse opensuse opensuseleap).each do |os|
   supports os
