@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 4.1.0 (2016-09-19)
+- Pass through retry_delay to remote_file
+- Require ohai 4.0+ cookbook and use new compile_time method for ohai_hint resource
+- Remove Chef 11 compatibility code in the aws-sdk gem install
+
 ## 4.0.0 (2016-09-15)
 - Testing updates
 - Require Chef 12.1 or later
