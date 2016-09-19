@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 4.1.1 (2016-09-19)
+- Fix false "volume no longer exists" errors.
+- Use alias_method to cleanup backwards compatibility in s3_file
+
 ## 4.1.0 (2016-09-19)
 - Pass through retry_delay to remote_file
 - Require ohai 4.0+ cookbook and use new compile_time method for ohai_hint resource
