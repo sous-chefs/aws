@@ -1,7 +1,7 @@
 actions :create, :create_if_missing, :touch, :delete
 default_action :create
 
-state_attrs :aws_access_key_id,
+state_attrs :aws_access_key,
             :backup,
             :bucket,
             :checksum,
@@ -15,11 +15,10 @@ attribute :path, kind_of: String, name_attribute: true
 attribute :remote_path, kind_of: String
 attribute :region, kind_of: [String, NilClass]
 attribute :bucket, kind_of: String
-attribute :aws_access_key_id, kind_of: String
 attribute :aws_access_key, kind_of: String
 attribute :aws_secret_access_key, kind_of: String
-attribute :aws_session_token,     kind_of: String
-attribute :aws_assume_role_arn,   kind_of: String
+attribute :aws_session_token, kind_of: String
+attribute :aws_assume_role_arn, kind_of: String
 attribute :aws_role_session_name, kind_of: String
 attribute :region, kind_of: String, default: 'us-east-1' # unless specified this is where your bucket is
 attribute :owner, regex: Chef::Config[:user_valid_regex]
@@ -41,17 +40,5 @@ if node['platform_family'] == 'windows'
   attribute :rights, kind_of: Hash
 end
 
-def initialize(*args)
-  super
-  @path = name
-  @aws_access_key = @aws_access_key_id # Fix inconsistency in naming
-end
-
-# Fix inconsistency in naming
-def aws_access_key(arg = nil)
-  if arg.nil? && @aws_access_key.nil?
-    @aws_access_key_id
-  else
-    set_or_return(:aws_access_key, arg, kind_of: String)
-  end
-end
+# allow use of the old aws_access_key_id property
+alias_method :aws_access_key_id, :aws_access_key
