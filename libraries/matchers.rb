@@ -164,4 +164,3 @@ if defined?(ChefSpec)
     ChefSpec.define_matcher resource
   end
 end
-
