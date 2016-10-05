@@ -2,6 +2,9 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 4.1.2 (2016-10-04)
+- Add matcher definitions for ChefSpec
+
 ## 4.1.1 (2016-09-19)
 - Fix false "volume no longer exists" errors.
 - Use alias_method to cleanup backwards compatibility in s3_file
