@@ -157,4 +157,11 @@ if defined?(ChefSpec)
   def assign_aws_secondary_ip(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_secondary_ip, :assign, resource_name)
   end
+
+  resources = %i(aws_cloudformation_stack aws_dynamodb_table aws_ebs_raid aws_ebs_volume aws_elastic_ip aws_elastic_lb aws_iam_group aws_iam_policy aws_iam_role aws_iam_user aws_instance_monitoring aws_kinetic_stream aws_resource_tag aws_s3_file aws_secondary_ip)
+
+  resources.each do |resource|
+    ChefSpec.define_matcher resource
+  end
 end
+
