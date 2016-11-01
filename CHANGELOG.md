@@ -2,6 +2,9 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 4.1.3 (2016-11-01)
+- Dont declare region twice in S3_file
+
 ## 4.1.2 (2016-10-04)
 - Add matcher definitions for ChefSpec
 
