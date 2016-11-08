@@ -22,3 +22,6 @@ Lint/UselessAssignment:
 # Configuration parameters: CountKeywordArgs.
 Metrics/ParameterLists:
   Max: 15
+
+Metrics/LineLength:
+  Max: 100
