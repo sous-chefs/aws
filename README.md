@@ -111,6 +111,7 @@ Of course, the instance role must have the required policies. Here is a sample p
       "Action": [
         "ec2:AttachVolume",
         "ec2:CreateVolume",
+        "ec2:ModifyInstanceAttribute",
         "ec2:ModifyVolumeAttribute",
         "ec2:DescribeVolumeAttribute",
         "ec2:DescribeVolumeStatus",
