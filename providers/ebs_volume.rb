@@ -158,7 +158,7 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
   availability_zone ||= instance_availability_zone
 
   # Sanity checks so we don't shoot ourselves.
-  fail "Invalid volume type: #{volume_type}" unless %w(standard io1 gp2).include?(volume_type)
+  fail "Invalid volume type: #{volume_type}" unless %w(standard io1 gp2 sc1 st1).include?(volume_type)
 
   params = { availability_zone: availability_zone, volume_type: volume_type, encrypted: encrypted, kms_key_id: kms_key_id }
   # PIOPs requested. Must specify an iops param and probably won't be "low".
