@@ -141,3 +141,19 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+
+  - name: cloudwatch_alarm
+    run_list:
+    - recipe[aws_test::cloudwatch_alarm]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        cloudwatch:
+          period: <%= ENV['CLOUDWATCH_PERIOD'] %>
+          evaluation_periods: <%= ENV['CLOUDWATCH_EVALUATION_PERIODS'] %>
+          threshold: <%= ENV['CLOUDWATCH_THRESHOLD'] %>
+          comparison_operator: <%= ENV['CLOUDWATCH_COMPARISON_OPERATOR'] %>
+          metric_name: <%= ENV['CLOUDWATCH_METRIC_NAME'] %>
+          namespace: <%= ENV['CLOUDWATCH_NAMESPACE'] %>
+          statistic: <%= ENV['CLOUDWATCH_STATISTIC'] %>
