@@ -212,9 +212,58 @@ This recipe is empty and should not be included on a node run_list
 
 This recipe is used to setup the EC2 hints for Ohai in the case that an instance is not created using knife-ec2\. When using recent Chef 12 releases this is no longer necessary as Ohai detects EC2 without hint files.
 
-## Resources and Providers
+## Resources
 
-### ebs_volume.rb
+### aws_cloudwatch
+
+Use this resource to manage CloudWatch alarms.
+
+#### Actions:
+
+- `create` - Create or update CloudWatch alarms.
+- `delete` - Delete CloudWatch alarms.
+- `disable_action` - Disable action of the CloudWatch alarms.
+- `enable_action` - Enable action of the CloudWatch alarms.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `alarm_name` - the alarm name. If none is given on assignment, will take the resource name.
+- `alarm_description` - the description of alarm. Can be blank also.
+- `actions_enabled` - true for enable action on OK, ALARM or Insufficient data. if true, any of ok_actions, alarm_actions or insufficient_data_actions must be specified.
+- `ok_actions` - array of action if alarm state is OK. If specified actions_enabled must be true.
+- `alarm_actions` - array of action if alarm state is ALARM. If specified actions_enabled must be true.
+- `insufficient_data_actions` - array of action if alarm state is INSUFFICIENT_DATA. If specified actions_enabled must be true.
+- `metric_name` - CloudWatch metric name of the alarm. eg - CPUUtilization.Required parameter.
+- `namespace` - namespace of the alarm. eg - AWS/EC2, required parameter.
+- `statistic` - statistic of the alarm. Value must be in any of SampleCount, Average, Sum, Minimum or Maximum. Required parameter.
+- `extended_statistic` - extended_statistic of the alarm. Specify a value between p0.0 and p100\. Optional parameter.
+- `dimensions` - dimensions for the metric associated with the alarm. Array of name and value.
+- `period` - in seconds, over which the specified statistic is applied. Integer type and required parameter.
+- `unit` - unit of measure for the statistic. Required parameter.
+- `evaluation_periods` - number of periods over which data is compared to the specified threshold. Required parameter.
+- `threshold` - value against which the specified statistic is compared. Can be float or integer type. Required parameter.
+- `comparison_operator` - arithmetic operation to use when comparing the specified statistic and threshold. The specified statistic value is used as the first operand.
+
+For more information about parameters, see [CloudWatch Identifiers](http://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CW_Support_For_AWS.html) in the Using CloudWatch guide.
+
+#### Example:
+
+```ruby
+aws_cloudwatch "kitchen_test_alarm" do
+  period 21600
+  evaluation_periods 2
+  threshold 50.0
+  comparison_operator "LessThanThreshold"
+  metric_name "CPUUtilization"
+  namespace "AWS/EC2"
+  statistic "Maximum"
+  dimensions [{"name" : "InstanceId", "value" : "i-xxxxxxx"}]
+  action :create
+end
+```
+
+### aws_ebs_volume
 
 Manage Elastic Block Store (EBS) volumes with this resource.
 
@@ -246,9 +295,9 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
 - `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil). Only applies to `:attach` action.
 
-### ebs_raid.rb
+### aws_ebs_raid
 
-Manage Elastic Block Store (EBS) raid devices with this resource. This resource is linux specific and creates a mdadm array using EBS volumes.
+Manage Elastic Block Store (EBS) raid devices with this resource. This resource is linux specific and creates a mdadm array using EBS volumes. This resource requires HVM instances (not PV) as they have a different drive naming schema
 
 #### Actions:
 
@@ -272,7 +321,7 @@ Manage Elastic Block Store (EBS) raid devices with this resource. This resource 
 - `disk_encrypted` - specify if the EBS volumes should be encrypted
 - `disk_kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volumes (defaults to master key if not specified)
 
-#### Example
+#### Example:
 
 ```ruby
   aws_ebs_raid 'db_ebs_raid' do
@@ -284,7 +333,7 @@ Manage Elastic Block Store (EBS) raid devices with this resource. This resource 
   end
 ```
 
-### elastic_ip.rb
+### aws_elastic_ip
 
 #### Actions:
 
@@ -297,7 +346,9 @@ Manage Elastic Block Store (EBS) raid devices with this resource. This resource 
 - `ip` - the IP address.
 - `timeout` - connection timeout for EC2 API.
 
-### elastic_lb.rb
+### aws_elastic_lb
+
+Adds or removes nodes to an Elastic Load Balancer
 
 #### Actions:
 
@@ -309,86 +360,24 @@ Manage Elastic Block Store (EBS) raid devices with this resource. This resource 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `name` - the name of the LB, required.
 
-### resource_tag.rb
+### aws_instance_monitoring
 
-#### Actions:
-
-- `add` - Add tags to a resource.
-- `update` - Add or modify existing tags on a resource -- this is the default action.
-- `remove` - Remove tags from a resource, but only if the specified values match the existing ones.
-- `force_remove` - Remove tags from a resource, regardless of their values.
-
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
-- `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
-- `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no
-- `resource_id` is specified the name attribute will be used.
-
-### instance_monitoring.rb
+Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
 #### Actions:
 
 - `enable` - Enable detailed CloudWatch monitoring for this instance (Default).
 - `disable` - Disable detailed CloudWatch monitoring for this instance.
 
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
-
-### secondary_ip.rb
-
-This feature is available only to instances in EC2-VPC. It allows you to assign multiple private IP addresses to a network interface.
-
-#### Actions:
-
-- `assign` - Assign a private IP to the instance.
-- `unassign` - Unassign a private IP from the instance.
-
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
-- `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
-- `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
-- `timeout` - connection timeout for EC2 API.\
-
-### cloudwatch.rb
-
-#### Actions:
-
-- `create` - Create or update cloudwatch alarms.
-- `delete` - Delete cloudwatch alarms.
-- `disable_action` - Disable action of the cloudwatch alarms.
-- `enable_action` - Enable action of the cloudwatch alarms.
-
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
-- `alarm_name` - the alarm name. If none is given on assignment, will take the resource name.
-- `alarm_description` - the description of alarm. Can be blank also.
-- `actions_enabled` - true for enable action on OK, ALARM or Insufficient data. if true, any of ok_actions, alarm_actions or insufficient_data_actions must be specified.
-- `ok_actions` - array of action if alarm state is OK. If specified actions_enabled must be true.
-- `alarm_actions` - array of action if alarm state is ALARM. If specified actions_enabled must be true.
-- `insufficient_data_actions` - array of action if alarm state is INSUFFICIENT_DATA. If specified actions_enabled must be true.
-- `metric_name` - cloudwatch metric name of the alarm. eg - CPUUtilization.Required parameter.
-- `namespace` - namespace of the alarm. eg - AWS/EC2, required parameter.
-- `statistic` - statistic of the alarm. Vaule must be in any of SampleCount, Average, Sum, Minimum or Maximum. Required parameter.
-- `extended_statistic` - extended_statistic of the alarm. Specify a value between p0.0 and p100\. Optional parameter.
-- `dimensions` - dimensions for the metric associated with the alarm. Array of name and vaule.
-- `period` - in seconds, over which the specified statistic is applied. Interger type and required parameter.
-- `unit` - unit of measure for the statistic. Required parameter.
-- `evaluation_periods` - number of periods over which data is compared to the specified threshold. Required parameter.
-- `threshold` - value against which the specified statistic is compared. Can be float or integer type. Required parameter.
-- `comparison_operator` - arithmetic operation to use when comparing the specified statistic and threshold. The specified statistic value is used as the first operand.
-
-## Usage
-
-The following examples assume that the recommended data bag item has been created and that the following has been included at the top of the recipe where they are used.
+#### Example:
 
 ```ruby
-include_recipe 'aws'
-aws = data_bag_item('aws', 'main')
+aws_instance_monitoring "enable detailed monitoring"
 ```
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 
 ### aws_ebs_volume
 
@@ -423,21 +412,9 @@ This will create a new 50G volume from the snapshot ID provided and attach it as
 
 The `elastic_ip` resource provider does not support allocating new IPs. This must be done before running a recipe that uses the resource. After allocating a new Elastic IP, we recommend storing it in a databag and loading the item in the recipe.
 
-Databag structure:
-
-```json
-% knife data bag show aws eip_load_balancer_production
-{
-  "id": "eip_load_balancer_production",
-  "public_ip": "YOUR_ALLOCATED_IP"
-}
-```
-
-Then to set up the Elastic IP on a system:
+#### Example:
 
 ```ruby
-ip_info = data_bag_item('aws', 'eip_load_balancer_production')
-
 aws_elastic_ip 'eip_load_balancer_production' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
@@ -446,15 +423,13 @@ aws_elastic_ip 'eip_load_balancer_production' do
 end
 ```
 
-This will use the loaded `aws` and `ip_info` databags to pass the required values into the resource to configure. Note that when associating an Elastic IP to an instance, connectivity to the instance will be lost because the public IP address is changed. You will need to reconnect to the instance with the new IP.
-
-You can also store this in a role as an attribute or assign to the node directly, if preferred.
-
 ### aws_elastic_lb
 
 `elastic_lb` functions similarly to `elastic_ip`. Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
 
-For example, to register the node in the 'QA' ELB:
+#### Example:
+
+To register the node in the 'QA' ELB:
 
 ```ruby
 aws_elastic_lb 'elb_qa' do
@@ -467,7 +442,9 @@ end
 
 ### aws_resource_tag
 
-`resource_tag` can be used to manipulate the tags assigned to one or more AWS resources, i.e. ec2 instances, ebs volumes or ebs volume snapshots.
+`resource_tag` can be used to manipulate the tags assigned to one or more AWS resources, i.e. ec2 instances, EBS volumes or EBS volume snapshots.
+
+#### Examples:
 
 Assigning tags to a node to reflect its role and environment:
 
@@ -504,6 +481,8 @@ end
 
 `s3_file` can be used to download a file from s3 that requires aws authorization. This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (<https://docs.chef.io/resource_remote_file.html>) for a complete list of available attributes.
 
+#### Example:
+
 ```ruby
 aws_s3_file '/tmp/foo' do
   bucket 'i_haz_an_s3_buckit'
@@ -514,17 +493,11 @@ aws_s3_file '/tmp/foo' do
 end
 ```
 
-## aws_instance_monitoring
+### aws_secondary_ip
 
-Allows detailed CloudWatch monitoring to be enabled for the current instance.
+The `secondary_ip` resource provider allows one to assign/un-assign multiple private secondary IPs on an instance in EC2-VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface (which is pulled from Ohai) will be used.
 
-```ruby
-aws_instance_monitoring "enable detailed monitoring"
-```
-
-## aws_secondary_ip
-
-The `secondary_ip` resource provider allows one to assign/unassign multiple private secondary IPs on an instance in EC2-VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface (which is pulled from Ohai) will be used.
+#### Example:
 
 ```ruby
 aws_secondary_ip "assign_additional_ip" do
@@ -536,11 +509,24 @@ aws_secondary_ip "assign_additional_ip" do
 end
 ```
 
-## aws_cloudformation_stack
+### aws_cloudformation_stack
 
-Manage CloudFormation stacks with Chef.
+Manage CloudFormation stacks.
 
-Example:
+#### Actions:
+
+- `create`: Creates the stack, or updates it if it already exists.
+- `delete`: Begins the deletion process for the stack.
+
+#### Properties:
+
+- `template_source`: Required - the location of the CloudFormation template file. The file should be stored in the `files` directory in the cookbook.
+- `parameters`: An array of `parameter_key` and `parameter_value` pairs for parameters in the template. Follow the syntax in the example above.
+- `disable_rollback`: Set this to `true` if you want stack rollback to be disabled if creation of the stack fails. Default: `false`
+- `stack_policy_body`: Optionally define a stack policy to apply to the stack, mainly used in protecting stack resources after they are created. For more information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the CloudFormation user guide.
+- `iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources. This is the equivalent of setting `CAPABILITY_IAM` When using the SDK or CLI. Default: `false`
+
+#### Example:
 
 ```ruby
 aws_cloudformation_stack 'example-stack' do
@@ -560,22 +546,33 @@ aws_cloudformation_stack 'example-stack' do
 end
 ```
 
-Actions:
-
-- `create`: Creates the stack, or updates it if it already exists.
-- `delete`: Begins the deletion process for the stack.
-
-Attribute parameters are:
-
-- `template_source`: Required - the location of the CloudFormation template file. The file should be stored in the `files` directory in the cookbook.
-- `parameters`: An array of `parameter_key` and `parameter_value` pairs for parameters in the template. Follow the syntax in the example above.
-- `disable_rollback`: Set this to `true` if you want stack rollback to be disabled if creation of the stack fails. Default: `false`
-- `stack_policy_body`: Optionally define a stack policy to apply to the stack, mainly used in protecting stack resources after they are created. For more information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the CloudFormation user guide.
-- `iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources. This is the equivalent of setting `CAPABILITY_IAM` When using the SDK or CLI. Default: `false`
-
-## aws_dynamodb_table
+### aws_dynamodb_table
 
 Use this resource to create and delete DynamoDB tables. This includes the ability to add global secondary indexes to existing tables.
+
+#### Actions:
+
+- `create`: Creates the table. Will update the following if the table exists:
+
+  - `global_secondary_indexes`: Will remove non-existent indexes, add new ones, and update throughput for existing ones. All attributes need to be present in `attribute_definitions`. No effect if the resource is omitted.
+  - `stream_specification`: Will update as shown. No effect is the resource is omitted.
+  - `provisioned_throughput`: Will update as shown.
+
+- `delete`: Deletes the index.
+
+#### Properties:
+
+- `attribute_definitions`: Required. Attributes to create for the table. Mainly this is used to specify attributes that are used in keys, as otherwise one can add any attribute they want to a DynamoDB table.
+- `key_schema`: Required. Used to create the primary key for the table. Attributes need to be present in `attribute_definitions`.
+- `local_secondary_indexes`: Used to create any local secondary indexes for the table. Attributes need to be present in `attribute_definitions`.
+- `global_secondary_indexes`: Used to create any global secondary indexes. Can be done to an existing table. Attributes need to be present in
+- `attribute_definitions`.
+- `provisioned_throughput`: Define the throughput for this table.
+- `stream_specification`: Specify if there should be a stream for this table.
+
+Several of the attributes shown here take parameters as shown in the [AWS Ruby SDK Documentation](http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Client.html#create_table-instance_method). Also, the [AWS DynamoDB Documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html) may be of further help as well.
+
+#### Example
 
 ```ruby
 aws_dynamodb_table 'example-table' do
@@ -635,49 +632,20 @@ aws_dynamodb_table 'example-table' do
 end
 ```
 
-Actions:
-
-- `create`: Creates the table. Will update the following if the table exists:
-
-  - `global_secondary_indexes`: Will remove non-existent indexes, add new ones, and update throughput for existing ones. All attributes need to be present in `attribute_definitions`. No effect if the resource is omitted.
-  - `stream_specification`: Will update as shown. No effect is the resource is omitted.
-  - `provisioned_throughput`: Will update as shown.
-
-- `delete`: Deletes the index.
-
-Attributes:
-
-- `attribute_definitions`: Required. Attributes to create for the table. Mainly this is used to specify attributes that are used in keys, as otherwise one can add any attribute they want to a DynamoDB table.
-- `key_schema`: Required. Used to create the primary key for the table. Attributes need to be present in `attribute_definitions`.
-- `local_secondary_indexes`: Used to create any local secondary indexes for the table. Attributes need to be present in `attribute_definitions`.
-- `global_secondary_indexes`: Used to create any global secondary indexes. Can be done to an existing table. Attributes need to be present in
-- `attribute_definitions`.
-- `provisioned_throughput`: Define the throughput for this table.
-- `stream_specification`: Specify if there should be a stream for this table.
-
-Several of the attributes shown here take parameters as shown in the [AWS Ruby SDK Documentation](http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Client.html#create_table-instance_method). Also, the [AWS DynamoDB Documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html) may be of further help as well.
-
-## aws_kinesis_stream
-
-Use this resource to create and delete Kinesis streams. Note that this resource cannot be used to modify the shard count as shard splitting is a somewhat complex operation (for example, even CloudFormation replaces streams upon update).
-
-```ruby
-aws_kinesis_stream 'example-stream' do
- action :create
- starting_shard_count 1
-end
-```
-
-Actions:
-
-- `create`: Creates the stream. No effect if the stream already exists.
-- `delete`: Deletes the stream.
-
-Use `starting_shard_count` to control the amount of shards the stream starts with.
-
-## aws_iam_user
+### aws_iam_user
 
 Use this resource to manage IAM users.
+
+#### Actions:
+
+- `create`: Creates the user. No effect if the user already exists.
+- `delete`: Gracefully deletes the user (detaches from all attached entities, and deletes the user).
+
+#### Properties
+
+The IAM user takes the name of the resource. A `path` can be specified as well. For more information about paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
+
+#### Example:
 
 ```ruby
 aws_iam_user 'example-user' do
@@ -686,16 +654,24 @@ aws_iam_user 'example-user' do
 end
 ```
 
-Actions:
-
-- `create`: Creates the user. No effect if the user already exists.
-- `delete`: Gracefully deletes the user (detaches from all attached entities, and deletes the user).
-
-The IAM user takes the name of the resource. A `path` can be specified as well. For more information about paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
-
-## aws_iam_group
+### aws_iam_group
 
 Use this resource to manage IAM groups. The group takes the name of the resource.
+
+#### Actions:
+
+- `create`: Creates the group, and updates members and attached policies if the group already exists.
+- `delete`: Gracefully deletes the group (detaches from all attached entities, and deletes the group).
+
+#### Properties:
+
+- `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
+- `members`: An array of IAM users that are a member of this group.
+- `remove_members`: Set to `false` to ensure that members are not removed from the group when they are not present in the defined resource. Default: `true`
+- `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
+- `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
+
+#### Example:
 
 ```ruby
 aws_iam_group 'example-group' do
@@ -712,22 +688,22 @@ aws_iam_group 'example-group' do
 end
 ```
 
-Actions:
-
-- `create`: Creates the group, and updates members and attached policies if the group already exists.
-- `delete`: Gracefully deletes the group (detaches from all attached entities, and deletes the group).
-
-Attribute parameters are:
-
-- `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
-- `members`: An array of IAM users that are a member of this group.
-- `remove_members`: Set to `false` to ensure that members are not removed from the group when they are not present in the defined resource. Default: `true`
-- `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
-- `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
-
-## aws_iam_policy
+### aws_iam_policy
 
 Use this resource to create an IAM policy. The policy takes the name of the resource.
+
+#### Actions:
+
+- `create`: Creates or updates the policy.
+- `delete`: Gracefully deletes the policy (detaches from all attached entities, deletes all non-default policy versions, then deletes the policy).
+
+#### Properties:
+
+- `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
+- `policy_document`: The JSON document for the policy.
+- `account_id`: The AWS account ID that the policy is going in. Required if using non-user credentials (ie: IAM role through STS or instance role).
+
+#### Example:
 
 ```ruby
 aws_iam_policy 'example-policy' do
@@ -754,20 +730,23 @@ aws_iam_policy 'example-policy' do
 end
 ```
 
-Actions:
-
-- `create`: Creates or updates the policy.
-- `delete`: Gracefully deletes the policy (detaches from all attached entities, deletes all non-default policy versions, then deletes the policy).
-
-Attribute parameters are:
-
-- `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
-- `policy_document`: The JSON document for the policy.
-- `account_id`: The AWS account ID that the policy is going in. Required if using non-user credentials (ie: IAM role through STS or instance role).
-
-## aws_iam_role
+### aws_iam_role
 
 Use this resource to create an IAM role. The policy takes the name of the resource.
+
+#### Actions:
+
+- `create`: Creates the role if it does not exist. If the role exists, updates attached policies and the `assume_role_policy_document`.
+- `delete`: Gracefully deletes the role (detaches from all attached entities, and deletes the role).
+
+#### Properties:
+
+- `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
+- `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
+- `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
+- `assume_role_policy_document`: The JSON policy document to apply to this role for trust relationships. Dictates what entities can assume this role.
+
+#### Example:
 
 ```ruby
 aws_iam_role 'example-role' do
@@ -795,62 +774,59 @@ aws_iam_role 'example-role' do
 end
 ```
 
-- `create`: Creates the role if it does not exist. If the role exists, updates attached policies and the `assume_role_policy_document`.
-- `delete`: Gracefully deletes the role (detaches from all attached entities, and deletes the role).
+### aws_kinesis_stream
 
-Attribute parameters are:
+Use this resource to create and delete Kinesis streams. Note that this resource cannot be used to modify the shard count as shard splitting is a somewhat complex operation (for example, even CloudFormation replaces streams upon update).
 
-- `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
-- `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
-- `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
-- `assume_role_policy_document`: The JSON policy document to apply to this role for trust relationships. Dictates what entities can assume this role.
+#### Actions:
 
-## aws_cloudwatch
+- `create`: Creates the stream. No effect if the stream already exists.
+- `delete`: Deletes the stream.
 
-Use this resource to manage cloudwatch alarms.
+#### Properties:
+
+- `starting_shard_count`: The number of shards the stream starts with
+
+#### Example:
 
 ```ruby
-aws_cloudwatch "kitchen_test_alarm" do
-  period 21600
-  evaluation_periods 2
-  threshold 50.0
-  comparison_operator "LessThanThreshold"
-  metric_name "CPUUtilization"
-  namespace "AWS/EC2"
-  statistic "Maximum"
-  dimensions [{"name" : "InstanceId, "value" : "i-xxxxxxx"}]
-  action :create
+aws_kinesis_stream 'example-stream' do
+ action :create
+ starting_shard_count 1
 end
 ```
 
-Actions:
+### aws_resource_tag
 
-- `create` - Create or update cloudwatch alarms.
-- `delete` - Delete cloudwatch alarms.
-- `disable_action` - Disable action of the cloudwatch alarms.
-- `enable_action` - Enable action of the cloudwatch alarms.
+#### Actions:
 
-Attribute parameters are:
+- `add` - Add tags to a resource.
+- `update` - Add or modify existing tags on a resource -- this is the default action.
+- `remove` - Remove tags from a resource, but only if the specified values match the existing ones.
+- `force_remove` - Remove tags from a resource, regardless of their values.
+
+#### Properties:
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
-- `alarm_name` - the alarm name. If none is given on assignment, will take the resource name.
-- `alarm_description` - the description of alarm. Can be blank also.
-- `actions_enabled` - true for enable action on OK, ALARM or Insufficient data. if true, any of ok_actions, alarm_actions or insufficient_data_actions must be specified.
-- `ok_actions` - array of action if alarm state is OK. If specified actions_enabled must be true.
-- `alarm_actions` - array of action if alarm state is ALARM. If specified actions_enabled must be true.
-- `insufficient_data_actions` - array of action if alarm state is INSUFFICIENT_DATA. If specified actions_enabled must be true.
-- `metric_name` - cloudwatch metric name of the alarm. eg - CPUUtilization.Required parameter.
-- `namespace` - namespace of the alarm. eg - AWS/EC2, required parameter.
-- `statistic` - statistic of the alarm. Vaule must be in any of SampleCount, Average, Sum, Minimum or Maximum. Required parameter.
-- `extended_statistic` - extended_statistic of the alarm. Specify a value between p0.0 and p100\. Optional parameter.
-- `dimensions` - dimensions for the metric associated with the alarm. Array of name and vaule.
-- `period` - in seconds, over which the specified statistic is applied. Interger type and required parameter.
-- `unit` - unit of measure for the statistic. Required parameter.
-- `evaluation_periods` - number of periods over which data is compared to the specified threshold. Required parameter.
-- `threshold` - value against which the specified statistic is compared. Can be float or integer type. Required parameter.
-- `comparison_operator` - arithmetic operation to use when comparing the specified statistic and threshold. The specified statistic value is used as the first operand.
+- `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
+- `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no
+- `resource_id` is specified the name attribute will be used.
 
-For more information about parameters, see [Cloudwatch Identifiers](http://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CW_Support_For_AWS.html) in the Using Cloudwatch guide.
+### aws_secondary_ip.rb
+
+This feature is available only to instances in EC2-VPC. It allows you to assign multiple private IP addresses to a network interface.
+
+#### Actions:
+
+- `assign` - Assign a private IP to the instance.
+- `unassign` - Unassign a private IP from the instance.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
+- `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
+- `timeout` - connection timeout for EC2 API.
 
 ## License and Authors
 
