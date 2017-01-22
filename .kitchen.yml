@@ -15,16 +15,23 @@ verifier:
   format: doc
 
 platforms:
-- name: amazon-2015.09
+- name: amazon-2016.09.1
   driver_config:
-    image_id: ami-f0091d91
+    image_id: ami-1e299d7e
     instance_type: t2.small
   transport:
     username: ec2-user
 
-- name: redhat-7.2
+- name: sles-12SP2
   driver_config:
-    image_id: ami-775e4f16
+    image_id: ami-e4a30084
+    instance_type: t2.small
+  transport:
+    username: ec2-user
+
+- name: redhat-7.3
+  driver_config:
+    image_id: ami-6f68cf0f
     instance_type: t2.small
   transport:
     username: ec2-user
@@ -39,6 +46,13 @@ platforms:
 - name: ubuntu-14.04
   driver_config:
     image_id: ami-22b9a343
+    instance_type: t2.small
+  transport:
+    username: ubuntu
+
+- name: ubuntu-16.04
+  driver_config:
+    image_id: ami-b7a114d7
     instance_type: t2.small
   transport:
     username: ubuntu
