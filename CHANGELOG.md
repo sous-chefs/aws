@@ -3,21 +3,26 @@
 This file is used to list changes made in each version of the aws cookbook.
 
 ## 4.1.3 (2016-11-01)
+
 - Dont declare region twice in S3_file
 
 ## 4.1.2 (2016-10-04)
+
 - Add matcher definitions for ChefSpec
 
 ## 4.1.1 (2016-09-19)
+
 - Fix false "volume no longer exists" errors.
 - Use alias_method to cleanup backwards compatibility in s3_file
 
 ## 4.1.0 (2016-09-19)
+
 - Pass through retry_delay to remote_file
 - Require ohai 4.0+ cookbook and use new compile_time method for ohai_hint resource
 - Remove Chef 11 compatibility code in the aws-sdk gem install
 
 ## 4.0.0 (2016-09-15)
+
 - Testing updates
 - Require Chef 12.1 or later
 - Use node.normal instead of node.set to avoid deprecation notices
