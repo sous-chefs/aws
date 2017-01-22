@@ -19,6 +19,7 @@ This cookbook includes resources and providers to configure and manage Amazon We
   - (`iam_group`)
   - (`iam_policy`)
   - (`iam_role`)
+- CloudWatch Management (`aws_cloudwatch`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 
@@ -340,7 +341,37 @@ This feature is available only to instances in EC2-VPC. It allows you to assign 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
 - `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
-- `timeout` - connection timeout for EC2 API.
+- `timeout` - connection timeout for EC2 API.\
+
+### cloudwatch.rb
+
+
+#### Actions:
+
+- `create` - Create or update cloudwatch alarms.
+- `delete` - Delete cloudwatch alarms.
+- `disable_action` - Disable action of the cloudwatch alarms. 
+- `enable_action` - Enable action of the cloudwatch alarms.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `alarm_name` - the alarm name. If none is given on assignment, will take the resource name.
+- `alarm_description` - the description of alarm. Can be blank also.
+- `actions_enabled` - true for enable action on OK, ALARM or Insufficient data. if true, any of ok_actions, alarm_actions or insufficient_data_actions must be specified.
+- `ok_actions` - array of action if alarm state is OK. If specified actions_enabled must be true.
+- `alarm_actions` - array of action if alarm state is ALARM. If specified actions_enabled must be true.
+- `insufficient_data_actions` - array of action if alarm state is INSUFFICIENT_DATA. If specified actions_enabled must be true.
+- `metric_name` - cloudwatch metric name of the alarm. eg - CPUUtilization.Required parameter.
+- `namespace` - namespace of the alarm. eg - AWS/EC2, required parameter.
+- `statistic` - statistic of the alarm. Vaule must be in any of SampleCount, Average, Sum, Minimum or  Maximum. Required parameter.
+- `extended_statistic` - extended_statistic of the alarm. Specify a value between p0.0 and p100. Optional parameter.
+- `dimensions` - dimensions for the metric associated with the alarm. Array of name and vaule.
+- `period` - in seconds, over which the specified statistic is applied.  Interger type and required parameter.
+- `unit` - unit of measure for the statistic. Required parameter.
+- `evaluation_periods` - number of periods over which data is compared to the specified threshold. Required parameter.
+- `threshold` - value against which the specified statistic is compared. Can be float or integer type. Required parameter.
+- `comparison_operator` -  arithmetic operation to use when comparing the specified statistic and threshold. The specified statistic value is used as the first operand.
 
 ## Usage
 
@@ -765,6 +796,53 @@ Attribute parameters are:
 - `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
 - `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
 - `assume_role_policy_document`: The JSON policy document to apply to this role for trust relationships. Dictates what entities can assume this role.
+
+## aws_cloudwatch
+
+Use this resource to manage cloudwatch alarms.
+
+```ruby
+aws_cloudwatch "kitchen_test_alarm" do
+  period 21600
+  evaluation_periods 2
+  threshold 50.0
+  comparison_operator "LessThanThreshold"
+  metric_name "CPUUtilization"
+  namespace "AWS/EC2"
+  statistic "Maximum"
+  dimensions [{"name" : "InstanceId, "value" : "i-xxxxxxx"}]
+  action :create
+end
+```
+
+Actions:
+
+- `create` - Create or update cloudwatch alarms.
+- `delete` - Delete cloudwatch alarms.
+- `disable_action` - Disable action of the cloudwatch alarms. 
+- `enable_action` - Enable action of the cloudwatch alarms.
+
+Attribute parameters are:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `alarm_name` - the alarm name. If none is given on assignment, will take the resource name.
+- `alarm_description` - the description of alarm. Can be blank also.
+- `actions_enabled` - true for enable action on OK, ALARM or Insufficient data. if true, any of ok_actions, alarm_actions or insufficient_data_actions must be specified.
+- `ok_actions` - array of action if alarm state is OK. If specified actions_enabled must be true.
+- `alarm_actions` - array of action if alarm state is ALARM. If specified actions_enabled must be true.
+- `insufficient_data_actions` - array of action if alarm state is INSUFFICIENT_DATA. If specified actions_enabled must be true.
+- `metric_name` - cloudwatch metric name of the alarm. eg - CPUUtilization.Required parameter.
+- `namespace` - namespace of the alarm. eg - AWS/EC2, required parameter.
+- `statistic` - statistic of the alarm. Vaule must be in any of SampleCount, Average, Sum, Minimum or  Maximum. Required parameter.
+- `extended_statistic` - extended_statistic of the alarm. Specify a value between p0.0 and p100. Optional parameter.
+- `dimensions` - dimensions for the metric associated with the alarm. Array of name and vaule.
+- `period` - in seconds, over which the specified statistic is applied.  Interger type and required parameter.
+- `unit` - unit of measure for the statistic. Required parameter.
+- `evaluation_periods` - number of periods over which data is compared to the specified threshold. Required parameter.
+- `threshold` - value against which the specified statistic is compared. Can be float or integer type. Required parameter.
+- `comparison_operator` -  arithmetic operation to use when comparing the specified statistic and threshold. The specified statistic value is used as the first operand.
+
+For more information about parameters, see [Cloudwatch Identifiers](http://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CW_Support_For_AWS.html) in the Using Cloudwatch guide.
 
 ## License and Authors
 
