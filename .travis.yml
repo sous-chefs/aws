@@ -5,7 +5,7 @@ dist: trusty
 addons:
   apt:
     sources:
-      - chef-current-trusty
+      - chef-stable-trusty
     packages:
       - chefdk
 
@@ -26,7 +26,7 @@ env:
   - INSTANCE=ec2-hints-debian-8
   - INSTANCE=ec2-hints-fedora-latest
   - INSTANCE=ec2-hints-opensuse-132
-  - INSTANCE=ec2-hints-opensuse-421
+  - INSTANCE=ec2-hints-opensuse-leap
   - INSTANCE=ec2-hints-ubuntu-1204
   - INSTANCE=ec2-hints-ubuntu-1404
   - INSTANCE=ec2-hints-ubuntu-1604
@@ -34,16 +34,14 @@ env:
 before_script:
   - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
   - eval "$(/opt/chefdk/bin/chef shell-init bash)"
+  - /opt/chefdk/embedded/bin/chef --version
+  - /opt/chefdk/embedded/bin/cookstyle --version
+  - /opt/chefdk/embedded/bin/foodcritic --version
 
 script: KITCHEN_LOCAL_YAML=.kitchen.docker.yml /opt/chefdk/embedded/bin/kitchen verify ${INSTANCE}
 
 matrix:
   include:
-    - before_script:
-      - eval "$(/opt/chefdk/bin/chef shell-init bash)"
-      - /opt/chefdk/embedded/bin/chef --version
-      - /opt/chefdk/embedded/bin/cookstyle --version
-      - /opt/chefdk/embedded/bin/foodcritic --version
     - script:
       - /opt/chefdk/bin/chef exec rake
       env: UNIT_AND_LINT=1
