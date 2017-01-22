@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/chef-cookbooks/aws.svg?branch=master)](https://travis-ci.org/chef-cookbooks/aws) [![Cookbook Version](https://img.shields.io/cookbook/v/aws.svg)](https://supermarket.chef.io/cookbooks/aws)
 
-This cookbook includes resources and providers to configure and manage Amazon Web Services components and offerings with the EC2 API. Currently supported resources:
+This cookbook includes resources to configure and manage Amazon Web Services components and offerings with the EC2 API. Currently supported resources:
 
 - EBS Volumes (`ebs_volume`)
 - EBS Raid (`ebs_raid`)
