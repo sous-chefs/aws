@@ -6,11 +6,11 @@ aws_dynamodb_table 'test-dynamodb-table' do
     { attribute_name: 'Id', attribute_type: 'N' },
     { attribute_name: 'Foo', attribute_type: 'N' },
     { attribute_name: 'Bar', attribute_type: 'N' },
-    { attribute_name: 'Baz', attribute_type: 'S' }
+    { attribute_name: 'Baz', attribute_type: 'S' },
   ]
   key_schema [
     { attribute_name: 'Id', key_type: 'HASH' },
-    { attribute_name: 'Foo', key_type: 'RANGE' }
+    { attribute_name: 'Foo', key_type: 'RANGE' },
   ]
   local_secondary_indexes [
     {
@@ -18,40 +18,40 @@ aws_dynamodb_table 'test-dynamodb-table' do
       key_schema: [
         {
           attribute_name: 'Id',
-          key_type: 'HASH'
+          key_type: 'HASH',
         },
         {
           attribute_name: 'Bar',
-          key_type: 'RANGE'
-        }
+          key_type: 'RANGE',
+        },
       ],
       projection: {
-        projection_type: 'ALL'
-      }
-    }
+        projection_type: 'ALL',
+      },
+    },
   ]
   global_secondary_indexes [
     {
       index_name: 'BazIndex',
       key_schema: [{
         attribute_name: 'Baz',
-        key_type: 'HASH'
+        key_type: 'HASH',
       }],
       projection: {
-        projection_type: 'ALL'
+        projection_type: 'ALL',
       },
       provisioned_throughput: {
         read_capacity_units: 2,
-        write_capacity_units: 2
-      }
-    }
+        write_capacity_units: 2,
+      },
+    },
   ]
   provisioned_throughput ({
     read_capacity_units: 2,
-    write_capacity_units: 2
+    write_capacity_units: 2,
   })
   stream_specification ({
     stream_enabled: true,
-    stream_view_type: 'KEYS_ONLY'
+    stream_view_type: 'KEYS_ONLY',
   })
 end

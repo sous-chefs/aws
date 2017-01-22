@@ -42,7 +42,7 @@ module Opscode
         response = ec2.describe_snapshots(
           filters: [
             { name: 'volume-id', values: [volume_id] },
-            { name: 'status', values: ['completed'] }
+            { name: 'status', values: ['completed'] },
           ]
         )
         snapshots = if find_most_recent

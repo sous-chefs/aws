@@ -9,14 +9,14 @@ attribute :alarm_actions, kind_of: Array, default: []
 attribute :insufficient_data_actions, kind_of: Array, default: []
 attribute :metric_name, kind_of: String
 attribute :namespace, kind_of: String
-attribute :statistic, equal_to: [ 'SampleCount', 'Average', 'Sum', 'Minimum', 'Maximum' ]
+attribute :statistic, equal_to: %w(SampleCount Average Sum Minimum Maximum)
 attribute :extended_statistic, kind_of: String
 attribute :dimensions, Array, default: []
-attribute :period , kind_of: Integer
-attribute :unit  , kind_of: String
-attribute :evaluation_periods , kind_of: Integer
-attribute :threshold  , kind_of: [Float, Integer]
-attribute :comparison_operator , equal_to: [ 'GreaterThanOrEqualToThreshold', 'GreaterThanThreshold', 'LessThanThreshold', 'LessThanOrEqualToThreshold' ]
+attribute :period, kind_of: Integer
+attribute :unit, kind_of: String
+attribute :evaluation_periods, kind_of: Integer
+attribute :threshold, kind_of: [Float, Integer]
+attribute :comparison_operator, equal_to: %w(GreaterThanOrEqualToThreshold GreaterThanThreshold LessThanThreshold LessThanOrEqualToThreshold)
 
 # aws credential/connection attributes
 attribute :region, kind_of: String

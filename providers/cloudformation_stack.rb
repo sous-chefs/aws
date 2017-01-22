@@ -15,7 +15,7 @@ def build_cfn_options
     # make sure you call this after you save the file
     template_body: ::IO.read(@template_path),
     parameters: new_resource.parameters,
-    disable_rollback: new_resource.disable_rollback
+    disable_rollback: new_resource.disable_rollback,
   }
   unless new_resource.stack_policy_body.nil?
     options[:stack_policy_body] = new_resource.stack_policy_body

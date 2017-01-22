@@ -14,8 +14,6 @@ aws_cloudwatch 'kitchen_test_alarm' do
   action :create
 end
 
-
-
 aws_cloudwatch 'kitchen_test_alarm' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']

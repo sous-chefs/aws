@@ -154,7 +154,7 @@ def currently_attached_volume(instance_id, device)
   ec2.describe_volumes(
     filters: [
       { name: 'attachment.device', values: [device] },
-      { name: 'attachment.instance-id', values: [instance_id] }
+      { name: 'attachment.instance-id', values: [instance_id] },
     ]
   ).volumes[0]
 end

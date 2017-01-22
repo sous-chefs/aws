@@ -133,7 +133,7 @@ def load_gsi_updates(api_indexes, res_indexes)
     updates.push(
       update: {
         index_name: gsi.index_name,
-        provisioned_throughput: res_index[:provisioned_throughput]
+        provisioned_throughput: res_index[:provisioned_throughput],
       }
     ) if throughput_changed?(
       api_index.provisioned_throughput, res_index[:provisioned_throughput]

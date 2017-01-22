@@ -1,10 +1,4 @@
-# rubocop todo:
-#
-Lint/AmbiguousRegexpLiteral:
-  Exclude:
-    - 'test/integration/dynamodb_table_create/rspec/dynamodb_table_create_spec.rb'
-    - 'test/integration/dynamodb_table_update/rspec/dynamodb_table_update_spec.rb'
-    - 'test/integration/s3_file/default_spec.rb'
+# rubocop todo
 
 Lint/Loop:
   Exclude:
@@ -19,6 +13,22 @@ Lint/UselessAssignment:
   Exclude:
     - 'libraries/ec2.rb'
 
+Metrics/BlockNesting:
+  Max: 7
+
 # Configuration parameters: CountKeywordArgs.
 Metrics/ParameterLists:
   Max: 15
+
+Style/EndOfLine:
+  Exclude:
+    - 'libraries/matchers.rb'
+    - 'metadata.rb'
+
+# Configuration parameters: MinBodyLength.
+Style/GuardClause:
+  Exclude:
+    - 'providers/cloudformation_stack.rb'
+    - 'providers/cloudwatch.rb'
+    - 'providers/ebs_volume.rb'
+    - 'providers/elastic_ip.rb'
