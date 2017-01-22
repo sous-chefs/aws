@@ -209,11 +209,11 @@ end
 
 ### default.rb
 
-This recipe is empty. In previous releases it installed the aws-sdk gem, but this is now performed automatically in the providers.
+This recipe is empty and should not be included on a node run_list
 
 ### ec2_hints.rb
 
-This recipe is used to setup the EC2 hints for Ohai in the case that an instance is not created using knife-ec2.
+This recipe is used to setup the EC2 hints for Ohai in the case that an instance is not created using knife-ec2\. When using recent Chef 12 releases this is no longer necessary as Ohai detects EC2 without hint files.
 
 ## Resources and Providers
 
@@ -274,6 +274,18 @@ Manage Elastic Block Store (EBS) raid devices with this resource. This resource 
 - `disk_piops` - number of Provisioned IOPS to provision per disk, must be > 100
 - `disk_encrypted` - specify if the EBS volumes should be encrypted
 - `disk_kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volumes (defaults to master key if not specified)
+
+#### Example
+
+```ruby
+  aws_ebs_raid 'db_ebs_raid' do
+    disk_size 10
+    disk_count 6
+    level 5
+    filesystem 'xfs'
+    mount_point '/aws_raid'
+  end
+```
 
 ### elastic_ip.rb
 
@@ -345,12 +357,11 @@ This feature is available only to instances in EC2-VPC. It allows you to assign 
 
 ### cloudwatch.rb
 
-
 #### Actions:
 
 - `create` - Create or update cloudwatch alarms.
 - `delete` - Delete cloudwatch alarms.
-- `disable_action` - Disable action of the cloudwatch alarms. 
+- `disable_action` - Disable action of the cloudwatch alarms.
 - `enable_action` - Enable action of the cloudwatch alarms.
 
 #### Properties:
@@ -364,14 +375,14 @@ This feature is available only to instances in EC2-VPC. It allows you to assign 
 - `insufficient_data_actions` - array of action if alarm state is INSUFFICIENT_DATA. If specified actions_enabled must be true.
 - `metric_name` - cloudwatch metric name of the alarm. eg - CPUUtilization.Required parameter.
 - `namespace` - namespace of the alarm. eg - AWS/EC2, required parameter.
-- `statistic` - statistic of the alarm. Vaule must be in any of SampleCount, Average, Sum, Minimum or  Maximum. Required parameter.
-- `extended_statistic` - extended_statistic of the alarm. Specify a value between p0.0 and p100. Optional parameter.
+- `statistic` - statistic of the alarm. Vaule must be in any of SampleCount, Average, Sum, Minimum or Maximum. Required parameter.
+- `extended_statistic` - extended_statistic of the alarm. Specify a value between p0.0 and p100\. Optional parameter.
 - `dimensions` - dimensions for the metric associated with the alarm. Array of name and vaule.
-- `period` - in seconds, over which the specified statistic is applied.  Interger type and required parameter.
+- `period` - in seconds, over which the specified statistic is applied. Interger type and required parameter.
 - `unit` - unit of measure for the statistic. Required parameter.
 - `evaluation_periods` - number of periods over which data is compared to the specified threshold. Required parameter.
 - `threshold` - value against which the specified statistic is compared. Can be float or integer type. Required parameter.
-- `comparison_operator` -  arithmetic operation to use when comparing the specified statistic and threshold. The specified statistic value is used as the first operand.
+- `comparison_operator` - arithmetic operation to use when comparing the specified statistic and threshold. The specified statistic value is used as the first operand.
 
 ## Usage
 
@@ -819,7 +830,7 @@ Actions:
 
 - `create` - Create or update cloudwatch alarms.
 - `delete` - Delete cloudwatch alarms.
-- `disable_action` - Disable action of the cloudwatch alarms. 
+- `disable_action` - Disable action of the cloudwatch alarms.
 - `enable_action` - Enable action of the cloudwatch alarms.
 
 Attribute parameters are:
@@ -833,14 +844,14 @@ Attribute parameters are:
 - `insufficient_data_actions` - array of action if alarm state is INSUFFICIENT_DATA. If specified actions_enabled must be true.
 - `metric_name` - cloudwatch metric name of the alarm. eg - CPUUtilization.Required parameter.
 - `namespace` - namespace of the alarm. eg - AWS/EC2, required parameter.
-- `statistic` - statistic of the alarm. Vaule must be in any of SampleCount, Average, Sum, Minimum or  Maximum. Required parameter.
-- `extended_statistic` - extended_statistic of the alarm. Specify a value between p0.0 and p100. Optional parameter.
+- `statistic` - statistic of the alarm. Vaule must be in any of SampleCount, Average, Sum, Minimum or Maximum. Required parameter.
+- `extended_statistic` - extended_statistic of the alarm. Specify a value between p0.0 and p100\. Optional parameter.
 - `dimensions` - dimensions for the metric associated with the alarm. Array of name and vaule.
-- `period` - in seconds, over which the specified statistic is applied.  Interger type and required parameter.
+- `period` - in seconds, over which the specified statistic is applied. Interger type and required parameter.
 - `unit` - unit of measure for the statistic. Required parameter.
 - `evaluation_periods` - number of periods over which data is compared to the specified threshold. Required parameter.
 - `threshold` - value against which the specified statistic is compared. Can be float or integer type. Required parameter.
-- `comparison_operator` -  arithmetic operation to use when comparing the specified statistic and threshold. The specified statistic value is used as the first operand.
+- `comparison_operator` - arithmetic operation to use when comparing the specified statistic and threshold. The specified statistic value is used as the first operand.
 
 For more information about parameters, see [Cloudwatch Identifiers](http://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CW_Support_For_AWS.html) in the Using Cloudwatch guide.
 
