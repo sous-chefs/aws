@@ -2,24 +2,21 @@
 
 [![Build Status](https://travis-ci.org/chef-cookbooks/aws.svg?branch=master)](https://travis-ci.org/chef-cookbooks/aws) [![Cookbook Version](https://img.shields.io/cookbook/v/aws.svg)](https://supermarket.chef.io/cookbooks/aws)
 
-This cookbook includes resources to configure and manage Amazon Web Services components and offerings with the EC2 API. Currently supported resources:
+This cookbook provides resources for configuring and managing nodes running in Amazon Web Services as well as several AWS service offerings. Included resources:
 
+- CloudFormation Stack Management (`cloudformation_stack`)
+- CloudWatch (`cloudwatch`)
+- CloudWatch Instance Monitoring (`instance_monitoring`)
+- DynamoDB (`dynamodb_table`)
 - EBS Volumes (`ebs_volume`)
 - EBS Raid (`ebs_raid`)
 - Elastic IPs (`elastic_ip`)
 - Elastic Load Balancer (`elastic_lb`)
-- AWS Resource Tags (`resource_tag`)
-- Secondary IPs (`secondary_ip`)
-- AWS Cloudwatch Instance Monitoring (`aws_instance_monitoring`)
-- CloudFormation Stack Management (`cloudformation_stack`)
+- IAM User, Group, Policy, and Role Management: (`iam_user`, `iam_group`, `iam_policy`, `iam_role`)
 - Kinesis Stream Management (`kinesis_stream`)
-- IAM User, Group, Policy, and Role Management:
-
-  - (`iam_user`)
-  - (`iam_group`)
-  - (`iam_policy`)
-  - (`iam_role`)
-- CloudWatch Management (`aws_cloudwatch`)
+- Resource Tags (`resource_tag`)
+- S3 Files (`s3_file`)
+- Secondary IPs (`secondary_ip`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 
