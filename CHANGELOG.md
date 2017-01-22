@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 4.2.0 (2017-01-21)
+
+- README: Add ec2:ModifyInstanceAttribute to sample IAM policy (fixes #241)
+- Added a new resource for managing CloudWatch alarms
+
 ## 4.1.3 (2016-11-01)
 
 - Dont declare region twice in S3_file
