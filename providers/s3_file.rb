@@ -25,9 +25,6 @@ end
 def do_s3_file(resource_action)
   md5s_match = false
 
-  s3url = s3_obj.presigned_url(:get, expires_in: 300).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
-  Chef::Log.debug("Using S3 URL #{s3url}")
-
   if resource_action == :create
     if compare_md5s(s3_obj, new_resource.path)
       Chef::Log.info("Remote and local files appear to be identical, skipping #{resource_action} operation.")
@@ -36,6 +33,9 @@ def do_s3_file(resource_action)
       Chef::Log.info("Remote and local files do not match, running #{resource_action} operation.")
     end
   end
+
+  s3url = s3_obj.presigned_url(:get, expires_in: 300).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
+  Chef::Log.debug("Using S3 URL #{s3url}")
 
   remote_file new_resource.name do
     path new_resource.path
