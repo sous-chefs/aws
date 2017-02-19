@@ -10,6 +10,23 @@ module Opscode
 
         Chef::Log.debug('Initializing the S3 Client')
         @s3 ||= create_aws_interface(::Aws::S3::Client)
+
+        if new_resource.region.nil? && @s3_region.nil?
+          @s3_region ||= query_bucket_region
+          @s3 = create_aws_interface(::Aws::S3::Client)
+        end
+        @s3
+      end
+
+      def query_bucket_region
+        location_constraint = @s3.get_bucket_location(bucket: new_resource.bucket).location_constraint
+        region = location_constraint == '' ? 'us-east-1' : location_constraint
+        Chef::Log.debug("Bucket #{new_resource.bucket} is located in region #{region}")
+        region
+      end
+
+      def aws_region
+        @s3_region || super
       end
 
       def s3_obj
