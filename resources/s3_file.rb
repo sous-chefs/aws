@@ -31,8 +31,6 @@ attribute :use_last_modified, kind_of: [TrueClass, FalseClass], default: true
 attribute :atomic_update, kind_of: [TrueClass, FalseClass], default: true
 attribute :force_unlink, kind_of: [TrueClass, FalseClass], default: false
 attribute :manage_symlink_source, kind_of: [TrueClass, FalseClass]
-attribute :retries, kind_of: Integer, default: 0
-attribute :retry_delay, kind_of: Integer, default: 3
 if node['platform_family'] == 'windows'
   attribute :inherits, kind_of: [TrueClass, FalseClass], default: true
   attribute :rights, kind_of: Hash
