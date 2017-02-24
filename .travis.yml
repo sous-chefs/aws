@@ -27,7 +27,6 @@ env:
   - INSTANCE=ec2-hints-fedora-latest
   - INSTANCE=ec2-hints-opensuse-132
   - INSTANCE=ec2-hints-opensuse-leap
-  - INSTANCE=ec2-hints-ubuntu-1204
   - INSTANCE=ec2-hints-ubuntu-1404
   - INSTANCE=ec2-hints-ubuntu-1604
 
