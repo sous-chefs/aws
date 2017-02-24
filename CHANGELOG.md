@@ -2,6 +2,12 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 4.2.1 (2017-02-24)
+
+- Tweaks to the readme for clarity
+- Remove Ubuntu 12.04 and openSUSE 13.2 from Test Kitchen matrix as these are both on the way to EOL
+- Remove the sensitive, retries, and retry_delay from the s3_file resource for Chef 13 compatibility since chef itself defines these
+
 ## 4.2.0 (2017-01-21)
 
 - README: Add ec2:ModifyInstanceAttribute to sample IAM policy (fixes #241)
