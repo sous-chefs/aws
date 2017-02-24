@@ -69,13 +69,6 @@ platforms:
       - RUN /usr/bin/apt-get update
       - RUN /usr/bin/apt-get install apt-transport-https lsb-release procps net-tools -y
 
-- name: opensuse-13.2
-  driver:
-    image: opensuse:13.2
-    pid_one_command: /bin/systemd
-    intermediate_instructions:
-      - RUN zypper --non-interactive install aaa_base perl-Getopt-Long-Descriptive which net-tools
-
 - name: opensuse-leap
   driver:
     image: opensuse:leap
