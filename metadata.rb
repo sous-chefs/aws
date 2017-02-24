@@ -2,7 +2,7 @@ name 'aws'
 maintainer 'Chef Software, Inc.'
 maintainer_email 'cookbooks@chef.io'
 license 'Apache 2.0'
-description 'Custom resources for managing AWS resources'
+description 'Provides resources for managing AWS resources'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version '4.2.0'
 
@@ -17,4 +17,4 @@ end
 
 source_url 'https://github.com/chef-cookbooks/aws'
 issues_url 'https://github.com/chef-cookbooks/aws/issues'
-chef_version '>= 12.1'
+chef_version '>= 12.1' if respond_to?(:chef_version)
