@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 4.2.2 (2017-02-24)
+
+- Let the API decide what the default volume type is for EBS volumes. This doesn't actually change anything at the moment, but keeps us up to date with the defaults of the aws-sdk
+
 ## 4.2.1 (2017-02-24)
 
 - Tweaks to the readme for clarity
