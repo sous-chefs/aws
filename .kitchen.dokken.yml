@@ -51,7 +51,7 @@ platforms:
     image: fedora:latest
     pid_one_command: /usr/lib/systemd/systemd
     intermediate_instructions:
-      - RUN dnf -y install yum which systemd-sysv initscripts wget net-tools
+      - RUN dnf -y install which systemd-sysv initscripts wget net-tools
 
 - name: ubuntu-14.04
   driver:
