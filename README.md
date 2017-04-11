@@ -31,11 +31,11 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 
 ### Chef
 
-- Chef 12.1+
+- Chef 12.6+
 
 ### Cookbooks
 
-- Ohai 4.0+
+- Ohai 5.0.3+
 
 ## Credentials
 
