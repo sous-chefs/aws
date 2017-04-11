@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 5.0.0 (2017-04-11)
+
+- Calculate the presigned url after the md5 check as it may timeout when the existing file is very large
+- Update testing for Chef 13 and use local delivery
+- Update apache2 license string
+- Require the latest ohai cookbook which fixes Chef 13 compatibility. With this change this cookbook now requires Chef 12.6 or later
+
 ## 4.2.2 (2017-02-24)
 
 - Let the API decide what the default volume type is for EBS volumes. This doesn't actually change anything at the moment, but keeps us up to date with the defaults of the aws-sdk
