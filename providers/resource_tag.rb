@@ -77,7 +77,7 @@ action :force_remove do
 end
 
 def load_current_resource
-  @current_resource = Chef::Resource::AwsResourceTag.new(@new_resource.name)
+  @current_resource = Chef::ResourceResolver.resolve(:aws_resource_tag).new(@new_resource.name)
   @current_resource.name(@new_resource.name)
   if @new_resource.resource_id
     @current_resource.resource_id(@new_resource.resource_id)
