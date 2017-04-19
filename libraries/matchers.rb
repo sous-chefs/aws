@@ -17,11 +17,6 @@ if defined?(ChefSpec)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_dynamodb_table, :delete, resource_name)
   end
 
-  # ebs_raid
-  def auto_attach_aws_ebs_raid(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:aws_ebs_raid, :auto_attach, resource_name)
-  end
-
   # ebs_volume
   def create_aws_ebs_volume(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_ebs_volume, :create, resource_name)
