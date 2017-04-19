@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 5.0.1 (2017-04-18)
+
+- Fix for Issue #283 (error on aws_resource_tag): Updated deprecated Chef::Resource call with valid Chef::ResourceResolver drop-in
+
 ## 5.0.0 (2017-04-11)
 
 - Calculate the presigned url after the md5 check as it may timeout when the existing file is very large
