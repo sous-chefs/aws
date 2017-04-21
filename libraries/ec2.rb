@@ -14,15 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-require File.join(File.dirname(__FILE__), 'aws')
 require 'open-uri'
 
 module Opscode
   module Aws
     module Ec2
-      include Opscode::Aws
-
       def ec2
         require 'aws-sdk'
 
