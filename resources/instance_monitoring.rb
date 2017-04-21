@@ -1,11 +1,38 @@
-actions :enable, :disable
-default_action :enable
+property :aws_access_key, String
+property :aws_secret_access_key, String
+property :aws_session_token, String
+property :aws_assume_role_arn, String
+property :aws_role_session_name, String
+property :region, String
 
-state_attrs :aws_access_key
+action :enable do
+  if monitoring_enabled?
+    Chef::Log.debug('Monitoring is already enabled for this instance')
+  else
+    converge_by('enable monitoring for this instance') do
+      Chef::Log.info('Enabling monitoring for this instance')
+      ec2.monitor_instances(instance_ids: [node['ec2']['instance_id']])
+    end
+  end
+end
 
-attribute :aws_access_key, kind_of: String
-attribute :aws_secret_access_key, kind_of: String
-attribute :aws_session_token,     kind_of: String
-attribute :aws_assume_role_arn,   kind_of: String
-attribute :aws_role_session_name, kind_of: String
-attribute :region,                kind_of: String
+action :disable do
+  if monitoring_enabled?
+    converge_by('disable monitoring for this instance') do
+      Chef::Log.info('Disabling monitoring for this instance')
+      ec2.unmonitor_instances(instance_ids: [node['ec2']['instance_id']])
+    end
+  else
+    Chef::Log.debug('Monitoring is already disabled for this instance')
+  end
+end
+
+action_class do
+  include Opscode::Aws::Ec2
+
+  def monitoring_enabled?
+    monitoring_state = ec2.describe_instances(instance_ids: [node['ec2']['instance_id']])[:reservations][0][:instances][0][:monitoring][:state]
+    Chef::Log.info("Current monitoring state for this instance is #{monitoring_state}")
+    monitoring_state == 'enabled'
+  end
+end
