@@ -6,7 +6,7 @@ module Opscode
       include Opscode::Aws::Ec2
 
       def cfn
-        require_aws_sdk
+        require 'aws-sdk'
 
         Chef::Log.debug('Initializing the CloudFormation Client')
         @cfn ||= create_aws_interface(::Aws::CloudFormation::Client)
