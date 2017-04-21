@@ -52,10 +52,6 @@ platforms:
 
 suites:
 
-  - name: ec2_hints
-    run_list:
-    - recipe[aws::ec2_hints]
-
   - name: ebs_volume
     run_list:
     - recipe[aws_test::ebs_volume]
