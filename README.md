@@ -34,7 +34,7 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 
 ### Cookbooks
 
-- Ohai 5.0.3+
+- None
 
 ## Credentials
 
@@ -209,7 +209,7 @@ This recipe is empty and should not be included on a node run_list
 
 ### ec2_hints.rb
 
-This recipe is used to setup the EC2 hints for Ohai in the case that an instance is not created using knife-ec2\. When using recent Chef 12 releases this is no longer necessary as Ohai detects EC2 without hint files.
+This recipe has been deprecated and Ohai now automatically detects EC2 nodes. You can remove this recipe from your run_list if it is still being used.
 
 ## Resources
 
