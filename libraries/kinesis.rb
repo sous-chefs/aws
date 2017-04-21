@@ -6,7 +6,7 @@ module Opscode
       include Opscode::Aws::Ec2
 
       def kinesis
-        require_aws_sdk
+        require 'aws-sdk'
 
         Chef::Log.debug('Initializing the Kinesis Client')
         @kinesis ||= create_aws_interface(::Aws::Kinesis::Client)

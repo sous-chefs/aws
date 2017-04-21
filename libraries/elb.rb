@@ -6,7 +6,7 @@ module Opscode
       include Opscode::Aws::Ec2
 
       def elb
-        require_aws_sdk
+        require 'aws-sdk'
 
         Chef::Log.debug('Initializing the ElasticLoadBalancing Client')
         @elb ||= create_aws_interface(::Aws::ElasticLoadBalancing::Client)

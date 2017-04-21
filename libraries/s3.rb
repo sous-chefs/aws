@@ -6,14 +6,14 @@ module Opscode
       include Opscode::Aws::Ec2
 
       def s3
-        require_aws_sdk
+        require 'aws-sdk'
 
         Chef::Log.debug('Initializing the S3 Client')
         @s3 ||= create_aws_interface(::Aws::S3::Client)
       end
 
       def s3_obj
-        require_aws_sdk
+        require 'aws-sdk'
         remote_path = new_resource.remote_path
         remote_path.sub!(%r{^/*}, '')
 

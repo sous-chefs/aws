@@ -24,7 +24,7 @@ module Opscode
       include Opscode::Aws
 
       def ec2
-        require_aws_sdk
+        require 'aws-sdk'
 
         Chef::Log.debug('Initializing the EC2 Client')
         @ec2 ||= create_aws_interface(::Aws::EC2::Client)
