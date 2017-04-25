@@ -6,11 +6,8 @@ property :aws_role_session_name, String
 property :region, String
 
 action :enable do
-  if monitoring_enabled?
-    Chef::Log.debug('Monitoring is already enabled for this instance')
-  else
+  unless monitoring_enabled?
     converge_by('enable monitoring for this instance') do
-      Chef::Log.info('Enabling monitoring for this instance')
       ec2.monitor_instances(instance_ids: [node['ec2']['instance_id']])
     end
   end
@@ -19,11 +16,8 @@ end
 action :disable do
   if monitoring_enabled?
     converge_by('disable monitoring for this instance') do
-      Chef::Log.info('Disabling monitoring for this instance')
       ec2.unmonitor_instances(instance_ids: [node['ec2']['instance_id']])
     end
-  else
-    Chef::Log.debug('Monitoring is already disabled for this instance')
   end
 end
 
