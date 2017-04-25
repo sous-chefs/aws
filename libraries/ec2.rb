@@ -30,10 +30,6 @@ module Opscode
         node['ec2']['instance_id']
       end
 
-      def instance_availability_zone
-        node['ec2']['placement_availability_zone']
-      end
-
       def find_snapshot_id(volume_id = '', find_most_recent = false)
         response = ec2.describe_snapshots(
           filters: [
@@ -62,8 +58,8 @@ module Opscode
           Chef::Log.debug("Using overridden region name, #{new_resource.region}, from resource")
           new_resource.region
         elsif node.attribute?('ec2')
-          Chef::Log.debug("Using region #{instance_availability_zone.chop} from Ohai attributes")
-          instance_availability_zone.chop
+          Chef::Log.debug("Using region #{node['ec2']['placement_availability_zone'].chop} from Ohai attributes")
+          node['ec2']['placement_availability_zone'].chop
         else
           Chef::Log.debug('Falling back to region us-east-1 as Ohai data and resource defined region not present')
           'us-east-1'
