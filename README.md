@@ -456,7 +456,7 @@ end
 
 ### aws_secondary_ip
 
-The `secondary_ip` resource provider allows one to assign/un-assign multiple private secondary IPs on an instance in EC2-VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface (which is pulled from Ohai) will be used.
+The `secondary_ip` resource provider allows one to assign/un-assign multiple private secondary IPs on an instance within a VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface as determined by Ohai will be used.
 
 #### Example:
 
