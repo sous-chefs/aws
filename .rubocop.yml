@@ -13,10 +13,6 @@ Metrics/BlockNesting:
 Metrics/ParameterLists:
   Max: 15
 
-Style/EndOfLine:
-  Exclude:
-    - 'libraries/matchers.rb'
-
 Style/GuardClause:
   Exclude:
     - 'providers/cloudformation_stack.rb'
