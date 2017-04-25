@@ -36,13 +36,6 @@ platforms:
   transport:
     username: ec2-user
 
-- name: ubuntu-14.04
-  driver_config:
-    image_id: ami-22b9a343
-    instance_type: t2.small
-  transport:
-    username: ubuntu
-
 - name: ubuntu-16.04
   driver_config:
     image_id: ami-b7a114d7
