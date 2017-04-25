@@ -60,14 +60,6 @@ suites:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
-  - name: ebs_raid
-    run_list:
-    - recipe[aws_test::ebs_raid]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
-
   - name: elastic_ip
     run_list:
     - recipe[aws_test::elastic_ip]

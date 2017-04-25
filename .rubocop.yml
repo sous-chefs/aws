@@ -1,9 +1,3 @@
-# rubocop todo
-
-Lint/Loop:
-  Exclude:
-    - 'providers/ebs_raid.rb'
-
 Lint/ParenthesesAsGroupedExpression:
   Exclude:
     - 'test/fixtures/cookbooks/aws_test/recipes/dynamodb_table_create.rb'
@@ -16,7 +10,6 @@ Lint/UselessAssignment:
 Metrics/BlockNesting:
   Max: 7
 
-# Configuration parameters: CountKeywordArgs.
 Metrics/ParameterLists:
   Max: 15
 
@@ -24,7 +17,6 @@ Style/EndOfLine:
   Exclude:
     - 'libraries/matchers.rb'
 
-# Configuration parameters: MinBodyLength.
 Style/GuardClause:
   Exclude:
     - 'providers/cloudformation_stack.rb'
