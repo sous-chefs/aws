@@ -461,7 +461,7 @@ The `secondary_ip` resource provider allows one to assign/un-assign multiple pri
 #### Example:
 
 ```ruby
-aws_secondary_ip "assign_additional_ip" do
+aws_secondary_ip 'assign_additional_ip' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
   ip ip_info['private_ip']
