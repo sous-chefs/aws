@@ -2,6 +2,15 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 6.0.0 (2017-04-27)
+
+- Resolve deprecation warning in the chefspecs
+- Remove the EBS Raid resource, which did not work on modern EC2 instance types and only worked on select Linux systems. We highly recommend users utilize provisioned IOPS on EBS volumes as they offer far greater reliability. If that's not an option you may want to pin to the 5.X release of this cookbook.
+- Remove the ec2_hints recipe as newer Chef releases auto detect EC2 and don't require hints to be applied
+- Use Chef’s gem install in the metadata to handle gem installation. This increases the minimum required Chef release to 12.9
+- Convert instance_monitoring to a custom resource with improved logging and converge notification
+- Consider pending to be enabled as well within instance_monitoring to avoid enabling again
+
 ## 5.0.1 (2017-04-18)
 
 - Fix for Issue #283 (error on aws_resource_tag): Updated deprecated Chef::Resource call with valid Chef::ResourceResolver drop-in
