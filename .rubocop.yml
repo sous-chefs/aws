@@ -16,6 +16,6 @@ Metrics/ParameterLists:
 Style/GuardClause:
   Exclude:
     - 'providers/cloudformation_stack.rb'
-    - 'providers/cloudwatch.rb'
     - 'providers/ebs_volume.rb'
     - 'providers/elastic_ip.rb'
+    - 'resources/cloudwatch.rb'
