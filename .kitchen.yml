@@ -76,7 +76,6 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
-        elb_name: <%= ENV['AWS_ELB_NAME'] %>
 
   - name: resource_tag
     run_list:
