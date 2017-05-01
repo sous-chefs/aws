@@ -3,10 +3,6 @@ Lint/ParenthesesAsGroupedExpression:
     - 'test/fixtures/cookbooks/aws_test/recipes/dynamodb_table_create.rb'
     - 'test/fixtures/cookbooks/aws_test/recipes/dynamodb_table_update.rb'
 
-Lint/UselessAssignment:
-  Exclude:
-    - 'libraries/ec2.rb'
-
 Metrics/BlockNesting:
   Max: 7
 
