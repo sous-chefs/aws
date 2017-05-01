@@ -14,7 +14,7 @@ module Opscode
 
       def s3_obj
         require 'aws-sdk'
-        remote_path = new_resource.remote_path
+        remote_path = new_resource.remote_path.dup
         remote_path.sub!(%r{^/*}, '')
 
         Chef::Log.debug("Initializing the S3 Object for bucket: #{new_resource.bucket} path: #{remote_path}")
