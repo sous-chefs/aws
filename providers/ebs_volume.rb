@@ -171,7 +171,7 @@ end
 
 # Creates a volume according to specifications and blocks until done (or times out)
 def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, piops, encrypted, kms_key_id)
-  availability_zone ||= instance_availability_zone
+  availability_zone ||= node['ec2']['placement_availability_zone']
 
   # Sanity checks so we don't shoot ourselves.
   raise "Invalid volume type: #{volume_type}" if volume_type && !%w(standard io1 gp2 sc1 st1).include?(volume_type)
