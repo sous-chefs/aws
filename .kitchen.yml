@@ -15,27 +15,6 @@ verifier:
   name: inspec
 
 platforms:
-- name: amazon-2016.09.1
-  driver_config:
-    image_id: ami-1e299d7e
-    instance_type: t2.small
-  transport:
-    username: ec2-user
-
-- name: sles-12SP2
-  driver_config:
-    image_id: ami-e4a30084
-    instance_type: t2.small
-  transport:
-    username: ec2-user
-
-- name: redhat-7.3
-  driver_config:
-    image_id: ami-6f68cf0f
-    instance_type: t2.small
-  transport:
-    username: ec2-user
-
 - name: ubuntu-16.04
   driver_config:
     image_id: ami-b7a114d7
