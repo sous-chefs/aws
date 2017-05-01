@@ -2,6 +2,12 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 6.1.0 (2017-05-01)
+
+- Converted aws_cloudwath and aws_elb to custom resources with code cleanup
+- Add create/delete actions to the aws_elb resource. This resource is currently not able to update the state of the ELB and does not setup health checks. It's mostly used to allow us to test the existing attach/detach actions, but it will be expanded in the future to allow for full ELB management
+- Cleanup of the EC2 helper and removal of a few unnecessary helpers
+
 ## 6.0.0 (2017-04-27)
 
 - Resolve deprecation warning in the chefspecs
