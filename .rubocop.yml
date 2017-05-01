@@ -7,7 +7,7 @@ Metrics/BlockNesting:
   Max: 7
 
 Metrics/ParameterLists:
-  Max: 15
+  Max: 8
 
 Style/GuardClause:
   Exclude:
