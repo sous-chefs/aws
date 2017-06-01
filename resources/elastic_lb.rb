@@ -21,7 +21,7 @@ action :register do
   if target_lb[:instances].detect { |instance| instance.instance_id == instance_id }
     Chef::Log.debug("Node is already present in ELB #{instance_id}, no action required.")
   else
-    converge_by("add the node to ELB #{new_resource.name}") do
+    converge_by("add node to ELB #{new_resource.name}") do
       elb.register_instances_with_load_balancer(load_balancer_name: new_resource.name, instances: [{ instance_id: instance_id }])
     end
   end
