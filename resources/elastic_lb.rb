@@ -39,7 +39,7 @@ end
 
 action :delete do
   if elb.describe_load_balancers[:load_balancer_descriptions].find { |lb| lb[:load_balancer_name] == new_resource.name }
-    converge_by "delete load balancer #{new_resource.name}" do
+    converge_by "delete ELB #{new_resource.name}" do
       elb.delete_load_balancer(load_balancer_name: new_resource.name)
     end
   else
