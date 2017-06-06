@@ -8,7 +8,7 @@ module AwsCookbook
       require 'aws-sdk'
 
       Chef::Log.debug('Initializing the DynamoDB Client')
-      @dynamodb ||= create_aws_interface(::Aws::DynamoDB::Client)
+      @dynamodb ||= create_aws_interface(::Aws::DynamoDB::Client, new_resource.region)
     end
   end
 end

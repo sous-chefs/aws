@@ -1,6 +1,6 @@
 property :alarm_name, String, name_property: true
 property :alarm_description, String
-property :actions_enabled, TrueClass
+property :actions_enabled, true
 property :ok_actions, Array, default: []
 property :alarm_actions, Array, default: []
 property :insufficient_data_actions, Array, default: []
@@ -16,12 +16,14 @@ property :threshold, [Float, Integer]
 property :comparison_operator, equal_to: %w(GreaterThanOrEqualToThreshold GreaterThanThreshold LessThanThreshold LessThanOrEqualToThreshold)
 
 # aws credential/connection attributes
-property :region, String
+property :region, String, default: lazy { aws_region }
 property :aws_access_key, String
 property :aws_secret_access_key, String
 property :aws_session_token, String
 property :aws_assume_role_arn, String
 property :aws_role_session_name, String
+
+include AwsCookbook::Ec2 # needed for aws_region helper
 
 # Create action will fire put_metric_alarm of cloudwatch API, will update the alarm if found changes in parameters.
 action :create do
@@ -73,7 +75,7 @@ action_class do
   def cwh
     require 'aws-sdk'
     Chef::Log.debug('Initializing the CloudWatch Client')
-    @cwh ||= create_aws_interface(::Aws::CloudWatch::Client)
+    @cwh ||= create_aws_interface(::Aws::CloudWatch::Client, new_resource.region)
   end
 
   # Make options for cloudwatch API
