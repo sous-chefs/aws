@@ -10,7 +10,6 @@ transport:
 provisioner:
   name: chef_zero
   deprecations_as_errors: true
-  log_level: debug
 
 verifier:
   name: inspec
