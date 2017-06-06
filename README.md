@@ -226,7 +226,7 @@ Use this resource to manage CloudWatch alarms.
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `alarm_name` - the alarm name. If none is given on assignment, will take the resource name.
 - `alarm_description` - the description of alarm. Can be blank also.
 - `actions_enabled` - true for enable action on OK, ALARM or Insufficient data. if true, any of ok_actions, alarm_actions or insufficient_data_actions must be specified.
@@ -303,7 +303,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `ip` - the IP address.
 - `timeout` - connection timeout for EC2 API.
 
@@ -318,7 +318,7 @@ Adds or removes nodes to an Elastic Load Balancer
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `name` - the name of the LB, required.
 
 ### aws_instance_monitoring
@@ -338,7 +338,7 @@ aws_instance_monitoring "enable detailed monitoring"
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
 
 ### aws_ebs_volume
 
@@ -768,7 +768,7 @@ end
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
 - `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no
 - `resource_id` is specified the name attribute will be used.
@@ -784,7 +784,7 @@ This feature is available only to instances in EC2-VPC. It allows you to assign 
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `Opscode::AWS:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
 - `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
 - `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
 - `timeout` - connection timeout for EC2 API.

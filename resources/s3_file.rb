@@ -1,40 +1,123 @@
-actions :create, :create_if_missing, :touch, :delete
-default_action :create
-
-state_attrs :aws_access_key,
-            :backup,
-            :bucket,
-            :checksum,
-            :group,
-            :mode,
-            :owner,
-            :path,
-            :remote_path
-
-attribute :path, kind_of: String, name_attribute: true
-attribute :remote_path, kind_of: String
-attribute :region, kind_of: [String, NilClass]
-attribute :bucket, kind_of: String
-attribute :aws_access_key, kind_of: String
-attribute :aws_secret_access_key, kind_of: String
-attribute :aws_session_token, kind_of: String
-attribute :aws_assume_role_arn, kind_of: String
-attribute :aws_role_session_name, kind_of: String
-attribute :owner, regex: Chef::Config[:user_valid_regex]
-attribute :group, regex: Chef::Config[:group_valid_regex]
-attribute :mode, kind_of: [String, NilClass]
-attribute :checksum, kind_of: [String, NilClass]
-attribute :backup, kind_of: [Integer, FalseClass], default: 5
-attribute :headers, kind_of: Hash
-attribute :use_etag, kind_of: [TrueClass, FalseClass], default: true
-attribute :use_last_modified, kind_of: [TrueClass, FalseClass], default: true
-attribute :atomic_update, kind_of: [TrueClass, FalseClass], default: true
-attribute :force_unlink, kind_of: [TrueClass, FalseClass], default: false
-attribute :manage_symlink_source, kind_of: [TrueClass, FalseClass]
+property :path, String, name_property: true
+property :remote_path, String
+property :region, [String, nil]
+property :bucket, String
+property :aws_access_key, String
+property :aws_secret_access_key, String
+property :aws_session_token, String
+property :aws_assume_role_arn, String
+property :aws_role_session_name, String
+property :owner, regex: Chef::Config[:user_valid_regex]
+property :group, regex: Chef::Config[:group_valid_regex]
+property :mode, [String, nil]
+property :checksum, [String, nil]
+property :backup, [Integer, false], default: 5
+property :headers, Hash
+property :use_etag, [true, false], default: true
+property :use_last_modified, [true, false], default: true
+property :atomic_update, [true, false], default: true
+property :force_unlink, [true, false], default: false
+property :manage_symlink_source, [true, false]
 if node['platform_family'] == 'windows'
-  attribute :inherits, kind_of: [TrueClass, FalseClass], default: true
-  attribute :rights, kind_of: Hash
+  property :inherits, [true, false], default: true
+  property :rights, Hash
 end
 
 # allow use of the old aws_access_key_id property
 alias_method :aws_access_key_id, :aws_access_key
+
+action :create do
+  do_s3_file(:create)
+end
+
+action :create_if_missing do
+  do_s3_file(:create_if_missing)
+end
+
+action :delete do
+  do_s3_file(:delete)
+end
+
+action :touch do
+  do_s3_file(:touch)
+end
+
+action_class do
+  include AwsCookbook::Ec2
+
+  def s3
+    require 'aws-sdk'
+
+    Chef::Log.debug('Initializing the S3 Client')
+    @s3 ||= create_aws_interface(::Aws::S3::Client)
+  end
+
+  def s3_obj
+    require 'aws-sdk'
+    remote_path = new_resource.remote_path.dup
+    remote_path.sub!(%r{^/*}, '')
+
+    Chef::Log.debug("Initializing the S3 Object for bucket: #{new_resource.bucket} path: #{remote_path}")
+    @s3_obj ||= ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
+  end
+
+  def compare_md5s(remote_object, local_file_path)
+    return false unless ::File.exist?(local_file_path)
+    local_md5 = ::Digest::MD5.new
+    remote_hash = remote_object.etag.delete('"') # etags are always quoted
+
+    ::File.open(local_file_path, 'rb') do |f|
+      f.each_line do |line|
+        local_md5.update line
+      end
+    end
+
+    local_hash = local_md5.hexdigest
+
+    Chef::Log.debug "Remote file md5 hash:  #{remote_hash}"
+    Chef::Log.debug "Local file md5 hash:   #{local_hash}"
+
+    local_hash == remote_hash
+  end
+
+  def do_s3_file(resource_action)
+    md5s_match = false
+
+    if resource_action == :create
+      if compare_md5s(s3_obj, new_resource.path)
+        Chef::Log.info("Remote and local files appear to be identical, skipping #{resource_action} operation.")
+        md5s_match = true
+      else
+        Chef::Log.info("Remote and local files do not match, running #{resource_action} operation.")
+      end
+    end
+
+    s3url = s3_obj.presigned_url(:get, expires_in: 300).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
+    Chef::Log.debug("Using S3 URL #{s3url}")
+
+    remote_file new_resource.name do
+      path new_resource.path
+      source s3url
+      owner new_resource.owner
+      group new_resource.group
+      mode new_resource.mode
+      checksum new_resource.checksum
+      backup new_resource.backup
+      headers new_resource.headers
+      use_etag new_resource.use_etag
+      use_last_modified new_resource.use_last_modified
+      atomic_update new_resource.atomic_update
+      force_unlink new_resource.force_unlink
+      manage_symlink_source new_resource.manage_symlink_source
+      sensitive new_resource.sensitive
+      retries new_resource.retries
+      retry_delay new_resource.retry_delay
+      if node['platform_family'] == 'windows'
+        inherits new_resource.inherits
+        rights new_resource.rights
+      end
+      action resource_action
+      not_if { md5s_match }
+    end
+  end
+end

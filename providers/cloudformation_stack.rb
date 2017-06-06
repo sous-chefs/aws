@@ -1,4 +1,4 @@
-include Opscode::Aws::CloudFormation
+include AwsCookbook::CloudFormation
 require 'fileutils'
 
 use_inline_resources

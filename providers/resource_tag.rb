@@ -1,4 +1,4 @@
-include Opscode::Aws::Ec2
+include AwsCookbook::Ec2
 
 use_inline_resources
 

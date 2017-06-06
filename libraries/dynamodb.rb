@@ -1,16 +1,14 @@
 require File.join(File.dirname(__FILE__), 'ec2')
 
-module Opscode
-  module Aws
-    module DynamoDB
-      include Opscode::Aws::Ec2
+module AwsCookbook
+  module DynamoDB
+    include AwsCookbook::Ec2
 
-      def dynamodb
-        require 'aws-sdk'
+    def dynamodb
+      require 'aws-sdk'
 
-        Chef::Log.debug('Initializing the DynamoDB Client')
-        @dynamodb ||= create_aws_interface(::Aws::DynamoDB::Client)
-      end
+      Chef::Log.debug('Initializing the DynamoDB Client')
+      @dynamodb ||= create_aws_interface(::Aws::DynamoDB::Client)
     end
   end
 end
