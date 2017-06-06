@@ -1,4 +1,4 @@
-include Opscode::Aws::Kinesis
+include AwsCookbook::Kinesis
 
 use_inline_resources
 

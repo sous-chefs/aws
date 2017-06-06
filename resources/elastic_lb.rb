@@ -12,8 +12,6 @@ property :availability_zones,    Array # for classic networking
 property :tags,                  Array
 property :scheme,                Array
 
-include Opscode::Aws::Elb
-
 action :register do
   target_lb = find_elb
   raise "Load balancer #{new_resource.name} not found in #{new_resource.region}" if target_lb.empty?
@@ -59,7 +57,13 @@ action :deregister do
 end
 
 action_class do
-  include Opscode::Aws::Elb
+  include AwsCookbook::Ec2
+
+  def elb
+    require 'aws-sdk'
+    Chef::Log.debug('Initializing the ElasticLoadBalancing Client')
+    @elb ||= create_aws_interface(::Aws::ElasticLoadBalancing::Client)
+  end
 
   def find_elb
     elb.describe_load_balancers[:load_balancer_descriptions].find { |lb| lb[:load_balancer_name] == new_resource.name }

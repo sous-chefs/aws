@@ -1,4 +1,4 @@
-include Opscode::Aws::IAM
+include AwsCookbook::IAM
 
 require 'json'
 

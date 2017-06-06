@@ -22,7 +22,7 @@ action :disable do
 end
 
 action_class do
-  include Opscode::Aws::Ec2
+  include AwsCookbook::Ec2
 
   def monitoring_enabled?
     monitoring_state = ec2.describe_instances(instance_ids: [node['ec2']['instance_id']])['reservations'][0]['instances'][0]['monitoring']['state']

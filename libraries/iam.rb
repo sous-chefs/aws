@@ -1,16 +1,14 @@
 require File.join(File.dirname(__FILE__), 'ec2')
 
-module Opscode
-  module Aws
-    module IAM
-      include Opscode::Aws::Ec2
+module AwsCookbook
+  module IAM
+    include AwsCookbook::Ec2
 
-      def iam
-        require 'aws-sdk'
+    def iam
+      require 'aws-sdk'
 
-        Chef::Log.debug('Initializing the IAM Client')
-        @iam ||= create_aws_interface(::Aws::IAM::Client)
-      end
+      Chef::Log.debug('Initializing the IAM Client')
+      @iam ||= create_aws_interface(::Aws::IAM::Client)
     end
   end
 end
