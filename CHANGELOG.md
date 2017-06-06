@@ -2,6 +2,12 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 6.1.1 (2017-06-05)
+
+- Resolve frozen string warning on Chef 13 in the s3_file rsource
+- Resolve useless assignment cookstyle warning in the EC2 library
+- Make the ELB deletion messaging consistent with the create messaging
+
 ## 6.1.0 (2017-05-01)
 
 - Converted aws_cloudwath and aws_elb to custom resources with code cleanup
