@@ -1,3 +1,26 @@
+aws_s3_bucket 'create test bucket' do
+  name 'this-better-be-unique-chef-aws'
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  region 'us-west-2'
+end
+
+aws_s3_bucket 'turn on versioning' do
+  name 'this-better-be-unique-chef-aws'
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  versioning true
+end
+
+aws_s3_bucket 'delete test bucket' do
+  name 'this-better-be-unique-chef-aws'
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  region 'us-west-2'
+  delete_all_objects true # delete the bucket if it's not empty
+  action :delete
+end
+
 aws_s3_file '/tmp/a_file' do
   bucket node['aws_test']['bucket']
   remote_path node['aws_test']['s3key']

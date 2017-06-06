@@ -78,7 +78,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
-        bucket: <%= ENV['AWS_S3_BUCKET'] || 'aws-cookbook' %>
+        bucket: <%= ENV['AWS_S3_BUCKET'] || 'aws-cookbook-2' %>
         bucket_west: <%= ENV['AWS_S3_BUCKET_WEST'] || 'aws-cookbook-west' %>
         s3key: <%= ENV['AWS_S3_KEY'] || 'a_file' %>
 
