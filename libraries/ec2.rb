@@ -22,7 +22,7 @@ module AwsCookbook
       require 'aws-sdk'
 
       Chef::Log.debug('Initializing the EC2 Client')
-      @ec2 ||= create_aws_interface(::Aws::EC2::Client)
+      @ec2 ||= create_aws_interface(::Aws::EC2::Client, new_resource.region)
     end
 
     def instance_id
@@ -49,14 +49,12 @@ module AwsCookbook
       snapshots.first[:snapshot_id]
     end
 
-    # determine the AWS region of the node
-    # Priority: resource property, user set node attribute -> ohai data -> us-east-1
+    # determine the AWS region to fallback to for resources
+    # which haven't specified a region
+    # Priority: ohai data -> us-east-1
     def aws_region
       # facilitate support for region in resource name
-      if new_resource.region
-        Chef::Log.debug("Using overridden region name, #{new_resource.region}, from resource")
-        new_resource.region
-      elsif node.attribute?('ec2')
+      if node.attribute?('ec2')
         Chef::Log.debug("Using region #{node['ec2']['placement_availability_zone'].chop} from Ohai attributes")
         node['ec2']['placement_availability_zone'].chop
       else
@@ -68,8 +66,8 @@ module AwsCookbook
     private
 
     # setup AWS instance using passed creds, iam profile, or assumed role
-    def create_aws_interface(aws_interface)
-      aws_interface_opts = { region: aws_region }
+    def create_aws_interface(aws_interface, region)
+      aws_interface_opts = { region: region }
 
       if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
         Chef::Log.debug('Using resource-defined credentials')

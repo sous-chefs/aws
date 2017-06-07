@@ -1,6 +1,6 @@
 property :path, String, name_property: true
 property :remote_path, String
-property :region, [String, nil]
+property :region, String, default: lazy { aws_region }
 property :bucket, String
 property :aws_access_key, String
 property :aws_secret_access_key, String
@@ -22,6 +22,8 @@ if node['platform_family'] == 'windows'
   property :inherits, [true, false], default: true
   property :rights, Hash
 end
+
+include AwsCookbook::Ec2 # needed for aws_region helper
 
 # allow use of the old aws_access_key_id property
 alias_method :aws_access_key_id, :aws_access_key
@@ -49,7 +51,7 @@ action_class do
     require 'aws-sdk'
 
     Chef::Log.debug('Initializing the S3 Client')
-    @s3 ||= create_aws_interface(::Aws::S3::Client)
+    @s3 ||= create_aws_interface(::Aws::S3::Client, new_resource.region)
   end
 
   def s3_obj

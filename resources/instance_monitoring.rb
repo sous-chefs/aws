@@ -3,7 +3,9 @@ property :aws_secret_access_key, String
 property :aws_session_token, String
 property :aws_assume_role_arn, String
 property :aws_role_session_name, String
-property :region, String
+property :region, String, default: lazy { aws_region }
+
+include AwsCookbook::Ec2 # needed for aws_region helper
 
 action :enable do
   unless monitoring_enabled?
