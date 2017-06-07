@@ -79,7 +79,6 @@ action :unassign do
   end
 end
 
-
 action_class do
   include AwsCookbook::Ec2
 

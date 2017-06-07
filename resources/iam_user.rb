@@ -54,5 +54,4 @@ action_class do
   rescue ::Aws::IAM::Errors::NoSuchEntity
     false
   end
-
 end
