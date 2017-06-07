@@ -308,6 +308,19 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `ip` - the IP address.
 - `timeout` - connection timeout for EC2 API.
 
+#### Example:
+
+```ruby
+aws_elastic_ip '34.15.30.10' do
+  action :allocate
+end
+
+aws_elastic_ip 'Server public IP' do
+  ip '34.15.30.11'
+  action :allocate
+end
+```
+
 ### aws_elastic_lb
 
 Adds or removes nodes to an Elastic Load Balancer

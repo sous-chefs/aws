@@ -30,6 +30,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+
   - name: dynamo_table
     run_list:
     - recipe[aws_test::dynamodb_table]
@@ -53,7 +54,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
-        elastic_ip: <%= ENV['AWS_ELASTIC_IP'] %>
+        elastic_ip: <%= ENV['AWS_ELASTIC_IP'] || '34.208.130.166' %>
 
   - name: elb
     run_list:

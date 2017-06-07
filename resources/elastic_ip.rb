@@ -10,26 +10,21 @@ property :timeout,               default: 3 * 60 # 3 mins, nil or 0 for no timeo
 include AwsCookbook::Ec2 # needed for aws_region helper
 
 action :associate do
-  ip = new_resource.ip || node['aws']['elastic_ip'][new_resource.name]['ip']
-  addr = address(ip)
+  addr = address(new_resource.ip)
 
-  if addr.nil?
-    raise "Elastic IP #{ip} does not exist"
-  elsif addr[:instance_id] == instance_id
+  raise "Elastic IP #{ip} does not exist" if addr.nil?
+
+  if addr[:instance_id] == instance_id
     Chef::Log.debug("Elastic IP #{ip} is already attached to the instance")
   else
     converge_by("attach Elastic IP #{ip} to the instance") do
-      Chef::Log.info("Attaching Elastic IP #{ip} to the instance")
       attach(ip, new_resource.timeout)
-      node.normal['aws']['elastic_ip'][new_resource.name]['ip'] = ip
-      node.save unless Chef::Config[:solo]
     end
   end
 end
 
 action :disassociate do
-  ip = new_resource.ip || node['aws']['elastic_ip'][new_resource.name]['ip']
-  addr = address(ip)
+  addr = address(new_resource.ip)
 
   if addr.nil?
     Chef::Log.debug("Elastic IP #{ip} does not exist, so there is nothing to detach")
@@ -37,22 +32,7 @@ action :disassociate do
     Chef::Log.debug("Elastic IP #{ip} is already detached from the instance")
   else
     converge_by("detach Elastic IP #{ip} from the instance") do
-      Chef::Log.info("Detaching Elastic IP #{ip} from the instance")
       detach(ip, new_resource.timeout)
-    end
-  end
-end
-
-action :allocate do
-  current_elastic_ip = node['aws']['elastic_ip'][new_resource.name]['ip']
-  if current_elastic_ip
-    Chef::Log.info("An Elastic IP was already allocated for #{new_resource.name} #{current_elastic_ip} from the instance")
-  else
-    converge_by("allocate new Elastic IP for #{new_resource.name}") do
-      addr = ec2.allocate_address(domain: new_resource.domain)
-      Chef::Log.info("Allocated Elastic IP #{addr[:public_ip]} from the instance")
-      node.normal['aws']['elastic_ip'][new_resource.name]['ip'] = addr[:public_ip]
-      node.save unless Chef::Config[:solo]
     end
   end
 end
