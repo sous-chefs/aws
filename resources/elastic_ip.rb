@@ -19,6 +19,11 @@ action :associate do
   else
     converge_by("attach Elastic IP #{ip} to the instance") do
       attach(ip, new_resource.timeout)
+
+      ohai 'Reload Ohai EC2 data' do
+        action :reload
+        plugin 'ec2'
+      end
     end
   end
 end
@@ -33,6 +38,11 @@ action :disassociate do
   else
     converge_by("detach Elastic IP #{ip} from the instance") do
       detach(ip, new_resource.timeout)
+
+      ohai 'Reload Ohai EC2 data' do
+        action :reload
+        plugin 'ec2'
+      end
     end
   end
 end
