@@ -30,7 +30,6 @@ action :create do
             group_name: new_resource.group_name,
             policy_arn: policy.policy_arn
           )
-          new_resource.updated_by_last_action(true)
         end
       end
       # remove policies that are present from the new policies to add
@@ -41,14 +40,12 @@ action :create do
     # add any leftover new policies if they exist.
     unless new_policies.empty?
       converge_by("attach new policies to group #{new_resource.group_name}: #{new_policies.join(',')}") do
-        Chef::Log.debug("attach new policies to group #{new_resource.group_name}: #{new_policies.join(',')}")
         new_policies.each do |policy|
           iam.attach_group_policy(
             group_name: new_resource.group_name,
             policy_arn: policy
           )
         end
-        new_resource.updated_by_last_action(true)
       end
     end
     # USERS
@@ -59,12 +56,10 @@ action :create do
       # delete removed users if new_resource.remove_members == true
       if !new_resource.members.include?(user.user_name) && new_resource.remove_members == true
         converge_by("remove user #{user.user_name} from group #{new_resource.group_name}") do
-          Chef::Log.debug("remove user #{user.user_name} from group #{new_resource.group_name}")
           iam.remove_user_from_group(
             group_name: new_resource.group_name,
             user_name: user.user_name
           )
-          new_resource.updated_by_last_action(true)
         end
       end
       # remove users that are present from the new users to add
@@ -75,19 +70,16 @@ action :create do
     # add any leftover new policies if they exist.
     unless new_users.empty?
       converge_by("add new users to group #{new_resource.group_name}: #{new_users.join(',')}") do
-        Chef::Log.debug("add new users to group #{new_resource.group_name}: #{new_users.join(',')}")
         new_users.each do |user|
           iam.add_user_to_group(
             group_name: new_resource.group_name,
             user_name: user.to_s
           )
         end
-        new_resource.updated_by_last_action(true)
       end
     end
   else
     converge_by("add new group #{new_resource.group_name}") do
-      Chef::Log.debug("add new group #{new_resource.group_name}")
       iam.create_group(
         path: new_resource.path,
         group_name: new_resource.group_name
@@ -106,7 +98,6 @@ action :create do
           policy_arn: policy
         )
       end
-      new_resource.updated_by_last_action(true)
     end
   end
 end
@@ -114,7 +105,6 @@ end
 action :delete do
   if group_exists?(new_resource.group_name)
     converge_by("delete group #{new_resource.group_name}") do
-      Chef::Log.debug("delete group #{new_resource.group_name}")
       # un-attach associated entities (users, policies)
       resp = iam.get_group(group_name: new_resource.group_name)
       resp.users.each do |user|
@@ -132,7 +122,6 @@ action :delete do
       end
       # delete the group
       iam.delete_group(group_name: new_resource.group_name)
-      new_resource.updated_by_last_action(true)
     end
   end
 end

@@ -22,19 +22,15 @@ action :create do
     # only update if stack changed
     if cfn_stack_changed? || cfn_params_chagned?
       converge_by("update stack #{new_resource.stack_name}") do
-        Chef::Log.debug("update stack #{new_resource.stack_name}")
         options = build_cfn_options
         options.delete(:disable_rollback)
         cfn.update_stack(options)
-        new_resource.updated_by_last_action(true)
       end
     end
   else
     converge_by("create stack #{new_resource.stack_name}") do
-      Chef::Log.debug("create stack #{new_resource.stack_name}")
       options = build_cfn_options
       cfn.create_stack(options)
-      new_resource.updated_by_last_action(true)
     end
   end
 end
@@ -42,9 +38,7 @@ end
 action :delete do
   if stack_exists?(new_resource.stack_name)
     converge_by("delete stack #{new_resource.stack_name}") do
-      Chef::Log.debug("delete stack #{new_resource.stack_name}")
       cfn.delete_stack(stack_name: new_resource.stack_name)
-      new_resource.updated_by_last_action(true)
     end
   end
 end

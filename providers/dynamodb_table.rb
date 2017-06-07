@@ -163,7 +163,6 @@ private
 def do_delete_table
   converge_by("delete DynamoDB table #{new_resource.table_name}") do
     dynamodb.delete_table(table_name: new_resource.table_name)
-    new_resource.updated_by_last_action(true)
   end
 end
 
@@ -181,7 +180,6 @@ def do_create_table
       provisioned_throughput: new_resource.provisioned_throughput,
       stream_specification: new_resource.stream_specification
     )
-    new_resource.updated_by_last_action(true)
   end
 end
 
@@ -196,7 +194,6 @@ def do_update_throughput
       table_name: new_resource.table_name,
       provisioned_throughput: new_resource.provisioned_throughput
     )
-    new_resource.updated_by_last_action(true)
   end
 end
 
@@ -211,7 +208,6 @@ def do_update_streamspec
       table_name: new_resource.table_name,
       stream_specification: new_resource.stream_specification
     )
-    new_resource.updated_by_last_action(true)
   end
 end
 
@@ -230,7 +226,6 @@ def do_change_gsi(op)
         attribute_definitions: new_resource.attribute_definitions,
         global_secondary_index_updates: [index]
       )
-      new_resource.updated_by_last_action(true)
     end
   end
 end
