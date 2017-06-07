@@ -15,6 +15,7 @@ This cookbook provides resources for configuring and managing nodes running in A
 - Kinesis Stream Management (`kinesis_stream`)
 - Resource Tags (`resource_tag`)
 - S3 Files (`s3_file`)
+- S3 Buckets (`s3_bucket`)
 - Secondary IPs (`secondary_ip`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
@@ -226,7 +227,7 @@ Use this resource to manage CloudWatch alarms.
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `alarm_name` - the alarm name. If none is given on assignment, will take the resource name.
 - `alarm_description` - the description of alarm. Can be blank also.
 - `actions_enabled` - true for enable action on OK, ALARM or Insufficient data. if true, any of ok_actions, alarm_actions or insufficient_data_actions must be specified.
@@ -303,7 +304,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `ip` - the IP address.
 - `timeout` - connection timeout for EC2 API.
 
@@ -318,7 +319,7 @@ Adds or removes nodes to an Elastic Load Balancer
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `name` - the name of the LB, required.
 
 ### aws_instance_monitoring
@@ -338,7 +339,7 @@ aws_instance_monitoring "enable detailed monitoring"
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 
 ### aws_ebs_volume
 
@@ -442,6 +443,13 @@ end
 
 `s3_file` can be used to download a file from s3 that requires aws authorization. This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (<https://docs.chef.io/resource_remote_file.html>) for a complete list of available attributes.
 
+#### Actions:
+
+- `create`: Downloads a file from s3
+- `create_if_missing`: Downloads a file from S3 only if it doesn't exist locally
+- `delete`: Deletes a local file
+- `touch`: Touches a local file
+
 #### Example:
 
 ```ruby
@@ -451,6 +459,43 @@ aws_s3_file '/tmp/foo' do
   aws_access_key aws['aws_access_key_id']
   aws_secret_access_key aws['aws_secret_access_key']
   region 'us-west-1'
+end
+```
+
+### aws_s3_bucket
+
+`s3_bucket` can be used to create or delete S3 buckets. Note that buckets can only be deleted if they are empty unless you specify `delete_all_objects` true, which will delete EVERYTHING in your bucket first.
+
+#### Actions:
+
+- `create`: Creates the bucket
+- `delete`: Deletes the bucket
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `region` - The AWS region containing the bucket. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+- `versioning` - Enable or disable S3 bucket versioning. Default: false
+- `delete_all_objects` - Used with the `:delete` action to delete all objects before deleting a bucket. Use with EXTREME CAUTION. default: false (for a reason)
+
+#### Example:
+
+```ruby
+aws_s3_bucket 'some-unique-name' do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  versioning true
+  region 'us-west-1'
+  action :create
+end
+```
+
+```ruby
+aws_s3_bucket 'another-unique-name' do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  region 'us-west-1'
+  action :delete
 end
 ```
 
@@ -768,7 +813,7 @@ end
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
 - `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no
 - `resource_id` is specified the name attribute will be used.
@@ -784,7 +829,7 @@ This feature is available only to instances in EC2-VPC. It allows you to assign 
 
 #### Properties:
 
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - passed to `AwsCookbook:Ec2` to authenticate, required, unless using IAM roles for authentication.
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
 - `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
 - `timeout` - connection timeout for EC2 API.
