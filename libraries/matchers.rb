@@ -131,6 +131,15 @@ if defined?(ChefSpec)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_resource_tag, :force_remove, resource_name)
   end
 
+  # s3_bucket
+  def create_aws_s3_bucket(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_s3_bucket, :create, resource_name)
+  end
+
+  def delete_aws_s3_bucket(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_s3_bucket, :delete, resource_name)
+  end
+
   # s3_file
   def create_aws_s3_file(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_s3_file, :create, resource_name)
@@ -169,7 +178,16 @@ if defined?(ChefSpec)
   def enable_action_aws_cloudwatch(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_cloudwatch, :enable_action, resource_name)
   end
-  resources = %i(aws_cloudformation_stack aws_dynamodb_table aws_ebs_raid aws_ebs_volume aws_elastic_ip aws_elastic_lb aws_iam_group aws_iam_policy aws_iam_role aws_iam_user aws_instance_monitoring aws_kinetic_stream aws_resource_tag aws_s3_file aws_secondary_ip aws_cloudwatch)
+
+  def create_aws_route53_record(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_route53_record, :create, resource_name)
+  end
+
+  def delete_aws_route53_record(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_route53_record, :delete, resource_name)
+  end
+
+  resources = %i(aws_cloudformation_stack aws_dynamodb_table aws_ebs_volume aws_elastic_ip aws_elastic_lb aws_iam_group aws_iam_policy aws_iam_role aws_iam_user aws_instance_monitoring aws_kinetic_stream aws_resource_tag aws_s3_bucket aws_s3_file aws_secondary_ip aws_cloudwatch aws_route53_record)
 
   resources.each do |resource|
     ChefSpec.define_matcher resource
