@@ -32,8 +32,6 @@ alias_method :aws_access_key_id, :aws_access_key
 alias_method :aws_region, :region
 
 action :create do
-  require 'aws-sdk'
-
   if current_resource_record_set == resource_record_set
     Chef::Log.info "Record has not changed, skipping: #{name}[#{type}]"
   elsif overwrite?
@@ -46,8 +44,6 @@ action :create do
 end
 
 action :delete do
-  require 'aws-sdk'
-
   if mock?
     # Make some fake data so that we can successfully delete when testing.
     mock_resource_record_set = {
@@ -143,6 +139,7 @@ action_class do
 
   def route53
     @route53 ||= begin
+      require 'aws-sdk'
       if mock?
         @route53 = Aws::Route53::Client.new(stub_responses: true)
       elsif new_resource.aws_access_key && new_resource.aws_secret_access_key
