@@ -20,7 +20,7 @@ execute 'update system time' do
   user 'root'
 end
 
-route53_record node['records']['generic_record']['name'] do
+aws_route53_record node['records']['generic_record']['name'] do
   value                 node['records']['generic_record']['value']
   type                  node['records']['generic_record']['type']
   ttl                   node['records']['generic_record']['ttl']
@@ -32,7 +32,7 @@ route53_record node['records']['generic_record']['name'] do
   mock                  true
 end
 
-route53_record node['records']['alias_record']['name'] do
+aws_route53_record node['records']['alias_record']['name'] do
   alias_target          node['records']['alias_record']['alias_target']
   type                  node['records']['alias_record']['type']
   zone_id               node['route53']['zone_id']
@@ -44,7 +44,7 @@ route53_record node['records']['alias_record']['name'] do
   mock                  true
 end
 
-route53_record "#{node['records']['generic_record']['name']}_delete" do
+aws_route53_record "#{node['records']['generic_record']['name']}_delete" do
   name                  node['records']['generic_record']['name']
   value                 node['records']['generic_record']['value']
   type                  node['records']['generic_record']['type']

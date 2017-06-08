@@ -1,5 +1,5 @@
-resource_name :aws_route53_record
-resource_name :route53_record # for compatibility with the old cookbook
+provides :aws_route53_record
+provides :route53_record # for compatibility with the old cookbook
 
 property :name,                        String, required: true, name_property: true
 property :value,                       [String, Array]
