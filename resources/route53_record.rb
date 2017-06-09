@@ -12,6 +12,7 @@ property :geo_location_country,        String
 property :geo_location_continent,      String
 property :geo_location_subdivision,    String
 property :zone_id,                     String
+property :zone_name,                   String
 property :overwrite,                   [true, false], default: true
 property :alias_target,                Hash
 property :mock,                        [true, false], default: false
@@ -129,8 +130,17 @@ action_class do
     @mock ||= new_resource.mock
   end
 
+  def zone_name
+    @zone_name ||= new_resource.zone_name
+  end
+
   def zone_id
     @zone_id ||= new_resource.zone_id
+  end
+
+  # find the zone ID by zone name
+  def zone_id_from_name(name)
+    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.collect {|x| x.id if x.name == name}.first
   end
 
   def fail_on_error
@@ -168,7 +178,7 @@ action_class do
     # List all the resource records for this zone:
     lrrs = route53_client
            .list_resource_record_sets(
-             hosted_zone_id: "/hostedzone/#{zone_id}",
+             hosted_zone_id: zone_id ? "/hostedzone/#{zone_id}" : zone_id_from_name(zone_name),
              start_record_name: name
            )
 
@@ -195,7 +205,7 @@ action_class do
 
   def change_record(action)
     request = {
-      hosted_zone_id: "/hostedzone/#{zone_id}",
+      hosted_zone_id: zone_id ? "/hostedzone/#{zone_id}" : zone_id_from_name(zone_name),
       change_batch: {
         comment: "Chef Route53 Resource: #{name}",
         changes: [
