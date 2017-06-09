@@ -14,31 +14,24 @@ property :region,                String, default: lazy { fallback_region }
 include AwsCookbook::Ec2 # needed for aws_region helper
 
 action :create do
-  unless zone_exists?(zone_name)
+  if zone_exists?(zone_name)
+    Chef::Log.debug("#{zone_name} already exists. Nothing to create.")
+  else
     converge_by("create zone #{zone_name}") do
-      require 'time'
-      # standard zone values assuming we're not private
-      request_data = {
-        name: zone_name,
-        hosted_zone_config: {
-          comment: new_resource.description,
-          private_zone: false,
-        },
-        caller_reference: Time.now.to_s
-      }
-
-      # add private values if we're private
-      if new_resource.private
-        request_data['hosted_zone_config']['private_zone'] = true
-        request_data['vpc'] = { vpc_id: new_resource.vpc_id }
-      end
-
-      route53_client.create_hosted_zone(request_data)
+      route53_client.create_hosted_zone(create_data_structure)
     end
   end
 end
 
 action :delete do
+  if zone_exists?(zone_name)
+    zone_id = zone_id_from_name(zone_name)
+    converge_by("delete zone #{zone_name} (#{zone_id})") do
+      route53_client.delete_hosted_zone(id: zone_id)
+    end
+  else
+    Chef::Log.debug("#{zone_name} does not exist. Nothing to delete.")
+  end
 end
 
 action_class do
@@ -49,12 +42,38 @@ action_class do
     @name ||= new_resource.name[-1] == '.' ? new_resource.name : "#{new_resource.name}."
   end
 
+  # find the zone ID by zone name
+  def zone_id_from_name(name)
+    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.collect {|x| x.id if x.name == name}.first
+  end
+
   # see if the zone exists in the aws account.
   # we're passing the name and then selecting on it because we want
   # a small response from AWS, but if the name isn't found AWS returns
   # everything so we have to find it ourselves
   def zone_exists?(name)
     route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.select { |r| r.name == name }.any?
+  end
+
+  def create_data_structure
+    require 'time'
+    # standard zone values assuming we're not private
+    request_data = {
+      name: zone_name,
+      hosted_zone_config: {
+        comment: new_resource.description,
+        private_zone: false,
+      },
+      caller_reference: Time.now.to_s
+    }
+
+    # add private values if we're private
+    if new_resource.private
+      request_data['hosted_zone_config']['private_zone'] = true
+      request_data['vpc'] = { vpc_id: new_resource.vpc_id }
+    end
+
+    request_data
   end
 
   def route53_client
