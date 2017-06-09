@@ -140,7 +140,7 @@ action_class do
 
   # find the zone ID by zone name
   def zone_id_from_name(name)
-    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.collect {|x| x.id if x.name == name}.first
+    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.collect { |x| x.id if x.name == name }.first
   end
 
   def fail_on_error
