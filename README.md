@@ -41,9 +41,9 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 
 In order to manage AWS components, authentication credentials need to be available to the node. There are 3 ways to handle this:
 
-1. explicitly pass credentials parameter to the resource
-2. use the credentials in the `~/.aws/credentials` file
-3. let the resource pick up credentials from the IAM role assigned to the instance
+1. Explicitly set the credentials when using the resources
+2. Use the credentials in the `~/.aws/credentials` file
+3. Let the resource pick up credentials from the IAM role assigned to the instance
 
 **Also new** resources can now assume an STS role, with support for MFA as well. Instructions are below in the relevant section.
 
@@ -97,7 +97,7 @@ Note that this also accepts other profiles if they are supplied via the `ENV['AW
 
 If your instance has an IAM role, then the credentials can be automatically resolved by the cookbook using Amazon instance metadata API.
 
-You can then omit the resource parameters `aws_secret_access_key` and `aws_access_key`.
+You can then omit the authentication properties `aws_secret_access_key` and `aws_access_key` when using the resource.
 
 Of course, the instance role must have the required policies. Here is a sample policy for EBS volume management:
 
@@ -822,11 +822,12 @@ end
 
 #### Actions:
 
-- `:create`
-- `:delete`
+- `create` - Create a Route53 record
+- `delete` - Remove a Route53 record
 
 #### Properties:
 
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `name` Required. String. - name of the domain or subdomain.
 - `value` String Array - value appropriate to the `type`.. for type 'A' value would be an IP address in IPv4 format for example.
 - `type` Required. String [DNS record type](http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html)
@@ -839,9 +840,7 @@ end
 - `geo_location_subdivision` String
 - `set_identifier` String
 - `zone_id` String
-- `aws_access_key_id` String
-- `aws_secret_access_key` String
-- `aws_region` String default: 'us-east-1'
+- `region` String
 - `overwrite` [true, false] default: true
 - `alias_target` Optional. Hash. - [Associated with Amazon 'alias' type records. The hash contents varies depending on the type of target the alias points to.](http://docs.aws.amazon.com/Route53/latest/APIReference/API_AliasTarget.html)
 - `mock` [true, false] default: false
