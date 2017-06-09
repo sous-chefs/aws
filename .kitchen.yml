@@ -15,12 +15,12 @@ verifier:
   name: inspec
 
 platforms:
-- name: ubuntu-16.04
+- name: amazon-2017-03
   driver_config:
-    image_id: ami-b7a114d7
+    image_id: ami-4836a428
     instance_type: t2.small
   transport:
-    username: ubuntu
+    username: ec2-user
 
 suites:
   - name: cfn_stack
