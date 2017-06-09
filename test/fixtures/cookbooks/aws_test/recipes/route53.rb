@@ -12,6 +12,12 @@ node.default['records']['alias_record']['alias_target']['evaluate_target_health'
 node.default['records']['alias_record']['type'] = 'A'
 node.default['records']['alias_record']['run'] = true
 
+aws_route53_zone 'testkitchen.dmz' do
+  description 'A test zone created by Test Kitchen. Delete anytime.'
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
 aws_route53_record node['records']['generic_record']['name'] do
   value                 node['records']['generic_record']['value']
   type                  node['records']['generic_record']['type']
