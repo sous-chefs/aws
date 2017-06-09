@@ -3,7 +3,7 @@ property :path, String, default: '/'
 property :assume_role_policy_document, String, required: true
 property :policy_members, Array, default: []
 property :remove_policy_members, true, default: true
-property :region, String, default: lazy { aws_region }
+property :region, String, default: lazy { fallback_region }
 
 # aws credential attributes
 property :aws_access_key, String

@@ -14,13 +14,13 @@ This cookbook provides resources for configuring and managing nodes running in A
 - IAM User, Group, Policy, and Role Management: (`iam_user`, `iam_group`, `iam_policy`, `iam_role`)
 - Kinesis Stream Management (`kinesis_stream`)
 - Resource Tags (`resource_tag`)
+- Route53 DNS Records (`route53_record`)
 - S3 Files (`s3_file`)
 - S3 Buckets (`s3_bucket`)
 - Secondary IPs (`secondary_ip`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 
-- [Route53](https://supermarket.chef.io/cookbooks/route53)
 - [aws_security](https://supermarket.chef.io/cookbooks/aws_security)
 
 ## Requirements
@@ -192,7 +192,7 @@ echo '{ "aws": { "mfa_code": "123456" } }' > mfa.json && chef-client -z -o 'reci
 
 ### Running outside of an AWS instance
 
-`region` can be specified if the cookbook is being run outside of an AWS instance. This can prevent some kinds of failures that happen when resources try to detect region.
+`region` can be specified on each resource if the cookbook is being run outside of an AWS instance. This can prevent some kinds of failures that happen when resources try to detect region.
 
 ```ruby
 aws_cloudformation_stack 'kitchen-test-stack' do
@@ -817,6 +817,51 @@ end
 - `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
 - `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no
 - `resource_id` is specified the name attribute will be used.
+
+### aws_route53_record
+
+#### Actions:
+
+- `:create`
+- `:delete`
+
+#### Properties:
+
+- `name` Required. String. - name of the domain or subdomain.
+- `value` String Array - value appropriate to the `type`.. for type 'A' value would be an IP address in IPv4 format for example.
+- `type` Required. String [DNS record type](http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html)
+- `ttl` Integer default: 3600 - time to live, the amount of time in seconds to cache information about the record
+- `weight` Optional. String. - a value that determines the proportion of DNS queries that will use this record for the response. Valid options are between 0-255\. NOT CURRENTLY IMPLEMENTED
+- `set_identifier` Optional . String. - a value that uniquely identifies record in the group of weighted record sets
+- `geo_location` String.
+- `geo_location_country` String
+- `geo_location_continent` String
+- `geo_location_subdivision` String
+- `set_identifier` String
+- `zone_id` String
+- `aws_access_key_id` String
+- `aws_secret_access_key` String
+- `aws_region` String default: 'us-east-1'
+- `overwrite` [true, false] default: true
+- `alias_target` Optional. Hash. - [Associated with Amazon 'alias' type records. The hash contents varies depending on the type of target the alias points to.](http://docs.aws.amazon.com/Route53/latest/APIReference/API_AliasTarget.html)
+- `mock` [true, false] default: false
+- `fail_on_error` [true, false] default: false
+
+#### Example:
+
+```ruby
+route53_record "create a record" do
+  name  "test"
+  value "16.8.4.2"
+  type  "A"
+  weight "1"
+  set_identifier "my-instance-id"
+  zone_id "ID VALUE"
+  overwrite true
+  fail_on_error false
+  action :create
+end
+```
 
 ### aws_secondary_ip.rb
 

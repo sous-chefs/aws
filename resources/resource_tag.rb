@@ -12,7 +12,7 @@ attribute :aws_assume_role_arn,   kind_of: String
 attribute :aws_role_session_name, kind_of: String
 attribute :resource_id,           kind_of: [String, Array], regex: /(i|snap|vol)-[a-fA-F0-9]{8}/
 attribute :tags,                  kind_of: Hash, required: true
-attribute :region,                kind_of: String, default: lazy { aws_region }
+attribute :region,                kind_of: String, default: lazy { fallback_region }
 attribute :resource_id,           kind_of: [String, Array], regex: /(i|snap|vol)-[a-fA-F0-9]{8}/
 attribute :tags,                  kind_of: Hash, required: true
 

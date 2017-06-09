@@ -1,5 +1,5 @@
 property :name, String, name_property: true
-property :region, String, default: lazy { aws_region }
+property :region, String, default: lazy { fallback_region }
 property :delete_all_objects, [true, false], default: false
 property :versioning, [true, false], default: false, desired_state: false
 
@@ -73,7 +73,7 @@ action_class do
     @s3_client ||= begin
       require 'aws-sdk'
       Chef::Log.debug('Initializing Aws::S3::Client')
-      create_aws_interface(::Aws::S3::Client, new_resource.region)
+      create_aws_interface(::Aws::S3::Client, region: new_resource.region)
     end
   end
 

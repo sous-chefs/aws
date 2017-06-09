@@ -1,6 +1,6 @@
 property :stream_name, String, name_property: true
 property :starting_shard_count, Integer, required: true
-property :region, String, default: lazy { aws_region }
+property :region, String, default: lazy { fallback_region }
 
 # aws credential attributes
 property :aws_access_key, String
@@ -37,7 +37,7 @@ action_class do
     require 'aws-sdk'
 
     Chef::Log.debug('Initializing the Kinesis Client')
-    @kinesis ||= create_aws_interface(::Aws::Kinesis::Client, new_resource.region)
+    @kinesis ||= create_aws_interface(::Aws::Kinesis::Client, region: new_resource.region)
   end
 
   # does_stream_exist - logic for checking if the stream exists

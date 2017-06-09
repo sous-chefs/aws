@@ -15,12 +15,12 @@ verifier:
   name: inspec
 
 platforms:
-- name: ubuntu-16.04
+- name: amazon-2017-03
   driver_config:
-    image_id: ami-b7a114d7
+    image_id: ami-4836a428
     instance_type: t2.small
   transport:
-    username: ubuntu
+    username: ec2-user
 
 suites:
   - name: cfn_stack
@@ -117,6 +117,14 @@ suites:
   - name: iam_policy
     run_list:
     - recipe[aws_test::iam_policy]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+
+  - name: route53_record
+    run_list:
+    - recipe[aws_test::route53_record]
     attributes:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>

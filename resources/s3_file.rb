@@ -1,6 +1,6 @@
 property :path, String, name_property: true
 property :remote_path, String
-property :region, String, default: lazy { aws_region }
+property :region, String, default: lazy { fallback_region }
 property :bucket, String
 property :aws_access_key, String
 property :aws_secret_access_key, String
@@ -51,7 +51,7 @@ action_class do
     require 'aws-sdk'
 
     Chef::Log.debug('Initializing the S3 Client')
-    @s3 ||= create_aws_interface(::Aws::S3::Client, new_resource.region)
+    @s3 ||= create_aws_interface(::Aws::S3::Client, region: new_resource.region)
   end
 
   def s3_obj

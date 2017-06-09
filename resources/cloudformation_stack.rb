@@ -5,7 +5,7 @@ property :parameters, Array, default: []
 property :disable_rollback, [true, false], default: false
 property :iam_capability, [true, false], default: false
 property :stack_policy_body, String
-property :region, String, default: lazy { aws_region }
+property :region, String, default: lazy { fallback_region }
 
 # aws credential attributes
 property :aws_access_key, String
@@ -52,7 +52,7 @@ action_class do
     require 'aws-sdk'
 
     Chef::Log.debug('Initializing the CloudFormation Client')
-    @cfn ||= create_aws_interface(::Aws::CloudFormation::Client, new_resource.region)
+    @cfn ||= create_aws_interface(::Aws::CloudFormation::Client, region: new_resource.region)
   end
 
   def load_template_path

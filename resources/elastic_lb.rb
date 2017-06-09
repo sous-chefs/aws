@@ -3,7 +3,7 @@ property :aws_secret_access_key, String
 property :aws_session_token,     String
 property :aws_assume_role_arn,   String
 property :aws_role_session_name, String
-property :region,                String, default: lazy { aws_region }
+property :region,                String, default: lazy { fallback_region }
 property :name,                  String
 property :listeners,             Array
 property :security_groups,       Array
@@ -64,7 +64,7 @@ action_class do
   def elb
     require 'aws-sdk'
     Chef::Log.debug('Initializing the ElasticLoadBalancing Client')
-    @elb ||= create_aws_interface(::Aws::ElasticLoadBalancing::Client, new_resource.region)
+    @elb ||= create_aws_interface(::Aws::ElasticLoadBalancing::Client, region: new_resource.region)
   end
 
   def find_elb
