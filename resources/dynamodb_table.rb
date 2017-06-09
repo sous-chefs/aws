@@ -8,7 +8,7 @@ attribute :local_secondary_indexes, kind_of: Array
 attribute :global_secondary_indexes, kind_of: Array
 attribute :provisioned_throughput, kind_of: Hash, required: true
 attribute :stream_specification, kind_of: Hash
-attribute :region, kind_of: String, default: lazy { aws_region }
+attribute :region, kind_of: String, default: lazy { fallback_region }
 
 # aws credential attributes
 attribute :aws_access_key, kind_of: String

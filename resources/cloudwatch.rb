@@ -16,7 +16,7 @@ property :threshold, [Float, Integer]
 property :comparison_operator, equal_to: %w(GreaterThanOrEqualToThreshold GreaterThanThreshold LessThanThreshold LessThanOrEqualToThreshold)
 
 # aws credential/connection attributes
-property :region, String, default: lazy { aws_region }
+property :region, String, default: lazy { fallback_region }
 property :aws_access_key, String
 property :aws_secret_access_key, String
 property :aws_session_token, String
@@ -75,7 +75,7 @@ action_class do
   def cwh
     require 'aws-sdk'
     Chef::Log.debug('Initializing the CloudWatch Client')
-    @cwh ||= create_aws_interface(::Aws::CloudWatch::Client, new_resource.region)
+    @cwh ||= create_aws_interface(::Aws::CloudWatch::Client, region: new_resource.region)
   end
 
   # Make options for cloudwatch API

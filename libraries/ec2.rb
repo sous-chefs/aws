@@ -22,7 +22,7 @@ module AwsCookbook
       require 'aws-sdk'
 
       Chef::Log.debug('Initializing the EC2 Client')
-      @ec2 ||= create_aws_interface(::Aws::EC2::Client, new_resource.region)
+      @ec2 ||= create_aws_interface(::Aws::EC2::Client, region: new_resource.region)
     end
 
     def instance_id
@@ -52,7 +52,7 @@ module AwsCookbook
     # determine the AWS region to fallback to for resources
     # which haven't specified a region
     # Priority: ohai data -> us-east-1
-    def aws_region
+    def fallback_region
       # facilitate support for region in resource name
       if node.attribute?('ec2')
         Chef::Log.debug("Using region #{node['ec2']['placement_availability_zone'].chop} from Ohai attributes")
@@ -66,27 +66,33 @@ module AwsCookbook
     private
 
     # setup AWS instance using passed creds, iam profile, or assumed role
-    def create_aws_interface(aws_interface, region)
-      aws_interface_opts = { region: region }
+    def create_aws_interface(aws_interface, **opts)
+      aws_interface_opts = { region: opts[:region] }
 
-      if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
-        Chef::Log.debug('Using resource-defined credentials')
-        aws_interface_opts[:credentials] = ::Aws::Credentials.new(
-          new_resource.aws_access_key,
-          new_resource.aws_secret_access_key,
-          new_resource.aws_session_token)
-      else
-        Chef::Log.debug('Using local credential chain')
+      if opts[:mock] # return a mocked interface
+        aws_interface_opts[:stub_responses] = true
+      else # return a real interface with credentials setup
+        if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
+          Chef::Log.debug('Using resource-defined credentials')
+          aws_interface_opts[:credentials] = ::Aws::Credentials.new(
+            new_resource.aws_access_key,
+            new_resource.aws_secret_access_key,
+            new_resource.aws_session_token)
+        else
+          Chef::Log.debug('Using local credential chain')
+        end
+
+        if !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
+          Chef::Log.debug("Assuming role #{new_resource.aws_assume_role_arn}")
+          sts_client = ::Aws::STS::Client.new(region: opts[:region],
+                                              access_key_id: new_resource.aws_access_key,
+                                              secret_access_key: new_resource.aws_secret_access_key)
+          creds = ::Aws::AssumeRoleCredentials.new(client: sts_client, role_arn: new_resource.aws_assume_role_arn, role_session_name: new_resource.aws_role_session_name)
+          aws_interface_opts[:credentials] = creds
+        end
       end
 
-      if !new_resource.aws_assume_role_arn.to_s.empty? && !new_resource.aws_role_session_name.to_s.empty?
-        Chef::Log.debug("Assuming role #{new_resource.aws_assume_role_arn}")
-        sts_client = ::Aws::STS::Client.new(region: aws_region,
-                                            access_key_id: new_resource.aws_access_key,
-                                            secret_access_key: new_resource.aws_secret_access_key)
-        creds = ::Aws::AssumeRoleCredentials.new(client: sts_client, role_arn: new_resource.aws_assume_role_arn, role_session_name: new_resource.aws_role_session_name)
-        aws_interface_opts[:credentials] = creds
-      end
+      Chef::Log.debug("Initializing interface with client interface options: #{aws_interface_opts}")
       aws_interface.new(aws_interface_opts)
     end
 

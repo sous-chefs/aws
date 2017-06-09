@@ -12,14 +12,6 @@ node.default['records']['alias_record']['alias_target']['evaluate_target_health'
 node.default['records']['alias_record']['type'] = 'A'
 node.default['records']['alias_record']['run'] = true
 
-apt_update
-package 'ntpdate'
-
-execute 'update system time' do
-  command 'ntpdate ntp.ubuntu.com'
-  user 'root'
-end
-
 aws_route53_record node['records']['generic_record']['name'] do
   value                 node['records']['generic_record']['value']
   type                  node['records']['generic_record']['type']

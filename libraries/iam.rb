@@ -8,7 +8,7 @@ module AwsCookbook
       require 'aws-sdk'
 
       Chef::Log.debug('Initializing the IAM Client')
-      @iam ||= create_aws_interface(::Aws::IAM::Client, new_resource.region)
+      @iam ||= create_aws_interface(::Aws::IAM::Client, region: new_resource.region)
     end
   end
 end
