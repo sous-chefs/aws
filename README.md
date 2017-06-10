@@ -388,20 +388,35 @@ This will create a new 50G volume from the snapshot ID provided and attach it as
 
 The `elastic_ip` resource provider does not support allocating new IPs. This must be done before running a recipe that uses the resource. After allocating a new Elastic IP, we recommend storing it in a databag and loading the item in the recipe.
 
+#### Actions:
+
+- `associate` - Associate an allocated IP to the node
+- `disassociate` - Disassociate an allocated IP from the node
+
+#### Properties:
+
+- `ip`: String. The IP address to associate or disassociate.
+- `timeout`: Integer. Default: 180\. Time in seconds to wait. 0 for unlimited.
+
 #### Example:
 
 ```ruby
 aws_elastic_ip 'eip_load_balancer_production' do
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
-  ip ip_info['public_ip']
+  ip '36.1.35.30'
   action :associate
 end
 ```
 
 ### aws_elastic_lb
 
-`elastic_lb` functions similarly to `elastic_ip`. Make sure that you've created the ELB and enabled your instances' availability zones prior to using this provider.
+`elastic_lb` handles registering and removing nodes from ELBs. The resource also adds basic support for creating and deleting ELBs. Note that currently this resource is not fully idempotent so it will not update the existing configuration of an ELB.
+
+#### Properties:
+
+- `register` - Add a node to the ELB
+- `deregister` - Remove a node from the ELB
+- `create` - Create a new ELB
+- `delete` - Delete an existing ELB
 
 #### Example:
 
@@ -409,8 +424,6 @@ To register the node in the 'QA' ELB:
 
 ```ruby
 aws_elastic_lb 'elb_qa' do
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
   name 'QA'
   action :register
 end
