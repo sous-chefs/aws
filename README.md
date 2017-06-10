@@ -203,16 +203,6 @@ aws_cloudformation_stack 'kitchen-test-stack' do
 end
 ```
 
-## Recipes
-
-### default.rb
-
-This recipe is empty and should not be included on a node run_list
-
-### ec2_hints.rb
-
-This recipe has been deprecated and Ohai now automatically detects EC2 nodes. You can remove this recipe from your run_list if it is still being used.
-
 ## Resources
 
 ### aws_cloudformation_stack
