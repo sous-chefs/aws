@@ -38,6 +38,7 @@ aws_route53_record "Delete our node's record" do
   name 'chefnode.testkitchen.dmz'
   zone_name 'testkitchen.dmz.'
   type 'A'
+  value node['ipaddress']
   action :delete
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
