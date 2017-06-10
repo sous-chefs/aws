@@ -215,6 +215,43 @@ This recipe has been deprecated and Ohai now automatically detects EC2 nodes. Yo
 
 ## Resources
 
+### aws_cloudformation_stack
+
+Manage CloudFormation stacks.
+
+#### Actions:
+
+- `create`: Creates the stack, or updates it if it already exists.
+- `delete`: Begins the deletion process for the stack.
+
+#### Properties:
+
+- `template_source`: Required - the location of the CloudFormation template file. The file should be stored in the `files` directory in the cookbook.
+- `parameters`: An array of `parameter_key` and `parameter_value` pairs for parameters in the template. Follow the syntax in the example above.
+- `disable_rollback`: Set this to `true` if you want stack rollback to be disabled if creation of the stack fails. Default: `false`
+- `stack_policy_body`: Optionally define a stack policy to apply to the stack, mainly used in protecting stack resources after they are created. For more information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the CloudFormation user guide.
+- `iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources. This is the equivalent of setting `CAPABILITY_IAM` When using the SDK or CLI. Default: `false`
+
+#### Example:
+
+```ruby
+aws_cloudformation_stack 'example-stack' do
+  region 'us-east-1'
+  template_source 'example-stack.tpl'
+
+  parameters ([
+    {
+      :parameter_key => 'KeyPair',
+      :parameter_value => 'user@host'
+    },
+    {
+      :parameter_key => 'SSHAllowIPAddress',
+      :parameter_value => '127.0.0.1/32'
+    }
+  ])
+end
+```
+
 ### aws_cloudwatch
 
 Use this resource to manage CloudWatch alarms.
@@ -261,321 +298,6 @@ aws_cloudwatch "kitchen_test_alarm" do
   statistic "Maximum"
   dimensions [{"name" : "InstanceId", "value" : "i-xxxxxxx"}]
   action :create
-end
-```
-
-### aws_ebs_volume
-
-Manage Elastic Block Store (EBS) volumes with this resource.
-
-#### Actions:
-
-- `create` - create a new volume.
-- `attach` - attach the specified volume.
-- `detach` - detach the specified volume.
-- `delete` - delete the specified volume.
-- `snapshot` - create a snapshot of the volume.
-- `prune` - prune snapshots.
-
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-- `size` - size of the volume in gigabytes.
-- `snapshot_id` - snapshot to build EBS volume from.
-- `most_recent_snapshot` - use the most recent snapshot when creating a volume from an existing volume (defaults to false)
-- `availability_zone` - EC2 region, and is normally automatically detected.
-- `device` - local block device to attach the volume to, e.g. `/dev/sdi` but no default value, required.
-- `volume_id` - specify an ID to attach, cannot be used with action `:create` because AWS assigns new volume IDs
-- `timeout` - connection timeout for EC2 API.
-- `snapshots_to_keep` - used with action `:prune` for number of snapshots to maintain.
-- `description` - used to set the description of an EBS snapshot
-- `volume_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is provisioned SSD, "gp2" is general purpose SSD)
-- `piops` - number of Provisioned IOPS to provision, must be >= 100
-- `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
-- `encrypted` - specify if the EBS should be encrypted
-- `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
-- `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil). Only applies to `:attach` action.
-
-### aws_elastic_ip
-
-#### Actions:
-
-- `associate` - associate the IP.
-- `disassociate` - disassociate the IP.
-
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-- `ip` - the IP address.
-- `timeout` - connection timeout for EC2 API.
-
-#### Example:
-
-```ruby
-aws_elastic_ip '34.15.30.10' do
-  action :allocate
-end
-
-aws_elastic_ip 'Server public IP' do
-  ip '34.15.30.11'
-  action :allocate
-end
-```
-
-### aws_elastic_lb
-
-Adds or removes nodes to an Elastic Load Balancer
-
-#### Actions:
-
-- `register` - Add this instance to the LB
-- `deregister` - Remove this instance from the LB
-
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-- `name` - the name of the LB, required.
-
-### aws_instance_monitoring
-
-Allows detailed CloudWatch monitoring to be enabled for the current instance.
-
-#### Actions:
-
-- `enable` - Enable detailed CloudWatch monitoring for this instance (Default).
-- `disable` - Disable detailed CloudWatch monitoring for this instance.
-
-#### Example:
-
-```ruby
-aws_instance_monitoring "enable detailed monitoring"
-```
-
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-
-### aws_ebs_volume
-
-The resource only handles manipulating the EBS volume, additional resources need to be created in the recipe to manage the attached volume as a filesystem or logical volume.
-
-```ruby
-aws_ebs_volume 'db_ebs_volume' do
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
-  size 50
-  device '/dev/sdi'
-  action [:create, :attach]
-end
-```
-
-This will create a 50G volume, attach it to the instance as `/dev/sdi`.
-
-```ruby
-aws_ebs_volume 'db_ebs_volume_from_snapshot' do
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
-  size 50
-  device '/dev/sdi'
-  snapshot_id 'snap-ABCDEFGH'
-  action [:create, :attach]
-end
-```
-
-This will create a new 50G volume from the snapshot ID provided and attach it as `/dev/sdi`.
-
-### aws_elastic_ip
-
-The `elastic_ip` resource provider does not support allocating new IPs. This must be done before running a recipe that uses the resource. After allocating a new Elastic IP, we recommend storing it in a databag and loading the item in the recipe.
-
-#### Actions:
-
-- `associate` - Associate an allocated IP to the node
-- `disassociate` - Disassociate an allocated IP from the node
-
-#### Properties:
-
-- `ip`: String. The IP address to associate or disassociate.
-- `timeout`: Integer. Default: 180\. Time in seconds to wait. 0 for unlimited.
-
-#### Example:
-
-```ruby
-aws_elastic_ip 'eip_load_balancer_production' do
-  ip '36.1.35.30'
-  action :associate
-end
-```
-
-### aws_elastic_lb
-
-`elastic_lb` handles registering and removing nodes from ELBs. The resource also adds basic support for creating and deleting ELBs. Note that currently this resource is not fully idempotent so it will not update the existing configuration of an ELB.
-
-#### Properties:
-
-- `register` - Add a node to the ELB
-- `deregister` - Remove a node from the ELB
-- `create` - Create a new ELB
-- `delete` - Delete an existing ELB
-
-#### Example:
-
-To register the node in the 'QA' ELB:
-
-```ruby
-aws_elastic_lb 'elb_qa' do
-  name 'QA'
-  action :register
-end
-```
-
-### aws_resource_tag
-
-`resource_tag` can be used to manipulate the tags assigned to one or more AWS resources, i.e. ec2 instances, EBS volumes or EBS volume snapshots.
-
-#### Examples:
-
-Assigning tags to a node to reflect its role and environment:
-
-```ruby
-aws_resource_tag node['ec2']['instance_id'] do
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
-  tags('Name' => 'www.example.com app server',
-       'Environment' => node.chef_environment)
-  action :update
-end
-```
-
-Assigning a set of tags to multiple resources, e.g. ebs volumes in a disk set:
-
-```ruby
-aws_resource_tag 'my awesome raid set' do
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
-  resource_id ['vol-d0518cb2', 'vol-fad31a9a', 'vol-fb106a9f', 'vol-74ed3b14']
-  tags('Name' => 'My awesome RAID disk set',
-       'Environment' => node.chef_environment)
-end
-```
-
-```ruby
-aws_resource_tag 'db_ebs_volume' do
-  resource_id lazy { node['aws']['ebs_volume']['db_ebs_volume']['volume_id'] }
-  tags ({ 'Service' => 'Frontend' })
-end
-```
-
-### aws_s3_file
-
-`s3_file` can be used to download a file from s3 that requires aws authorization. This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (<https://docs.chef.io/resource_remote_file.html>) for a complete list of available attributes.
-
-#### Actions:
-
-- `create`: Downloads a file from s3
-- `create_if_missing`: Downloads a file from S3 only if it doesn't exist locally
-- `delete`: Deletes a local file
-- `touch`: Touches a local file
-
-#### Example:
-
-```ruby
-aws_s3_file '/tmp/foo' do
-  bucket 'i_haz_an_s3_buckit'
-  remote_path 'path/in/s3/bukket/to/foo'
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
-  region 'us-west-1'
-end
-```
-
-### aws_s3_bucket
-
-`s3_bucket` can be used to create or delete S3 buckets. Note that buckets can only be deleted if they are empty unless you specify `delete_all_objects` true, which will delete EVERYTHING in your bucket first.
-
-#### Actions:
-
-- `create`: Creates the bucket
-- `delete`: Deletes the bucket
-
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-- `region` - The AWS region containing the bucket. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
-- `versioning` - Enable or disable S3 bucket versioning. Default: false
-- `delete_all_objects` - Used with the `:delete` action to delete all objects before deleting a bucket. Use with EXTREME CAUTION. default: false (for a reason)
-
-#### Example:
-
-```ruby
-aws_s3_bucket 'some-unique-name' do
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
-  versioning true
-  region 'us-west-1'
-  action :create
-end
-```
-
-```ruby
-aws_s3_bucket 'another-unique-name' do
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
-  region 'us-west-1'
-  action :delete
-end
-```
-
-### aws_secondary_ip
-
-The `secondary_ip` resource provider allows one to assign/un-assign multiple private secondary IPs on an instance within a VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface as determined by Ohai will be used.
-
-#### Example:
-
-```ruby
-aws_secondary_ip 'assign_additional_ip' do
-  aws_access_key aws['aws_access_key_id']
-  aws_secret_access_key aws['aws_secret_access_key']
-  ip ip_info['private_ip']
-  interface 'eth0'
-  action :assign
-end
-```
-
-### aws_cloudformation_stack
-
-Manage CloudFormation stacks.
-
-#### Actions:
-
-- `create`: Creates the stack, or updates it if it already exists.
-- `delete`: Begins the deletion process for the stack.
-
-#### Properties:
-
-- `template_source`: Required - the location of the CloudFormation template file. The file should be stored in the `files` directory in the cookbook.
-- `parameters`: An array of `parameter_key` and `parameter_value` pairs for parameters in the template. Follow the syntax in the example above.
-- `disable_rollback`: Set this to `true` if you want stack rollback to be disabled if creation of the stack fails. Default: `false`
-- `stack_policy_body`: Optionally define a stack policy to apply to the stack, mainly used in protecting stack resources after they are created. For more information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the CloudFormation user guide.
-- `iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources. This is the equivalent of setting `CAPABILITY_IAM` When using the SDK or CLI. Default: `false`
-
-#### Example:
-
-```ruby
-aws_cloudformation_stack 'example-stack' do
-  region 'us-east-1'
-  template_source 'example-stack.tpl'
-
-  parameters ([
-    {
-      :parameter_key => 'KeyPair',
-      :parameter_value => 'user@host'
-    },
-    {
-      :parameter_key => 'SSHAllowIPAddress',
-      :parameter_value => '127.0.0.1/32'
-    }
-  ])
 end
 ```
 
@@ -662,6 +384,175 @@ aws_dynamodb_table 'example-table' do
     stream_enabled: true,
     stream_view_type: 'KEYS_ONLY'
   })
+end
+```
+
+### aws_ebs_volume
+
+Manage Elastic Block Store (EBS) volumes with this resource.
+
+#### Actions:
+
+- `create` - create a new volume.
+- `attach` - attach the specified volume.
+- `detach` - detach the specified volume.
+- `delete` - delete the specified volume.
+- `snapshot` - create a snapshot of the volume.
+- `prune` - prune snapshots.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `size` - size of the volume in gigabytes.
+- `snapshot_id` - snapshot to build EBS volume from.
+- `most_recent_snapshot` - use the most recent snapshot when creating a volume from an existing volume (defaults to false)
+- `availability_zone` - EC2 region, and is normally automatically detected.
+- `device` - local block device to attach the volume to, e.g. `/dev/sdi` but no default value, required.
+- `volume_id` - specify an ID to attach, cannot be used with action `:create` because AWS assigns new volume IDs
+- `timeout` - connection timeout for EC2 API.
+- `snapshots_to_keep` - used with action `:prune` for number of snapshots to maintain.
+- `description` - used to set the description of an EBS snapshot
+- `volume_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is provisioned SSD, "gp2" is general purpose SSD)
+- `piops` - number of Provisioned IOPS to provision, must be >= 100
+- `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
+- `encrypted` - specify if the EBS should be encrypted
+- `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
+- `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil). Only applies to `:attach` action.
+
+### aws_elastic_ip
+
+#### Actions:
+
+- `associate` - associate the IP.
+- `disassociate` - disassociate the IP.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `ip` - the IP address.
+- `timeout` - connection timeout for EC2 API.
+
+#### Example:
+
+```ruby
+aws_elastic_ip '34.15.30.10' do
+  action :allocate
+end
+
+aws_elastic_ip 'Server public IP' do
+  ip '34.15.30.11'
+  action :allocate
+end
+```
+
+### aws_elastic_lb
+
+Adds or removes nodes to an Elastic Load Balancer
+
+#### Actions:
+
+- `register` - Add this instance to the LB
+- `deregister` - Remove this instance from the LB
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `name` - the name of the ELB, required.
+- `region`, The region of the ELB. Defaults to the region of the node.
+- `listeners`, Array or hashes. The ports/protocols the ELB will listen on. See the example for a sample.
+- `security_groups`, Array. Security groups to apply to the ELB. Only needed when creating ELBs.
+- `subnets`, Array. The subnets the ELB will listen in. Only needed when creating ELBs and when using VPCs.
+- `availability_zones`: Array. The availability zones the ELB will listen in. Only needed when creating ELBs and when using classic networking.
+- `tags`: Array.
+- `scheme`: Array.
+
+#### Examples
+
+ELB running in classic networking listening on port 80.
+
+```ruby
+aws_elastic_lb 'Setup the ELB' do
+  name 'example-elb'
+  action :create
+  availability_zones ['us-west-2a']
+  listeners [
+    {
+      instance_port: 80,
+      instance_protocol: 'HTTP',
+      load_balancer_port: 80,
+      protocol: 'HTTP',
+    },
+  ]
+end
+```
+
+### aws_ebs_volume
+
+The resource only handles manipulating the EBS volume, additional resources need to be created in the recipe to manage the attached volume as a filesystem or logical volume.
+
+```ruby
+aws_ebs_volume 'db_ebs_volume' do
+  size 50
+  device '/dev/sdi'
+  action [:create, :attach]
+end
+```
+
+This will create a 50G volume, attach it to the instance as `/dev/sdi`.
+
+```ruby
+aws_ebs_volume 'db_ebs_volume_from_snapshot' do
+  size 50
+  device '/dev/sdi'
+  snapshot_id 'snap-ABCDEFGH'
+  action [:create, :attach]
+end
+```
+
+This will create a new 50G volume from the snapshot ID provided and attach it as `/dev/sdi`.
+
+### aws_elastic_ip
+
+The `elastic_ip` resource provider does not support allocating new IPs. This must be done before running a recipe that uses the resource. After allocating a new Elastic IP, we recommend storing it in a databag and loading the item in the recipe.
+
+#### Actions:
+
+- `associate` - Associate an allocated IP to the node
+- `disassociate` - Disassociate an allocated IP from the node
+
+#### Properties:
+
+- `ip`: String. The IP address to associate or disassociate.
+- `timeout`: Integer. Default: 180\. Time in seconds to wait. 0 for unlimited.
+
+#### Example:
+
+```ruby
+aws_elastic_ip 'eip_load_balancer_production' do
+  ip '36.1.35.30'
+  action :associate
+end
+```
+
+### aws_elastic_lb
+
+`elastic_lb` handles registering and removing nodes from ELBs. The resource also adds basic support for creating and deleting ELBs. Note that currently this resource is not fully idempotent so it will not update the existing configuration of an ELB.
+
+#### Properties:
+
+- `register` - Add a node to the ELB
+- `deregister` - Remove a node from the ELB
+- `create` - Create a new ELB
+- `delete` - Delete an existing ELB
+
+#### Example:
+
+To register the node in the 'QA' ELB:
+
+```ruby
+aws_elastic_lb 'elb_qa' do
+  name 'QA'
+  action :register
 end
 ```
 
@@ -807,6 +698,26 @@ aws_iam_role 'example-role' do
 end
 ```
 
+### aws_instance_monitoring
+
+Allows detailed CloudWatch monitoring to be enabled for the current instance.
+
+#### Actions:
+
+- `enable` - Enable detailed CloudWatch monitoring for this instance (Default).
+- `disable` - Disable detailed CloudWatch monitoring for this instance.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `region` - The AWS region containing the instance. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+
+#### Example:
+
+```ruby
+aws_instance_monitoring "enable detailed monitoring"
+```
+
 ### aws_kinesis_stream
 
 Use this resource to create and delete Kinesis streams. Note that this resource cannot be used to modify the shard count as shard splitting is a somewhat complex operation (for example, even CloudFormation replaces streams upon update).
@@ -826,6 +737,44 @@ Use this resource to create and delete Kinesis streams. Note that this resource 
 aws_kinesis_stream 'example-stream' do
  action :create
  starting_shard_count 1
+end
+```
+
+### aws_resource_tag
+
+`resource_tag` can be used to manipulate the tags assigned to one or more AWS resources, i.e. ec2 instances, EBS volumes or EBS volume snapshots.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `region` - The AWS region containing the resource to tag. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+
+#### Examples:
+
+Assigning tags to a node to reflect its role and environment:
+
+```ruby
+aws_resource_tag node['ec2']['instance_id'] do
+  tags('Name' => 'www.example.com app server',
+       'Environment' => node.chef_environment)
+  action :update
+end
+```
+
+Assigning a set of tags to multiple resources, e.g. ebs volumes in a disk set:
+
+```ruby
+aws_resource_tag 'my awesome raid set' do
+  resource_id ['vol-d0518cb2', 'vol-fad31a9a', 'vol-fb106a9f', 'vol-74ed3b14']
+  tags('Name' => 'My awesome RAID disk set',
+       'Environment' => node.chef_environment)
+end
+```
+
+```ruby
+aws_resource_tag 'db_ebs_volume' do
+  resource_id lazy { node['aws']['ebs_volume']['db_ebs_volume']['volume_id'] }
+  tags ({ 'Service' => 'Frontend' })
 end
 ```
 
@@ -928,6 +877,85 @@ This feature is available only to instances in EC2-VPC. It allows you to assign 
 - `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
 - `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
 - `timeout` - connection timeout for EC2 API.
+
+### aws_s3_file
+
+`s3_file` can be used to download a file from s3 that requires aws authorization. This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (<https://docs.chef.io/resource_remote_file.html>) for a complete list of available attributes.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `region` - The AWS region containing the file. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+
+#### Actions:
+
+- `create`: Downloads a file from s3
+- `create_if_missing`: Downloads a file from S3 only if it doesn't exist locally
+- `delete`: Deletes a local file
+- `touch`: Touches a local file
+
+#### Example:
+
+```ruby
+aws_s3_file '/tmp/foo' do
+  bucket 'i_haz_an_s3_buckit'
+  remote_path 'path/in/s3/bukket/to/foo'
+  region 'us-west-1'
+end
+```
+
+### aws_s3_bucket
+
+`s3_bucket` can be used to create or delete S3 buckets. Note that buckets can only be deleted if they are empty unless you specify `delete_all_objects` true, which will delete EVERYTHING in your bucket first.
+
+#### Actions:
+
+- `create`: Creates the bucket
+- `delete`: Deletes the bucket
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `region` - The AWS region containing the bucket. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+- `versioning` - Enable or disable S3 bucket versioning. Default: false
+- `delete_all_objects` - Used with the `:delete` action to delete all objects before deleting a bucket. Use with EXTREME CAUTION. default: false (for a reason)
+
+#### Example:
+
+```ruby
+aws_s3_bucket 'some-unique-name' do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  versioning true
+  region 'us-west-1'
+  action :create
+end
+```
+
+```ruby
+aws_s3_bucket 'another-unique-name' do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  region 'us-west-1'
+  action :delete
+end
+```
+
+### aws_secondary_ip
+
+The `secondary_ip` resource provider allows one to assign/un-assign multiple private secondary IPs on an instance within a VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface as determined by Ohai will be used.
+
+#### Example:
+
+```ruby
+aws_secondary_ip 'assign_additional_ip' do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  ip ip_info['private_ip']
+  interface 'eth0'
+  action :assign
+end
+```
 
 ## License and Authors
 
