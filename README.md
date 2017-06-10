@@ -222,13 +222,12 @@ Manage CloudFormation stacks.
 - `stack_policy_body`: Optionally define a stack policy to apply to the stack, mainly used in protecting stack resources after they are created. For more information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the CloudFormation user guide.
 - `iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources. This is the equivalent of setting `CAPABILITY_IAM` When using the SDK or CLI. Default: `false`
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_cloudformation_stack 'example-stack' do
   region 'us-east-1'
   template_source 'example-stack.tpl'
-
   parameters ([
     {
       :parameter_key => 'KeyPair',
@@ -275,7 +274,7 @@ Use this resource to manage CloudWatch alarms.
 
 For more information about parameters, see [CloudWatch Identifiers](http://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CW_Support_For_AWS.html) in the Using CloudWatch guide.
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_cloudwatch "kitchen_test_alarm" do
@@ -298,11 +297,9 @@ Use this resource to create and delete DynamoDB tables. This includes the abilit
 #### Actions:
 
 - `create`: Creates the table. Will update the following if the table exists:
-
-  - `global_secondary_indexes`: Will remove non-existent indexes, add new ones, and update throughput for existing ones. All attributes need to be present in `attribute_definitions`. No effect if the resource is omitted.
-  - `stream_specification`: Will update as shown. No effect is the resource is omitted.
-  - `provisioned_throughput`: Will update as shown.
-
+- `global_secondary_indexes`: Will remove non-existent indexes, add new ones, and update throughput for existing ones. All attributes need to be present in `attribute_definitions`. No effect if the resource is omitted.
+- `stream_specification`: Will update as shown. No effect is the resource is omitted.
+- `provisioned_throughput`: Will update as shown.
 - `delete`: Deletes the index.
 
 #### Properties:
@@ -317,7 +314,7 @@ Use this resource to create and delete DynamoDB tables. This includes the abilit
 
 Several of the attributes shown here take parameters as shown in the [AWS Ruby SDK Documentation](http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Client.html#create_table-instance_method). Also, the [AWS DynamoDB Documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html) may be of further help as well.
 
-#### Example
+#### Examples:
 
 ```ruby
 aws_dynamodb_table 'example-table' do
@@ -422,7 +419,7 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `ip` - the IP address.
 - `timeout` - connection timeout for EC2 API.
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_elastic_ip '34.15.30.10' do
@@ -515,7 +512,7 @@ The `elastic_ip` resource provider does not support allocating new IPs. This mus
 - `ip`: String. The IP address to associate or disassociate.
 - `timeout`: Integer. Default: 180\. Time in seconds to wait. 0 for unlimited.
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_elastic_ip 'eip_load_balancer_production' do
@@ -535,7 +532,7 @@ end
 - `create` - Create a new ELB
 - `delete` - Delete an existing ELB
 
-#### Example:
+#### Examples:
 
 To register the node in the 'QA' ELB:
 
@@ -559,7 +556,7 @@ Use this resource to manage IAM users.
 
 The IAM user takes the name of the resource. A `path` can be specified as well. For more information about paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_iam_user 'example-user' do
@@ -585,7 +582,7 @@ Use this resource to manage IAM groups. The group takes the name of the resource
 - `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
 - `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_iam_group 'example-group' do
@@ -617,7 +614,7 @@ Use this resource to create an IAM policy. The policy takes the name of the reso
 - `policy_document`: The JSON document for the policy.
 - `account_id`: The AWS account ID that the policy is going in. Required if using non-user credentials (ie: IAM role through STS or instance role).
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_iam_policy 'example-policy' do
@@ -660,7 +657,7 @@ Use this resource to create an IAM role. The policy takes the name of the resour
 - `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
 - `assume_role_policy_document`: The JSON policy document to apply to this role for trust relationships. Dictates what entities can assume this role.
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_iam_role 'example-role' do
@@ -702,7 +699,7 @@ Allows detailed CloudWatch monitoring to be enabled for the current instance.
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `region` - The AWS region containing the instance. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_instance_monitoring "enable detailed monitoring"
@@ -721,7 +718,7 @@ Use this resource to create and delete Kinesis streams. Note that this resource 
 
 - `starting_shard_count`: The number of shards the stream starts with
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_kinesis_stream 'example-stream' do
@@ -812,7 +809,7 @@ end
 - `mock` [true, false] default: false
 - `fail_on_error` [true, false] default: false
 
-#### Example:
+#### Examples:
 
 ```ruby
 route53_record "create a record" do
@@ -843,7 +840,7 @@ end
 - `private` [true, false]. default: false - Should this be a private zone for use in your VPCs or a Public zone
 - `vpc_id` String. If creating a Private zone this is the VPC to associate the zone with.
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_route53_zone 'testkitchen.dmz' do
@@ -884,7 +881,7 @@ This feature is available only to instances in EC2-VPC. It allows you to assign 
 - `delete`: Deletes a local file
 - `touch`: Touches a local file
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_s3_file '/tmp/foo' do
@@ -910,7 +907,7 @@ end
 - `versioning` - Enable or disable S3 bucket versioning. Default: false
 - `delete_all_objects` - Used with the `:delete` action to delete all objects before deleting a bucket. Use with EXTREME CAUTION. default: false (for a reason)
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_s3_bucket 'some-unique-name' do
@@ -935,7 +932,7 @@ end
 
 The `secondary_ip` resource provider allows one to assign/un-assign multiple private secondary IPs on an instance within a VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface as determined by Ohai will be used.
 
-#### Example:
+#### Examples:
 
 ```ruby
 aws_secondary_ip 'assign_additional_ip' do
