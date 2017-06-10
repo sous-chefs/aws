@@ -15,6 +15,7 @@ This cookbook provides resources for configuring and managing nodes running in A
 - Kinesis Stream Management (`kinesis_stream`)
 - Resource Tags (`resource_tag`)
 - Route53 DNS Records (`route53_record`)
+- Route53 DNS Zones (`route53_zone`)
 - S3 Files (`s3_file`)
 - S3 Buckets (`s3_bucket`)
 - Secondary IPs (`secondary_ip`)
@@ -871,6 +872,30 @@ route53_record "create a record" do
   zone_id "ID VALUE"
   overwrite true
   fail_on_error false
+  action :create
+end
+```
+
+### aws_route53_zone
+
+#### Actions:
+
+- `create` - Create a Route53 zone
+- `delete` - Remove a Route53 zone
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `name` Required. String. - name of the zone.
+- `description` String. - Description shown in the Route53 UI
+- `private` [true, false]. default: false - Should this be a private zone for use in your VPCs or a Public zone
+- `vpc_id` String. If creating a Private zone this is the VPC to associate the zone with.
+
+#### Example:
+
+```ruby
+aws_route53_zone 'testkitchen.dmz' do
+  description 'My super important zone'
   action :create
 end
 ```
