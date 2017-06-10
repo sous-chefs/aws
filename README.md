@@ -376,7 +376,7 @@ end
 
 ### aws_ebs_volume
 
-Manage Elastic Block Store (EBS) volumes with this resource.
+The resource only handles manipulating the EBS volume, additional resources need to be created in the recipe to manage the attached volume as a filesystem or logical volume.
 
 #### Actions:
 
@@ -406,18 +406,43 @@ Manage Elastic Block Store (EBS) volumes with this resource.
 - `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
 - `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil). Only applies to `:attach` action.
 
+#### Examples:
+
+```ruby
+aws_ebs_volume 'db_ebs_volume' do
+  size 50
+  device '/dev/sdi'
+  action [:create, :attach]
+end
+```
+
+This will create a 50G volume, attach it to the instance as `/dev/sdi`.
+
+```ruby
+aws_ebs_volume 'db_ebs_volume_from_snapshot' do
+  size 50
+  device '/dev/sdi'
+  snapshot_id 'snap-ABCDEFGH'
+  action [:create, :attach]
+end
+```
+
+This will create a new 50G volume from the snapshot ID provided and attach it as `/dev/sdi`.
+
 ### aws_elastic_ip
+
+The `elastic_ip` resource provider does not support allocating new IPs. This must be done before running a recipe that uses the resource. After allocating a new Elastic IP, we recommend storing it in a databag and loading the item in the recipe.
 
 #### Actions:
 
-- `associate` - associate the IP.
-- `disassociate` - disassociate the IP.
+- `associate` - Associate an allocated IP to the node
+- `disassociate` - Disassociate an allocated IP from the node
 
 #### Properties:
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-- `ip` - the IP address.
-- `timeout` - connection timeout for EC2 API.
+- `ip`: String. The IP address to associate or disassociate.
+- `timeout`: Integer. Default: 180\. Time in seconds to wait. 0 for unlimited.
 
 #### Examples:
 
@@ -481,54 +506,6 @@ To register the node in the 'QA' ELB:
 aws_elastic_lb 'elb_qa' do
   name 'QA'
   action :register
-end
-```
-
-### aws_ebs_volume
-
-The resource only handles manipulating the EBS volume, additional resources need to be created in the recipe to manage the attached volume as a filesystem or logical volume.
-
-```ruby
-aws_ebs_volume 'db_ebs_volume' do
-  size 50
-  device '/dev/sdi'
-  action [:create, :attach]
-end
-```
-
-This will create a 50G volume, attach it to the instance as `/dev/sdi`.
-
-```ruby
-aws_ebs_volume 'db_ebs_volume_from_snapshot' do
-  size 50
-  device '/dev/sdi'
-  snapshot_id 'snap-ABCDEFGH'
-  action [:create, :attach]
-end
-```
-
-This will create a new 50G volume from the snapshot ID provided and attach it as `/dev/sdi`.
-
-### aws_elastic_ip
-
-The `elastic_ip` resource provider does not support allocating new IPs. This must be done before running a recipe that uses the resource. After allocating a new Elastic IP, we recommend storing it in a databag and loading the item in the recipe.
-
-#### Actions:
-
-- `associate` - Associate an allocated IP to the node
-- `disassociate` - Disassociate an allocated IP from the node
-
-#### Properties:
-
-- `ip`: String. The IP address to associate or disassociate.
-- `timeout`: Integer. Default: 180\. Time in seconds to wait. 0 for unlimited.
-
-#### Examples:
-
-```ruby
-aws_elastic_ip 'eip_load_balancer_production' do
-  ip '36.1.35.30'
-  action :associate
 end
 ```
 
