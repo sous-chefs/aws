@@ -44,7 +44,7 @@ action_class do
 
   # find the zone ID by zone name
   def zone_id_from_name(name)
-    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.collect {|x| x.id if x.name == name}.first
+    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.collect { |x| x.id if x.name == name }.first
   end
 
   # see if the zone exists in the aws account.
@@ -64,7 +64,7 @@ action_class do
         comment: new_resource.description,
         private_zone: false,
       },
-      caller_reference: Time.now.to_s
+      caller_reference: Time.now.to_s,
     }
 
     # add private values if we're private
