@@ -699,16 +699,16 @@ end
 
 #### Actions:
 
-- `add`: Adds tags to a resource, but don't update the values of existing tags
-- `update`: Add tags to a resource and update any existing values
-- `remove`: Remove tags from a resource if the value matches
-- `force_remove`: Remove tags from a resource regardless of their value
+- `add` - Add tags to a resource.
+- `update` - Add or modify existing tags on a resource -- this is the default action.
+- `remove` - Remove tags from a resource, but only if the specified values match the existing ones.
+- `force_remove` - Remove tags from a resource, regardless of their values.
 
 #### Properties:
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-- `region` - The AWS region containing the resource to tag. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
-- `resource_id` - The resource ID to attach the tags to. If not provided the resource name will be used
+- `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
+- `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no `resource_id` is specified the name attribute will be used.
 
 #### Examples:
 
@@ -738,22 +738,6 @@ aws_resource_tag 'db_ebs_volume' do
   tags ({ 'Service' => 'Frontend' })
 end
 ```
-
-### aws_resource_tag
-
-#### Actions:
-
-- `add` - Add tags to a resource.
-- `update` - Add or modify existing tags on a resource -- this is the default action.
-- `remove` - Remove tags from a resource, but only if the specified values match the existing ones.
-- `force_remove` - Remove tags from a resource, regardless of their values.
-
-#### Properties:
-
-- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-- `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
-- `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no
-- `resource_id` is specified the name attribute will be used.
 
 ### aws_route53_record
 
