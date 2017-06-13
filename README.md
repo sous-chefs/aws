@@ -10,6 +10,7 @@ This cookbook provides resources for configuring and managing nodes running in A
 - DynamoDB (`dynamodb_table`)
 - EBS Volumes (`ebs_volume`)
 - Elastic IPs (`elastic_ip`)
+- Elastic Network Interfaces (`elastic_network_interface`)
 - Elastic Load Balancer (`elastic_lb`)
 - IAM User, Group, Policy, and Role Management: (`iam_user`, `iam_group`, `iam_policy`, `iam_role`)
 - Kinesis Stream Management (`kinesis_stream`)
@@ -456,6 +457,24 @@ aws_elastic_ip 'Server public IP' do
   action :allocate
 end
 ```
+
+### elastic_network_interface.rb
+
+#### Actions:
+
+- `attach` - attach the network interface.
+- `detach` - detach the network interface.
+- `create` - create a network interface.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `network_interface_id` - the network interface id. Required for `:attach` and `:detach` actions.
+- `device_index` - the index for the network interface to attach to. Required for `:attach` action.
+- `subnet_id` - the subnet of the network interface. Required for `:create` action.
+- `private_ip_addresses` - array of private ip addresses to assign to the network interface on creation. Only used for `:create` action.
+- `groups` - security groups to apply to the network interface on creation. Only used for `:create` action.
+- `timeout` - connection timeout for EC2 API.
 
 ### aws_elastic_lb
 

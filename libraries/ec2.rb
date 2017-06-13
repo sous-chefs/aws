@@ -43,6 +43,10 @@ module AwsCookbook
                     response.snapshots.sort { |a, b| a[:start_time] <=> b[:start_time] }
                   end
 
+      def get_network_interface(interface_id)
+        ec2.describe_network_interfaces(network_interface_ids: [interface_id])[:network_interfaces].find { |ni| ni[:network_interface_id] == interface_id }
+      end
+
       raise 'Cannot find snapshot id!' if snapshots.empty?
 
       Chef::Log.debug("Snapshot ID is #{snapshots.first[:snapshot_id]}")
