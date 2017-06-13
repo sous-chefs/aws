@@ -697,10 +697,18 @@ end
 
 `resource_tag` can be used to manipulate the tags assigned to one or more AWS resources, i.e. ec2 instances, EBS volumes or EBS volume snapshots.
 
+#### Actions:
+
+- `add`: Adds tags to a resource, but don't update the values of existing tags
+- `update`: Add tags to a resource and update any existing values
+- `remove`: Remove tags from a resource if the value matches
+- `force_remove`: Remove tags from a resource regardless of their value
+
 #### Properties:
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `region` - The AWS region containing the resource to tag. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+- `resource_id` - The resource ID to attach the tags to. If not provided the resource name will be used
 
 #### Examples:
 
