@@ -1,12 +1,14 @@
+property :ip,                    String
+property :interface,             String
+property :timeout,               [Integer, nil], default: 3 * 60 # 3 mins, nil or 0 for no timeout
+
+# authentication
 property :aws_access_key,        String
 property :aws_secret_access_key, String
 property :aws_session_token,     String
 property :aws_assume_role_arn,   String
 property :aws_role_session_name, String
 property :region,                String, default: lazy { fallback_region }
-property :ip,                    String
-property :interface,             String
-property :timeout,               default: 3 * 60 # 3 mins, nil or 0 for no timeout
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 

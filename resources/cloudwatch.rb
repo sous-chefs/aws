@@ -15,7 +15,7 @@ property :evaluation_periods, Integer
 property :threshold, [Float, Integer]
 property :comparison_operator, equal_to: %w(GreaterThanOrEqualToThreshold GreaterThanThreshold LessThanThreshold LessThanOrEqualToThreshold)
 
-# aws credential/connection attributes
+# authentication
 property :region, String, default: lazy { fallback_region }
 property :aws_access_key, String
 property :aws_secret_access_key, String

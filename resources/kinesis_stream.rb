@@ -2,7 +2,7 @@ property :stream_name, String, name_property: true
 property :starting_shard_count, Integer, required: true
 property :region, String, default: lazy { fallback_region }
 
-# aws credential attributes
+# authentication
 property :aws_access_key, String
 property :aws_secret_access_key, String
 property :aws_session_token, String
