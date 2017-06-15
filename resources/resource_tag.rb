@@ -59,7 +59,7 @@ end
 action :force_remove do
   Chef::Log.debug("The current tags on the node are #{current_tags}")
 
-  new_resource.tags.keys do |key|
+  new_resource.tags.keys.each do |key|
     if current_tags.keys.include?(key)
       converge_by("delete tag '#{key}' on resource #{new_resource.resource_id} with value '#{current_tags[key]}'") do
         ec2.delete_tags(resources: [new_resource.resource_id], tags: [{ key: key }])
