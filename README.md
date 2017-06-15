@@ -822,7 +822,7 @@ end
 
 ### aws_secondary_ip.rb
 
-This feature is available only to instances in EC2-VPC. It allows you to assign multiple private IP addresses to a network interface.
+This feature is available only to instances within VPCs. It allows you to assign multiple private IP addresses to a network interface.
 
 #### Actions:
 
