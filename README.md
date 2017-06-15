@@ -759,7 +759,6 @@ end
 - `geo_location_country` String
 - `geo_location_continent` String
 - `geo_location_subdivision` String
-- `set_identifier` String
 - `zone_id` String
 - `region` String
 - `overwrite` [true, false] default: true
@@ -768,6 +767,8 @@ end
 - `fail_on_error` [true, false] default: false
 
 #### Examples:
+
+Create a simple record
 
 ```ruby
 route53_record "create a record" do
@@ -780,6 +781,18 @@ route53_record "create a record" do
   overwrite true
   fail_on_error false
   action :create
+end
+```
+
+Delete an existing record. Note that value is still necessary even though we're deleting. This is a limitation in the AWS SDK.
+
+```ruby
+aws_route53_record "delete a record" do
+  name  "test"
+  value "16.8.4.2"
+  type 'A'
+  value '123'
+  action :delete
 end
 ```
 
