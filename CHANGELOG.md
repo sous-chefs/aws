@@ -2,6 +2,20 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.0.0 (2017-06-15)
+
+- The route53_record resource from the route53 resource has been moved into this cookbook. The resource is now named aws_route53_record, but can be referenced by the old name: route53_record. The resource now accepts all authentication methods supported by this cookbook and a new zone_name property can be used in place of the zone_id property so you now only need to know the name of the zone the record is placed into.
+- Added a new aws_route53_zone resource for adding zones to Route53
+- Added new aws_s3_bucket resource. This is a very simple resource at the moment, but it lays the groundwork for a more complex resource for adding buckets with ACLs and other features
+- Converted all resources except for dynamodb_table to be custom resources. Logging and converging of resources has been updated and code has been cleaned up
+- Simplified the cookbook libraries by collapsing most of the libraries into the individual resources. For the most part these just added unnecessary complexity to the cookbook
+- Reworked how aws region information is determined and how the connection to AWS is initialized to work with some the new resources and the existing route53 resources
+- Moved the libraries from the Opscode::Aws namespace to the AwsCookbook namespace.
+- Large scale readme cleanup. There were multiple resources missing and some resources documented in 2 places. The documentation for resources is now ordered alphabetically and contains all actions and properties.
+- Updated elastic_ip resource to reload ohai after changes so ohai data reflects the current node state
+- Remove storage of IP information on the node when using the elastic_ip resource. This is a bad practice in general as node data can be changed or deleted by users or chef itself. This is potentially a breaking change for users that relied on this behavior.
+- Updated resource_tag to properly support why-run mode
+
 ## 6.1.1 (2017-06-05)
 
 - Resolve frozen string warning on Chef 13 in the s3_file rsource
@@ -19,7 +33,7 @@ This file is used to list changes made in each version of the aws cookbook.
 - Resolve deprecation warning in the chefspecs
 - Remove the EBS Raid resource, which did not work on modern EC2 instance types and only worked on select Linux systems. We highly recommend users utilize provisioned IOPS on EBS volumes as they offer far greater reliability. If that's not an option you may want to pin to the 5.X release of this cookbook.
 - Remove the ec2_hints recipe as newer Chef releases auto detect EC2 and don't require hints to be applied
-- Use Chef’s gem install in the metadata to handle gem installation. This increases the minimum required Chef release to 12.9
+- Use Chef's gem install in the metadata to handle gem installation. This increases the minimum required Chef release to 12.9
 - Convert instance_monitoring to a custom resource with improved logging and converge notification
 - Consider pending to be enabled as well within instance_monitoring to avoid enabling again
 
