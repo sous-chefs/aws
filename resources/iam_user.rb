@@ -2,7 +2,7 @@ property :user_name, String, name_property: true
 property :path, String, default: '/'
 property :region, String, default: lazy { fallback_region }
 
-# aws credential attributes
+# authentication
 property :aws_access_key, String
 property :aws_secret_access_key, String
 property :aws_session_token, String

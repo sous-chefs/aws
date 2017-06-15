@@ -4,7 +4,7 @@ property :policy_document, String, required: true
 property :account_id, String
 property :region, String, default: lazy { fallback_region }
 
-# aws credential attributes
+# authentication
 property :aws_access_key, String
 property :aws_secret_access_key, String
 property :aws_session_token, String

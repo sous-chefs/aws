@@ -2,11 +2,6 @@ property :path, String, name_property: true
 property :remote_path, String
 property :region, String, default: lazy { fallback_region }
 property :bucket, String
-property :aws_access_key, String
-property :aws_secret_access_key, String
-property :aws_session_token, String
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
 property :owner, regex: Chef::Config[:user_valid_regex]
 property :group, regex: Chef::Config[:group_valid_regex]
 property :mode, [String, nil]
@@ -22,6 +17,13 @@ if node['platform_family'] == 'windows'
   property :inherits, [true, false], default: true
   property :rights, Hash
 end
+
+# authentication
+property :aws_access_key, String
+property :aws_secret_access_key, String
+property :aws_session_token, String
+property :aws_assume_role_arn, String
+property :aws_role_session_name, String
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 

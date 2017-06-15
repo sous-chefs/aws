@@ -1,9 +1,3 @@
-property :aws_access_key,        String
-property :aws_secret_access_key, String
-property :aws_session_token,     String
-property :aws_assume_role_arn,   String
-property :aws_role_session_name, String
-property :region,                String, default: lazy { fallback_region }
 property :name,                  String
 property :listeners,             Array
 property :security_groups,       Array
@@ -11,6 +5,14 @@ property :subnets,               Array # for VPC networking
 property :availability_zones,    Array # for classic networking
 property :tags,                  Array
 property :scheme,                Array
+
+# authentication
+property :aws_access_key,        String
+property :aws_secret_access_key, String
+property :aws_session_token,     String
+property :aws_assume_role_arn,   String
+property :aws_role_session_name, String
+property :region,                String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 
