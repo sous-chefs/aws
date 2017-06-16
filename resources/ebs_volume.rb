@@ -111,7 +111,7 @@ end
 
 action :snapshot do
   vol = determine_volume
-  converge_by("would create a snapshot for volume: #{vol[:volume_id]}") do
+  converge_by("create a snapshot for volume: #{vol[:volume_id]}") do
     snapshot = ec2.create_snapshot(volume_id: vol[:volume_id], description: new_resource.description)
     Chef::Log.info("Created snapshot of #{vol[:volume_id]} as #{snapshot[:volume_id]}")
   end
