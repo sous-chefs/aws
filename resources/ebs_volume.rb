@@ -25,9 +25,6 @@ include AwsCookbook::Ec2 # needed for aws_region helper
 
 action :create do
   raise 'Cannot create a volume with a specific volume_id as AWS chooses volume ids' if new_resource.volume_id
-  if new_resource.snapshot_id =~ /vol/
-    new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
-  end
 
   # fetch volume data from node
   nvid = volume_id_in_node_data
@@ -54,10 +51,10 @@ action :create do
     else
       # If not, create volume and register its id in the node data
       converge_message = "create a #{new_resource.size}GB volume in #{aws_region} "
-      converge_message += "using snapshot #{new_resource.snapshot_id} " if new_resource.snapshot_id
+      converge_message += "using snapshot #{true_snapshot_id} " if true_snapshot_id
       converge_message += "and update the node data with created volume's id"
       converge_by(converge_message) do
-        nvid = create_volume(new_resource.snapshot_id,
+        nvid = create_volume(true_snapshot_id,
                              new_resource.size,
                              new_resource.availability_zone,
                              new_resource.timeout,
@@ -179,12 +176,9 @@ action_class do
 
   # Returns true if the given volume meets the resource's attributes
   def volume_compatible_with_resource_definition?(volume)
-    if new_resource.snapshot_id =~ /vol/
-      new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
-    end
     (new_resource.size.nil? || new_resource.size == volume.size) &&
       (new_resource.availability_zone.nil? || new_resource.availability_zone == volume.availability_zone) &&
-      (new_resource.snapshot_id.nil? || new_resource.snapshot_id == volume.snapshot_id)
+      (true_snapshot_id.nil? || true_snapshot_id == volume.snapshot_id)
   end
 
   # Creates a volume according to specifications and blocks until done (or times out)
@@ -336,4 +330,16 @@ action_class do
     Chef::Log.debug("Marking volume #{volume_id} with device name #{device_name} attached to instance #{instance_id} #{new_resource.delete_on_termination} for deletion on instance termination")
     ec2.modify_instance_attribute(block_device_mappings: [{ device_name: device_name, ebs: { volume_id: volume_id, delete_on_termination: new_resource.delete_on_termination } }], instance_id: instance_id)
   end
+
+  # the user may have passed a volume and not a snapshot ID so lookup the snapshot ID instead
+  def true_snapshot_id
+    id = new_resource.snapshot_id
+    if new_resource.snapshot_id =~ /vol/
+      Chef::Log.debug("It appears the user passed an EBS volume ID for snapshot_id (#{new_resource.snapshot_id}). Lookup up the snapshot ID from this volume ID.")
+      id = new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
+      Chef::Log.debug("Found snapshot ID #{id} from the passed volume ID #{new_resource.snapshot_id}")
+    end
+    id
+  end
+
 end
