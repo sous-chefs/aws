@@ -54,7 +54,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
-        elastic_ip: <%= ENV['AWS_ELASTIC_IP'] || '34.208.130.166' %>
+        elastic_ip: <%= ENV['AWS_ELASTIC_IP'] || '54.148.151.62' %>
 
   - name: elb
     run_list:
