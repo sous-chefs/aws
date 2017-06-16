@@ -33,12 +33,13 @@ end
 aws_ebs_volume 'standard_ebs_vol' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
-    device '/dev/sdj'
+  device '/dev/sdj'
   action [:detach]
 end
 
 aws_ebs_volume 'standard_ebs_vol' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
+  device '/dev/sdi'
   action [:delete]
 end

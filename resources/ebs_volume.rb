@@ -248,6 +248,7 @@ action_class do
             if !attachment.nil?
               if attachment[:instance_id] == instance_id
                 Chef::Log.info("Volume #{volume_id} is attached to #{instance_id}")
+                reload_ohai
                 break
               else
                 raise "Volume is attached to instance #{vol[:aws_instance_id]} instead of #{instance_id}"
@@ -286,12 +287,14 @@ action_class do
             poll_attachment = vol[:attachments].find { |a| a[:instance_id] == instance_id }
             if poll_attachment.nil?
               Chef::Log.info("Volume detached from #{orig_instance_id}")
+              reload_ohai
               break
             else
               Chef::Log.debug("Volume: #{vol.inspect}")
             end
           else
             Chef::Log.debug("Volume #{volume_id} no longer exists")
+            reload_ohai
             break
           end
           sleep 3
