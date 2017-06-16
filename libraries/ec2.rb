@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'open-uri'
 
 module AwsCookbook
   module Ec2
