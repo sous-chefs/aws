@@ -108,7 +108,12 @@ action_class do
 
   def interface_private_ips(interface)
     mac = interface_mac_address(interface)
-    ips = node['ec2']['network_interfaces_macs']['local_ipv4s'][mac]
+
+    begin
+      ips = node['ec2']['network_interfaces_macs']['local_ipv4s'][mac]
+    rescue NoMethodError # there's no local IPs
+      return []
+    end
     ips.split!("\n") if ips.is_a? String # ohai 14 will return an array
     Chef::Log.debug("#{interface} assigned local ipv4s addresses is/are #{ips.join(',')}")
     ips
