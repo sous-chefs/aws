@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.1.1 (2017-06-16)
+
+- Use the correct region value to prevent converge failures introduced in 7.0 with the ebs_volume resource
+- Better handle snapshots when the user passes a volume_id instead of a snapshot ID
+- Reload Ohai data when a ebs volume in attached or detached so the node data is correct
+- Properly error if the user does not pass device to ebs_volume when its needed
+
 ## 7.1.0 (2017-06-16)
 
 - Refactor and fix the secondary_ip resource
