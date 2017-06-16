@@ -2,6 +2,16 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.1.0 (2017-06-16)
+
+- Refactor and fix the secondary_ip resource
+  - Fix failures that occured when assigning IPs via the resource (aka make it actually work)
+  - Move all helpers out of the EC2 libary and into the resource itself
+  - Instead of using open-uri to query the metadata endpoint use EC2 data from Ohai
+  - Make IP a required property since we need that to run
+  - Refactor the wait loop that broke notification when the resources updated
+  - Reload Ohai data in the resource so downstream recipes will know about the new IP
+
 ## 7.0.0 (2017-06-15)
 
 - The route53_record resource from the route53 resource has been moved into this cookbook. The resource is now named aws_route53_record, but can be referenced by the old name: route53_record. The resource now accepts all authentication methods supported by this cookbook and a new zone_name property can be used in place of the zone_id property so you now only need to know the name of the zone the record is placed into.
