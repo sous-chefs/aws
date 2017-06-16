@@ -15,25 +15,25 @@ include AwsCookbook::Ec2 # needed for aws_region helper
 action :assign do
   ip = new_resource.ip
   eni = interface_eni_id(new_resource.interface)
-  assigned_addreses = interface_private_ips(new_resource.interface)
+  assigned_addresses = interface_private_ips(new_resource.interface)
 
-  if assigned_addreses.include? ip
+  if assigned_addresses.include? ip
     Chef::Log.debug("secondary ip (#{ip}) is already attached to the #{interface}")
   else
     converge_by("assign secondary ip to #{interface}") do
       assign(eni, ip)
+
       begin
         Timeout.timeout(new_resource.timeout) do
-          loop do
-            break if [interface_private_ips(interface)].flatten.count > [assigned_addreses].flatten.count
-            sleep 3
-          end
-        end
+          until interface_private_ips(new_resource.interface).include?(new_resource.ip)
+            sleep 4
 
-        # make sure ohai has the updated interface information
-        ohai 'Reload Ohai EC2 data' do
-          action :reload
-          plugin 'ec2'
+            # make sure ohai has the updated interface information
+            ohai 'Reload Ohai EC2 data' do
+              action :nothing
+              plugin 'ec2'
+            end.run_action(:reload)
+          end
         end
       rescue Timeout::Error
         raise "Timed out waiting for assignment after #{new_resource.timeout} seconds"
@@ -48,22 +48,22 @@ action :unassign do
   eni = interface_eni_id(new_resource.interface)
 
   # find the private IP addresses on the interface
-  assigned_addreses = interface_private_ips(new_resource.interface)
+  assigned_addresses = interface_private_ips(new_resource.interface)
 
-  if assigned_addreses.include?(ip)
+  if assigned_addresses.include?(ip)
     converge_by("unassign secondary ip frome #{new_resource.interface}") do
       unassign(eni, ip)
       begin
         Timeout.timeout(new_resource.timeout) do
-          loop do
-            break if [assigned_addreses].flatten.count > [interface_private_ips(new_resource.interface)].flatten.count
-            sleep 3
+          while interface_private_ips(new_resource.interface).include?(new_resource.ip)
+            sleep 4
+
+            # make sure ohai has the updated interface information
+            ohai 'Reload Ohai EC2 data' do
+              action :nothing
+              plugin 'ec2'
+            end.run_action(:reload)
           end
-        end
-        # make sure ohai has the updated interface information
-        ohai 'Reload Ohai EC2 data' do
-          action :reload
-          plugin 'ec2'
         end
       rescue Timeout::Error
         raise "Timed out waiting for unassignment after #{timeout} seconds"
@@ -108,13 +108,8 @@ action_class do
 
   def interface_private_ips(interface)
     mac = interface_mac_address(interface)
-
-    begin
-      ips = node['ec2']['network_interfaces_macs']['local_ipv4s'][mac]
-    rescue NoMethodError # there's no local IPs
-      return []
-    end
-    ips.split!("\n") if ips.is_a? String # ohai 14 will return an array
+    ips = node['ec2']['network_interfaces_macs'][mac]['local_ipv4s']
+    ips = ips.split("\n") if ips.is_a? String # ohai 14 will return an array
     Chef::Log.debug("#{interface} assigned local ipv4s addresses is/are #{ips.join(',')}")
     ips
   end
