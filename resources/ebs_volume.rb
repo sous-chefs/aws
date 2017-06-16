@@ -342,4 +342,11 @@ action_class do
     id
   end
 
+  # if volumes are added or removed we need to reload ohai data so cookbook authors
+  # have accurate volume data
+  def reload_ohai
+    ohai 'Reload Ohai data for volume change' do
+      action :nothing
+    end.run_action(:reload)
+  end
 end
