@@ -1,7 +1,6 @@
 provides :aws_route53_record
 provides :route53_record # for compatibility with the old cookbook
 
-property :name,                        String, required: true, name_property: true
 property :value,                       [String, Array]
 property :type,                        String, required: true
 property :ttl,                         Integer, default: 3600

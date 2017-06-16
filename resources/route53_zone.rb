@@ -1,4 +1,3 @@
-property :name, String, required: true, name_property: true
 property :description, String
 property :private, [true, false], default: false
 property :vpc_id, String
