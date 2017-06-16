@@ -146,3 +146,11 @@ suites:
           metric_name: <%= ENV['CLOUDWATCH_METRIC_NAME'] %>
           namespace: <%= ENV['CLOUDWATCH_NAMESPACE'] %>
           statistic: <%= ENV['CLOUDWATCH_STATISTIC'] %>
+
+  - name: secondary_ip
+    run_list:
+    - recipe[aws_test::secondary_ip]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
