@@ -1,8 +1,3 @@
-property :aws_access_key,        String
-property :aws_secret_access_key, String
-property :aws_session_token,     String
-property :aws_assume_role_arn,   String
-property :aws_role_session_name, String
 property :region,                String, default: lazy { fallback_region }
 property :size,                  Integer
 property :snapshot_id,           String
@@ -19,13 +14,17 @@ property :encrypted,             [true, false], default: false
 property :kms_key_id,            String
 property :delete_on_termination, [true, false], default: false
 
+# authentication
+property :aws_access_key,        String
+property :aws_secret_access_key, String
+property :aws_session_token,     String
+property :aws_assume_role_arn,   String
+property :aws_role_session_name, String
+
 include AwsCookbook::Ec2 # needed for aws_region helper
 
 action :create do
-  raise 'Cannot create a volume with a specific volume_id as AWS chooses volume ids' if new_resource.volume_id
-  if new_resource.snapshot_id =~ /vol/
-    new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
-  end
+  raise 'Cannot create a volume with a specific volume_id as AWS chooses volume ids. The volume_id property can only be used with the :attach action.' if new_resource.volume_id
 
   # fetch volume data from node
   nvid = volume_id_in_node_data
@@ -51,11 +50,11 @@ action :create do
       end
     else
       # If not, create volume and register its id in the node data
-      converge_message = "create a #{new_resource.size}GB volume in #{aws_region} "
-      converge_message += "using snapshot #{new_resource.snapshot_id} " if new_resource.snapshot_id
+      converge_message = "create a #{new_resource.size}GB volume in #{new_resource.region} "
+      converge_message += "using snapshot #{true_snapshot_id} " if true_snapshot_id
       converge_message += "and update the node data with created volume's id"
       converge_by(converge_message) do
-        nvid = create_volume(new_resource.snapshot_id,
+        nvid = create_volume(true_snapshot_id,
                              new_resource.size,
                              new_resource.availability_zone,
                              new_resource.timeout,
@@ -112,7 +111,7 @@ end
 
 action :snapshot do
   vol = determine_volume
-  converge_by("would create a snapshot for volume: #{vol[:volume_id]}") do
+  converge_by("create a snapshot for volume: #{vol[:volume_id]}") do
     snapshot = ec2.create_snapshot(volume_id: vol[:volume_id], description: new_resource.description)
     Chef::Log.info("Created snapshot of #{vol[:volume_id]} as #{snapshot[:volume_id]}")
   end
@@ -149,6 +148,8 @@ action_class do
 
   # Pulls the volume id from the volume_id attribute or the node data and verifies that the volume actually exists
   def determine_volume
+    raise "Cannot proceed unless the 'device' property is defined in the ebs_volume resource!" unless new_resource.device
+
     vol = currently_attached_volume(instance_id, new_resource.device)
     vol_id = new_resource.volume_id || volume_id_in_node_data || (vol ? vol[:volume_id] : nil)
     raise 'volume_id attribute not set and no volume id is set in the node data for this resource (which is populated by action :create) and no volume is attached at the device' unless vol_id
@@ -177,12 +178,9 @@ action_class do
 
   # Returns true if the given volume meets the resource's attributes
   def volume_compatible_with_resource_definition?(volume)
-    if new_resource.snapshot_id =~ /vol/
-      new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
-    end
     (new_resource.size.nil? || new_resource.size == volume.size) &&
       (new_resource.availability_zone.nil? || new_resource.availability_zone == volume.availability_zone) &&
-      (new_resource.snapshot_id.nil? || new_resource.snapshot_id == volume.snapshot_id)
+      (true_snapshot_id.nil? || true_snapshot_id == volume.snapshot_id)
   end
 
   # Creates a volume according to specifications and blocks until done (or times out)
@@ -250,6 +248,7 @@ action_class do
             if !attachment.nil?
               if attachment[:instance_id] == instance_id
                 Chef::Log.info("Volume #{volume_id} is attached to #{instance_id}")
+                reload_ohai
                 break
               else
                 raise "Volume is attached to instance #{vol[:aws_instance_id]} instead of #{instance_id}"
@@ -288,12 +287,14 @@ action_class do
             poll_attachment = vol[:attachments].find { |a| a[:instance_id] == instance_id }
             if poll_attachment.nil?
               Chef::Log.info("Volume detached from #{orig_instance_id}")
+              reload_ohai
               break
             else
               Chef::Log.debug("Volume: #{vol.inspect}")
             end
           else
             Chef::Log.debug("Volume #{volume_id} no longer exists")
+            reload_ohai
             break
           end
           sleep 3
@@ -306,8 +307,7 @@ action_class do
 
   # Deletes the volume and blocks until done (or times out)
   def delete_volume(volume_id, timeout)
-    vol = volume_by_id(volume_id)
-    raise "Cannot delete volume #{volume_id} as it is currently attached to #{vol[:attachments].size} node(s)" unless vol[:attachments].empty?
+    raise "Cannot delete volume #{volume_id} as it is currently attached to #{volume_by_id(volume_id)[:attachments].size} node(s)" unless vol[:attachments].empty?
 
     Chef::Log.debug("Deleting #{volume_id}")
     ec2.delete_volume(volume_id: volume_id)
@@ -333,5 +333,24 @@ action_class do
   def mark_delete_on_termination(device_name, volume_id, instance_id)
     Chef::Log.debug("Marking volume #{volume_id} with device name #{device_name} attached to instance #{instance_id} #{new_resource.delete_on_termination} for deletion on instance termination")
     ec2.modify_instance_attribute(block_device_mappings: [{ device_name: device_name, ebs: { volume_id: volume_id, delete_on_termination: new_resource.delete_on_termination } }], instance_id: instance_id)
+  end
+
+  # the user may have passed a volume and not a snapshot ID so lookup the snapshot ID instead
+  def true_snapshot_id
+    id = new_resource.snapshot_id
+    if new_resource.snapshot_id =~ /vol/
+      Chef::Log.debug("It appears the user passed an EBS volume ID for snapshot_id (#{new_resource.snapshot_id}). Lookup up the snapshot ID from this volume ID.")
+      id = new_resource.snapshot_id(find_snapshot_id(new_resource.snapshot_id, new_resource.most_recent_snapshot))
+      Chef::Log.debug("Found snapshot ID #{id} from the passed volume ID #{new_resource.snapshot_id}")
+    end
+    id
+  end
+
+  # if volumes are added or removed we need to reload ohai data so cookbook authors
+  # have accurate volume data
+  def reload_ohai
+    ohai 'Reload Ohai data for volume change' do
+      action :nothing
+    end.run_action(:reload)
   end
 end
