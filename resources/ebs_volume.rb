@@ -148,6 +148,8 @@ action_class do
 
   # Pulls the volume id from the volume_id attribute or the node data and verifies that the volume actually exists
   def determine_volume
+    raise "Cannot proceed unless the 'device' property is defined in the ebs_volume resource!" unless new_resource.device
+
     vol = currently_attached_volume(instance_id, new_resource.device)
     vol_id = new_resource.volume_id || volume_id_in_node_data || (vol ? vol[:volume_id] : nil)
     raise 'volume_id attribute not set and no volume id is set in the node data for this resource (which is populated by action :create) and no volume is attached at the device' unless vol_id
