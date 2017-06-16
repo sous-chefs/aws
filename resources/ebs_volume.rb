@@ -24,7 +24,7 @@ property :aws_role_session_name, String
 include AwsCookbook::Ec2 # needed for aws_region helper
 
 action :create do
-  raise 'Cannot create a volume with a specific volume_id as AWS chooses volume ids' if new_resource.volume_id
+  raise 'Cannot create a volume with a specific volume_id as AWS chooses volume ids. The volume_id property can only be used with the :attach action.' if new_resource.volume_id
 
   # fetch volume data from node
   nvid = volume_id_in_node_data
