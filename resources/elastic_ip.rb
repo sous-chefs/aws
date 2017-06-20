@@ -12,15 +12,15 @@ property :region,                String, default: lazy { fallback_region }
 include AwsCookbook::Ec2 # needed for aws_region helper
 
 action :associate do
-  addr = address(new_resource.ip)
+  addr = eip_info(new_resource.ip)
 
-  raise "Elastic IP #{ip} does not exist" if addr.nil?
+  raise "Elastic IP #{new_resource.ip} does not exist" if addr.nil?
 
   if addr[:instance_id] == instance_id
-    Chef::Log.debug("Elastic IP #{ip} is already attached to the instance")
+    Chef::Log.debug("Elastic IP #{new_resource.ip} is already attached to the instance")
   else
-    converge_by("attach Elastic IP #{ip} to the instance") do
-      attach(ip, new_resource.timeout)
+    converge_by("attach Elastic IP #{new_resource.ip} to the instance") do
+      attach(new_resource.ip, new_resource.timeout)
 
       ohai 'Reload Ohai EC2 data' do
         action :reload
@@ -31,15 +31,15 @@ action :associate do
 end
 
 action :disassociate do
-  addr = address(new_resource.ip)
+  addr = eip_info(new_resource.ip)
 
   if addr.nil?
-    Chef::Log.debug("Elastic IP #{ip} does not exist, so there is nothing to detach")
+    Chef::Log.debug("Elastic IP #{new_resource.ip} does not exist, so there is nothing to detach")
   elsif addr[:instance_id] != instance_id
-    Chef::Log.debug("Elastic IP #{ip} is already detached from the instance")
+    Chef::Log.debug("Elastic IP #{new_resource.ip} is already detached from the instance")
   else
-    converge_by("detach Elastic IP #{ip} from the instance") do
-      detach(ip, new_resource.timeout)
+    converge_by("detach Elastic IP #{new_resource.ip} from the instance") do
+      detach(new_resource.ip, new_resource.timeout)
 
       ohai 'Reload Ohai EC2 data' do
         action :reload
@@ -87,8 +87,8 @@ action_class do
 
   def detach(ip, timeout)
     addr = eip_info(ip)
-    if ip[:domain] == 'vpc'
-      ec2.disassociate_address(allocation_ip: addr[:allocation_id])
+    if addr[:domain] == 'vpc'
+      ec2.disassociate_address(association_id: addr[:association_id])
     else
       ec2.disassociate_address(public_ip: ip)
     end
