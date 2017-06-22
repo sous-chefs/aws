@@ -74,12 +74,6 @@ action_class do
   include AwsCookbook::Ec2
 
   def current_tags
-    @current_tags ||= begin
-      aws_tags = {}
-      ec2.describe_tags(filters: [{ name: 'resource-id', values: [new_resource.resource_id] }])[:tags].map do |tag|
-        aws_tags[tag[:key]] = tag[:value]
-      end
-      aws_tags
-    end
+    @current_tags ||= instance_tags(new_resource.resource_id)
   end
 end
