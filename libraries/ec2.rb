@@ -92,5 +92,13 @@ module AwsCookbook
       Chef::Log.debug("Initializing interface with client interface options: #{aws_interface_opts}")
       aws_interface.new(aws_interface_opts)
     end
+
+    def instance_tags(resource_id = instance_id)
+      aws_tags = {}
+      ec2.describe_tags(filters: [{ name: 'resource-id', values: [resource_id] }])[:tags].map do |tag|
+        aws_tags[tag[:key]] = tag[:value]
+      end
+      aws_tags
+    end
   end
 end
