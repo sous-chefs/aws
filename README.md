@@ -448,12 +448,12 @@ The `elastic_ip` resource provider does not support allocating new IPs. This mus
 
 ```ruby
 aws_elastic_ip '34.15.30.10' do
-  action :allocate
+  action :associate
 end
 
 aws_elastic_ip 'Server public IP' do
   ip '34.15.30.11'
-  action :allocate
+  action :associate
 end
 ```
 
