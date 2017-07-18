@@ -9,6 +9,7 @@ This cookbook provides resources for configuring and managing nodes running in A
 - CloudWatch Instance Monitoring (`instance_monitoring`)
 - DynamoDB (`dynamodb_table`)
 - EBS Volumes (`ebs_volume`)
+- EC2 Instance Termination Protection (`instance_term_protection`)
 - Elastic IPs (`elastic_ip`)
 - Elastic Load Balancer (`elastic_lb`)
 - IAM User, Group, Policy, and Role Management: (`iam_user`, `iam_group`, `iam_policy`, `iam_role`)
@@ -669,6 +670,27 @@ Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
 ```ruby
 aws_instance_monitoring "enable detailed monitoring"
+```
+
+### aws_instance_term_protection
+
+Allows termination protection (AKA `DisableApiTermination`) to be enabled for an instance.
+
+#### Actions:
+
+- `enable` - Enable termination protection for this instance (Default).
+- `disable` - Disable termination protection for this instance.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `region` - The AWS region containing the instance. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+- `instance_id` - The id of the instance to modify. Default: The current instance.
+
+#### Examples:
+
+```ruby
+aws_instance_term_protection "enable termination protection"
 ```
 
 ### aws_kinesis_stream
