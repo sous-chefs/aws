@@ -222,6 +222,7 @@ Manage CloudFormation stacks.
 - `disable_rollback`: Set this to `true` if you want stack rollback to be disabled if creation of the stack fails. Default: `false`
 - `stack_policy_body`: Optionally define a stack policy to apply to the stack, mainly used in protecting stack resources after they are created. For more information, see [Prevent Updates to Stack Resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the CloudFormation user guide.
 - `iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources. This is the equivalent of setting `CAPABILITY_IAM` When using the SDK or CLI. Default: `false`
+- `named_iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources with custom names. This is the equivalent of setting `CAPABILITY_NAMED_IAM` When using the SDK or CLI. Default: `false`
 
 #### Examples:
 
