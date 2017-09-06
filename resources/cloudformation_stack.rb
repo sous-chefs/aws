@@ -4,6 +4,7 @@ property :template_source, String, required: true
 property :parameters, Array, default: []
 property :disable_rollback, [true, false], default: false
 property :iam_capability, [true, false], default: false
+property :named_iam_capability, [true, false], default: false
 property :stack_policy_body, String
 property :region, String, default: lazy { fallback_region }
 
@@ -74,11 +75,13 @@ action_class do
       template_body: ::IO.read(@template_path),
       parameters: new_resource.parameters,
       disable_rollback: new_resource.disable_rollback,
+      capabilities: [],
     }
     unless new_resource.stack_policy_body.nil?
       options[:stack_policy_body] = new_resource.stack_policy_body
     end
-    options[:capabilities] = ['CAPABILITY_IAM'] if new_resource.iam_capability
+    options[:capabilities] << 'CAPABILITY_IAM' if new_resource.iam_capability
+    options[:capabilities] << 'CAPABILITY_NAMED_IAM' if new_resource.named_iam_capability
     options
   end
 
