@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.2.0 (2017-09-06)
+
+- Add instance_term_protection resource
+- Added named_iam_capability option to the cloudformation_stack resource
+
 ## 7.1.2 (2017-06-19)
 
 - Multiple fixes to issues with the elastic_ip resource that prevented converges
