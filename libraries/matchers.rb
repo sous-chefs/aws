@@ -110,7 +110,7 @@ if defined?(ChefSpec)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_instance_term_protection, :enable, resource_name)
   end
 
-  def disable_aws_iinstance_term_protection(resource_name)
+  def disable_aws_instance_term_protection(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_instance_term_protection, :disable, resource_name)
   end
 
