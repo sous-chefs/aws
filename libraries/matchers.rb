@@ -105,13 +105,22 @@ if defined?(ChefSpec)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_instance_monitoring, :disable, resource_name)
   end
 
-  # kinetic_stream
-  def create_aws_kinetic_stream(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:aws_kinetic_stream, :create, resource_name)
+  # instance_term_protection
+  def enable_aws_instance_term_protection(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_instance_term_protection, :enable, resource_name)
   end
 
-  def delete_aws_kinetic_stream(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:aws_kinetic_stream, :delete, resource_name)
+  def disable_aws_iinstance_term_protection(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_instance_term_protection, :disable, resource_name)
+  end
+
+  # kinesis_stream
+  def create_aws_kinesis_stream(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_kinesis_stream, :create, resource_name)
+  end
+
+  def delete_aws_kinesis_stream(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_kinesis_stream, :delete, resource_name)
   end
 
   # resource_tag
@@ -187,7 +196,7 @@ if defined?(ChefSpec)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_route53_record, :delete, resource_name)
   end
 
-  resources = %i(aws_cloudformation_stack aws_dynamodb_table aws_ebs_volume aws_elastic_ip aws_elastic_lb aws_iam_group aws_iam_policy aws_iam_role aws_iam_user aws_instance_monitoring aws_kinetic_stream aws_resource_tag aws_s3_bucket aws_s3_file aws_secondary_ip aws_cloudwatch aws_route53_record)
+  resources = %i(aws_cloudformation_stack aws_dynamodb_table aws_ebs_volume aws_elastic_ip aws_elastic_lb aws_iam_group aws_iam_policy aws_iam_role aws_iam_user aws_instance_monitoring aws_instance_term_protection aws_kinesis_stream aws_resource_tag aws_s3_bucket aws_s3_file aws_secondary_ip aws_cloudwatch aws_route53_record)
 
   resources.each do |resource|
     ChefSpec.define_matcher resource
