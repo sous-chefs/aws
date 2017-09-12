@@ -855,7 +855,7 @@ This feature is available only to instances within VPCs. It allows you to assign
 #### Properties:
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-- `ip` - the private IP address. If none is given on assignment, will assign a random IP in the subnet.
+- `ip` - the private IP address. - required.
 - `interface` - the network interface to assign the IP to. If none is given, uses the default interface.
 - `timeout` - connection timeout for EC2 API.
 
