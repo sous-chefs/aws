@@ -7,6 +7,8 @@ property :device,                String
 property :volume_id,             String
 property :description,           String
 property :timeout,               default: 3 * 60 # 3 mins, nil or 0 for no timeout
+property :interval,              default: 15 # delay in seconds per attempt
+property :max_attempts,          default: 5 # max number of attempts before bailing
 property :snapshots_to_keep,     default: 2
 property :volume_type,           String
 property :piops,                 Integer, default: 0
@@ -103,9 +105,23 @@ action :detach do
 end
 
 action :delete do
-  vol = determine_volume
-  converge_by("delete volume with id: #{vol[:volume_id]}") do
-    delete_volume(vol[:volume_id], new_resource.timeout)
+  nvid = volume_id_in_node_data
+  vol = nvid ? volume_by_id(nvid) : determine_volume
+
+  raise "Cannot delete volume #{vol[:volume_id]} as it is attached to #{vol[:attachments].size} node(s)" unless vol[:attachments].empty?
+  converge_by("Delete volume with id: #{vol[:volume_id]}") do
+    begin
+      ec2.delete_volume(volume_id: vol[:volume_id], dry_run: false)
+      ec2.wait_until(:volume_deleted, volume_ids: [vol[:volume_id]]) do |w|
+        w.max_attempts = new_resource.max_attempts
+        w.interval = new_resource.interval
+      end
+      Chef::Log.info("Deleting volume #{vol[:volume_id]}.")
+    rescue Aws::Waiters::Errors::WaiterFailed => error
+      raise "Failed waiting for volume #{vol[:volume_id]} to be deleted: #{error.message}"
+    end
+    node.normal['aws']['ebs_volume'][new_resource.name] = {}
+    reload_ohai
   end
 end
 
@@ -302,31 +318,6 @@ action_class do
       end
     rescue Timeout::Error
       raise "Timed out waiting for volume detachment after #{timeout} seconds"
-    end
-  end
-
-  # Deletes the volume and blocks until done (or times out)
-  def delete_volume(volume_id, timeout)
-    raise "Cannot delete volume #{volume_id} as it is currently attached to #{volume_by_id(volume_id)[:attachments].size} node(s)" unless vol[:attachments].empty?
-
-    Chef::Log.debug("Deleting #{volume_id}")
-    ec2.delete_volume(volume_id: volume_id)
-
-    # block until deleted
-    begin
-      Timeout.timeout(timeout) do
-        loop do
-          vol = volume_by_id(volume_id)
-          if vol[:state] == 'deleting' || vol[:state] == 'deleted'
-            Chef::Log.debug("Volume #{volume_id} entered #{vol[:state]} state")
-            node.normal['aws']['ebs_volume'][new_resource.name] = {}
-            break
-          end
-          sleep 3
-        end
-      end
-    rescue Timeout::Error
-      raise "Timed out waiting for volume to enter after #{timeout} seconds"
     end
   end
 
