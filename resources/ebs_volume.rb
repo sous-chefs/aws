@@ -133,8 +133,8 @@ action :prune do
         Chef::Log.info "Deleting old snapshot #{die[:snapshot_id]}"
         begin
           ec2.delete_snapshot(snapshot_id: die[:snapshot_id])
-        rescue Aws::EC2::Errors::InvalidSnapshotInUse # rubocop: disable Lint/HandleExceptions
-          # Snapshot is being used by an AMI and therefore cannot be deleted.
+        rescue Aws::EC2::Errors::InvalidSnapshotInUse
+          Chef::Log.debug "Snapshot with ID #{die[:snapshot_id]} cannot be deleted because it is currently in use."
         end
       end
     end
