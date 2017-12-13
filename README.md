@@ -407,6 +407,7 @@ The resource only handles manipulating the EBS volume, additional resources need
 - `encrypted` - specify if the EBS should be encrypted
 - `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
 - `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil). Only applies to `:attach` action.
+- `tags` - Hash value to tag the new volumes or snapshots. Only applies to `:create` and `:snapshot` actions.
 
 #### Examples:
 

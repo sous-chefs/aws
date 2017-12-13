@@ -13,6 +13,7 @@ property :piops,                 Integer, default: 0
 property :encrypted,             [true, false], default: false
 property :kms_key_id,            String
 property :delete_on_termination, [true, false], default: false
+property :tags,                  Hash
 
 # authentication
 property :aws_access_key,        String
@@ -62,6 +63,7 @@ action :create do
                              new_resource.piops,
                              new_resource.encrypted,
                              new_resource.kms_key_id)
+        add_tags(nvid)
         node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
         node.save
       end
@@ -113,6 +115,7 @@ action :snapshot do
   vol = determine_volume
   converge_by("create a snapshot for volume: #{vol[:volume_id]}") do
     snapshot = ec2.create_snapshot(volume_id: vol[:volume_id], description: new_resource.description)
+    add_tags(snapshot[:volume_id])
     Chef::Log.info("Created snapshot of #{vol[:volume_id]} as #{snapshot[:volume_id]}")
   end
 end
@@ -352,5 +355,14 @@ action_class do
     ohai 'Reload Ohai data for volume change' do
       action :nothing
     end.run_action(:reload)
+  end
+
+  def add_tags(resource_id)
+    unless new_resource.tags.empty?
+      new_resource.tags.each do |k, v|
+        Chef::Log.debug("add tag '#{k}' with value '#{v}' on resource #{resource_id}")
+        ec2.create_tags(resources: [resource_id], tags: [{ key: k, value: v }])
+      end
+    end
   end
 end

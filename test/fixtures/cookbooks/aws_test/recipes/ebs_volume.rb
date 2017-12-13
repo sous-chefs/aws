@@ -17,6 +17,16 @@ aws_ebs_volume 'standard_ebs_vol' do
   action [:create, :attach]
 end
 
+aws_ebs_volume 'standard_ebs_vol_with_tags' do
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  size 1
+  device '/dev/sdk'
+  tags('Environment' => 'test_kitchen')
+  delete_on_termination true
+  action [:create, :attach]
+end
+
 aws_ebs_volume 'ssd_ebs_volume' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
