@@ -886,6 +886,15 @@ aws_s3_file '/tmp/foo' do
 end
 ```
 
+```ruby
+aws_s3_file '/tmp/bar' do
+  bucket 'i_haz_another_s3_buckit'
+  remote_path 'path/in/s3/buckit/to/foo'
+  region 'us-east-1'
+  requester_pays true
+end
+```
+
 ### aws_s3_bucket
 
 `s3_bucket` can be used to create or delete S3 buckets. Note that buckets can only be deleted if they are empty unless you specify `delete_all_objects` true, which will delete EVERYTHING in your bucket first.
