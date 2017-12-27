@@ -69,7 +69,19 @@ action_class do
   def compare_md5s(remote_object, local_file_path)
     return false unless ::File.exist?(local_file_path)
     local_md5 = ::Digest::MD5.new
-    remote_hash = remote_object.etag.delete('"') # etags are always quoted
+    remote_hash =
+      case new_resource.requester_pays
+      when true
+        # Calling head_object explicitly (bypassing automatic call via the
+        # remote_object's etag method) to add the request_payer option
+        s3.head_object(
+          bucket: remote_object.bucket.name,
+          key: remote_object.key,
+          request_payer: 'requester'
+        ).etag.delete('"') # etags are always quoted
+      else
+        remote_object.etag.delete('"') # etags are always quoted
+      end
 
     ::File.open(local_file_path, 'rb') do |f|
       f.each_line do |line|
