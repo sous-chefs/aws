@@ -15,10 +15,10 @@ verifier:
   name: inspec
 
 platforms:
-- name: amazon-2017-03
+- name: amazon-2017-09
   driver_config:
-    image_id: ami-4836a428
-    instance_type: t2.small
+    image_id: ami-da4694a2
+    instance_type: t1.micro
   transport:
     username: ec2-user
 
