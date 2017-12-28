@@ -195,8 +195,22 @@ if defined?(ChefSpec)
   def delete_aws_route53_record(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_route53_record, :delete, resource_name)
   end
-
-  resources = %i(aws_cloudformation_stack aws_dynamodb_table aws_ebs_volume aws_elastic_ip aws_elastic_lb aws_iam_group aws_iam_policy aws_iam_role aws_iam_user aws_instance_monitoring aws_instance_term_protection aws_kinesis_stream aws_resource_tag aws_s3_bucket aws_s3_file aws_secondary_ip aws_cloudwatch aws_route53_record)
+  
+# System Manager Parameter Store
+  def get_aws_ssm_parameter_store(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_parameter_store, :create, resource_name)
+  end
+  
+  def create_aws_ssm_parameter_store(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_parameter_store, :create, resource_name)
+  end
+  
+  def delete_aws_ssm_parameter_store(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_parameter_store, :delete, resource_name)
+  end
+  
+  
+  resources = %i(aws_cloudformation_stack aws_dynamodb_table aws_ebs_volume aws_elastic_ip aws_elastic_lb aws_iam_group aws_iam_policy aws_iam_role aws_iam_user aws_instance_monitoring aws_instance_term_protection aws_kinesis_stream aws_resource_tag aws_s3_bucket aws_s3_file aws_secondary_ip aws_cloudwatch aws_route53_record aws_ssm_parameter_store)
 
   resources.each do |resource|
     ChefSpec.define_matcher resource
