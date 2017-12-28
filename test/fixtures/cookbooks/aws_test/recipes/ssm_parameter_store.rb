@@ -1,4 +1,4 @@
-aws_ssm_parameter_store "create testkitchen record" do
+aws_ssm_parameter_store 'create testkitchen record' do
   name 'testkitchen'
   description 'testkitchen'
   value 'testkitchen'
@@ -8,7 +8,7 @@ aws_ssm_parameter_store "create testkitchen record" do
   aws_secret_access_key node['aws_test']['access_key']
 end
 
-aws_ssm_parameter_store "create test kitchen record" do
+aws_ssm_parameter_store 'create test kitchen record' do
   name '/testkitchen/ClearTextString'
   description 'Test Kitchen String Parameter'
   value 'Clear Text Test Kitchen'
@@ -18,7 +18,7 @@ aws_ssm_parameter_store "create test kitchen record" do
   aws_secret_access_key node['aws_test']['access_key']
 end
 
-aws_ssm_parameter_store "create encrypted test kitchen record with default key" do
+aws_ssm_parameter_store 'create encrypted test kitchen record with default key' do
   name '/testkitchen/EncryptedStringDefaultKey'
   description 'Test Kitchen Encrypted Parameter - Default'
   value 'Encrypted Test Kitchen Default'
@@ -29,7 +29,7 @@ aws_ssm_parameter_store "create encrypted test kitchen record with default key" 
 end
 
 # need to figure out how to test this since it depends on a keyid
-#aws_ssm_parameter_store "create encrypted test kitchen record" do
+# aws_ssm_parameter_store "create encrypted test kitchen record" do
 #  name '/testkitchen/EncryptedStringCustomKey'
 #  description 'Test Kitchen Encrypted Parameter - Custom'
 #  value 'Encrypted Test Kitchen Custom'
@@ -38,11 +38,11 @@ end
 #  action :create
 #  aws_access_key node['aws_test']['key_id']
 #  aws_secret_access_key node['aws_test']['access_key']
-#end
+# end
 
 # Need to create tests for get
 
-aws_ssm_parameter_store "create test kitchen record" do
+aws_ssm_parameter_store 'create test kitchen record' do
   name '/testkitchen/ClearTextString'
   description 'NewString'
   value 'NewString'
