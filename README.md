@@ -9,6 +9,7 @@ This cookbook provides resources for configuring and managing nodes running in A
 - CloudWatch Instance Monitoring (`instance_monitoring`)
 - DynamoDB (`dynamodb_table`)
 - EBS Volumes (`ebs_volume`)
+- EC2 Instance Role (`instance_role`)
 - EC2 Instance Termination Protection (`instance_term_protection`)
 - Elastic IPs (`elastic_ip`)
 - Elastic Load Balancer (`elastic_lb`)
@@ -672,6 +673,40 @@ Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
 ```ruby
 aws_instance_monitoring "enable detailed monitoring"
+```
+
+### aws_instance_role
+
+Used to associate an IAM role (by way of an IAM instance profile) with an instance. Replaces the instance's current role association if one already exists.
+
+#### Actions:
+
+- `associate` - Associate role with the instance (Default).
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `region` - The AWS region containing the instance. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+- `instance_id` - The id of the instance to modify. Default: The current instance.
+- `profile_arn` - The IAM instance profile to associate with the instance
+
+#### Requirements
+
+IAM permisions:
+ * `ec2:DescribeIamInstanceProfileAssociations`
+ * `ec2:AssociateIamInstanceProfile`
+   * Only needed if the instance is not already associated with an IAM role
+ * `ec2:ReplaceIamInstanceProfileAssociation`
+   * Only needed if the instance is already associated with an IAM role
+ * `iam:PassRole`
+   * This can be restricted to the resource of the IAM role being associated
+
+#### Examples:
+
+```ruby
+aws_instance_role "change to example role" do
+  profile_arn 'arn:aws:iam::123456789012:instance-profile/ExampleInstanceProfile'
+end
 ```
 
 ### aws_instance_term_protection
