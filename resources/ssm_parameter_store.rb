@@ -1,4 +1,3 @@
-property :name,                        String, required: true
 property :description,                 String
 property :value,                       String, required: true
 property :type,                        String, required: true
