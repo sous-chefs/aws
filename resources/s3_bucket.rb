@@ -56,7 +56,7 @@ action_class do
 
   def versioning_enabled?
     v_data = s3_client.get_bucket_versioning(bucket: new_resource.name)
-    v_data.status == 'Enabled' ? true : false
+    v_data.status == 'Enabled'
   end
 
   def update_versioning_status(state)

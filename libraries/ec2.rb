@@ -74,7 +74,8 @@ module AwsCookbook
           aws_interface_opts[:credentials] = ::Aws::Credentials.new(
             new_resource.aws_access_key,
             new_resource.aws_secret_access_key,
-            new_resource.aws_session_token)
+            new_resource.aws_session_token
+          )
         else
           Chef::Log.debug('Using local credential chain')
         end
