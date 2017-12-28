@@ -2,6 +2,7 @@ property :path, String, name_property: true
 property :remote_path, String
 property :region, String, default: lazy { fallback_region }
 property :bucket, String
+property :requester_pays, [true, false], default: false
 property :owner, regex: Chef::Config[:user_valid_regex]
 property :group, regex: Chef::Config[:group_valid_regex]
 property :mode, [String, nil]
@@ -68,7 +69,19 @@ action_class do
   def compare_md5s(remote_object, local_file_path)
     return false unless ::File.exist?(local_file_path)
     local_md5 = ::Digest::MD5.new
-    remote_hash = remote_object.etag.delete('"') # etags are always quoted
+    remote_hash =
+      case new_resource.requester_pays
+      when true
+        # Calling head_object explicitly (bypassing automatic call via the
+        # remote_object's etag method) to add the request_payer option
+        s3.head_object(
+          bucket: remote_object.bucket.name,
+          key: remote_object.key,
+          request_payer: 'requester'
+        ).etag.delete('"') # etags are always quoted
+      else
+        remote_object.etag.delete('"') # etags are always quoted
+      end
 
     ::File.open(local_file_path, 'rb') do |f|
       f.each_line do |line|
@@ -96,7 +109,9 @@ action_class do
       end
     end
 
-    s3url = s3_obj.presigned_url(:get, expires_in: 300).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
+    s3_url_params = { expires_in: 300 }
+    s3_url_params[:request_payer] = 'requester' if new_resource.requester_pays
+    s3url = s3_obj.presigned_url(:get, s3_url_params).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
     Chef::Log.debug("Using S3 URL #{s3url}")
 
     remote_file new_resource.name do
