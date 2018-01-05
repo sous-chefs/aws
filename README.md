@@ -982,6 +982,80 @@ aws_secondary_ip 'assign_additional_ip' do
   action :assign
 end
 ```
+### aws_ssm_parameter_store
+
+The 'ssm_parameter_store' resource provider allows one to get, create and delete keys and values in the AWS Systems Manager Parameter Store.  Values can be stored as plain text or as an encrypted string.  In order to use the paramater store resource your ec2 instance role must have the proper policy.  This sample policy allows get, creating and deleting parameters. You can adjust the policy to your needs.  It is recommended that you have one role with the ability to create secrets and another that can only read the secrets.
+```ruby
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:PutParameter",
+                "ssm:DeleteParameter",
+                "ssm:RemoveTagsFromResource",
+                "ssm:GetParameterHistory",
+                "ssm:AddTagsToResource",
+                "ssm:GetParametersByPath",
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+                "ssm:DeleteParameters"
+            ],
+            "Resource": [
+                "arn:aws:ssm:*:*:document/*",
+                "arn:aws:ssm:*:*:parameter/*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "ssm:DescribeParameters",
+            "Resource": "*"
+        }
+    ]
+}
+```
+#### Actions:
+
+- `get` - Retrieve a key/value from the AWS Systems Manager Parameter Store.
+- `create` - Create a key/value in the AWS Systems Manager Parameter Store.
+- `delete` - Remove the key/value from the AWS Systems Manager Parameter Store.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `name` - Identifies the parameters (get, create, delete, required)
+- `description` - Type a description to help identify parameters and their intended use. (create, optional)
+- `value` - Item stored in AWS Systems Manager Parameter Store (create, required)
+- `type` - Describes the value that is stored.  Can be a String, StringList or SecureString (create, required)
+- `key_id` - ARN of KSM key which is used with a SecureString.  If SecureString is chosen and no key_id is specified AWS Systems Manager Parameter Store uses the default AWS KMS key assigned to your AWS account (create, optional)
+- `overwrite` - Indicates if create should overwrite an existing parameters with a new value.  AWS Systems Manager Parameter Store versions new values (create, optional defaults to true)
+- `with_decryption` - Indicates if AWS Systems Manager Parameter Store should decrypt the value.  Note that it must have access to the encryption key for this to succeed (get, optional, defaults to false)
+- `allowed_pattern` - A regular expression used to validate the parameter value (create, optional)
+
+#### Examples
+```ruby
+aws_ssm_parameter_store 'create testkitchen record' do
+  name 'testkitchen'
+  description 'testkitchen'
+  value 'testkitchen'
+  type 'String'
+  action :create
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+```
+
+```ruby
+aws_ssm_parameter_store 'delete testkitchen record' do
+  name 'testkitchen'
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  action :delete
+end
+```
 
 ## License and Authors
 

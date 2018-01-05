@@ -20,6 +20,16 @@ include AwsCookbook::Ec2 # needed for aws_region helper
 alias_method :aws_access_key_id, :aws_access_key
 alias_method :aws_region, :region
 
+action :get do
+  request = {
+    name: name,
+	with_decryption: with_decryption,
+  }
+  resp = ssm_client.get_parameter(request)
+  node.run_state[new_resource.return_key] = resp.parameter.value
+  Chef::Log.debug "Get parameter #{name}"
+end
+
 action :create do
   if write_parameter
     request = {
