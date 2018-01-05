@@ -28,6 +28,18 @@ aws_ssm_parameter_store 'create encrypted test kitchen record with default key' 
   aws_secret_access_key node['aws_test']['access_key']
 end
 
+template '/tmp/file_with_data.txt' do
+  source 'file_with_data.txt.erb'
+  variables lazy {
+    {
+	  clear_value: get_aws_ssm_parameter_store('/testkitchen/ClearTextString'),
+	  encrypted_value: get_aws_ssm_parameter_store('/testkitchen/EncryptedStringDefaultKey',true)
+	}
+  }
+end
+  
+
+
 # need to figure out how to test this since it depends on a keyid
 # aws_ssm_parameter_store "create encrypted test kitchen record" do
 #  name '/testkitchen/EncryptedStringCustomKey'
@@ -39,8 +51,6 @@ end
 #  aws_access_key node['aws_test']['key_id']
 #  aws_secret_access_key node['aws_test']['access_key']
 # end
-
-# Need to create tests for get
 
 aws_ssm_parameter_store 'create test kitchen record' do
   name '/testkitchen/ClearTextString'
