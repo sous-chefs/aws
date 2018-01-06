@@ -5,6 +5,7 @@ property :key_id,                      String
 property :overwrite,                   [true, false], default: true
 property :with_decryption,             [true, false], default: false
 property :allowed_pattern,             String
+property :return_key,                  String
 
 # authentication
 property :aws_access_key,        String
