@@ -21,6 +21,7 @@ This cookbook provides resources for configuring and managing nodes running in A
 - S3 Files (`s3_file`)
 - S3 Buckets (`s3_bucket`)
 - Secondary IPs (`secondary_ip`)
+- AWS Systems Manager Parameter Store ('aws_ssm_parameter_store')
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 
@@ -1118,6 +1119,23 @@ end
 ClearValue="<%= @clear_value %>"
 DecryptedCustomValue="<%= @decrypted_custom_value %>"
 DecryptedValue="<%= @decrypted_value %>"
+```
+##### Get bucket name and retrieve file
+```ruby
+aws_ssm_parameter_store 'get bucketname' do
+  name 'bucketname'
+  return_key 'bucketname'
+  action :get
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
+aws_s3_file "/tmp/test.txt" do
+  bucket lazy {node.run_state['bucketname']}
+  remote_path "test.txt"
+  aws_access_key_id node[:custom_access_key]
+  aws_secret_access_key node[:custom_secret_key]
+end
 ```
 ## License and Authors
 

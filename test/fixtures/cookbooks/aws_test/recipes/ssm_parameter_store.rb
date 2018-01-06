@@ -40,6 +40,21 @@ end
 # aws_secret_access_key node['aws_test']['access_key']
 # end
 
+# aws_ssm_parameter_store 'get bucketname' do
+#  name 'bucketname'
+#  return_key 'bucketname'
+#  action :get
+#  aws_access_key node['aws_test']['key_id']
+#  aws_secret_access_key node['aws_test']['access_key']
+# end
+
+# aws_s3_file "/tmp/test.txt" do
+#  bucket lazy {node.run_state['bucketname']}
+#  remote_path "test.txt"
+#  aws_access_key_id node[:custom_access_key]
+#  aws_secret_access_key node[:custom_secret_key]
+# end
+
 aws_ssm_parameter_store 'get clear_value' do
   name '/testkitchen/ClearTextString'
   return_key 'clear_value'
