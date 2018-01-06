@@ -181,9 +181,9 @@ action_class do
              start_record_name: name
            )
 
-    # Select current resource record set by name
+    # Select current resource record set by name and geo location.
     current = lrrs[:resource_record_sets]
-              .select { |rr| rr[:name] == name && rr[:type] == type }.first
+              .select { |rr| rr[:name] == name && rr[:type] == type && rr[:geo_location].to_h == geo_location.to_h }.first
 
     # return as hash, converting resource record
     # array of structs to array of hashes
@@ -195,6 +195,10 @@ action_class do
       crr_set[:alias_target] = current[:alias_target].to_h unless current[:alias_target].nil?
       crr_set[:ttl] = current[:ttl] unless current[:ttl].nil?
       crr_set[:resource_records] = current[:resource_records].sort_by(&:value).map(&:to_h) unless current[:resource_records].empty?
+      if current[:geo_location]
+        crr_set[:set_identifier] = current[:set_identifier]
+        crr_set[:geo_location] = current[:geo_location].to_h
+      end
 
       crr_set
     else
