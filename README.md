@@ -1106,10 +1106,10 @@ template '/tmp/file_with_data.txt' do
   sensitive true
   variables lazy {
     {
-	  :clear_value => node.run_state['clear_value'],
-	  :decrypted_custom_value => node.run_state['decrypted_custom_value'],
-	  :decrypted_value => node.run_state['decrypted_value']
-	}
+       clear_value: node.run_state['clear_value'],
+       decrypted_custom_value: node.run_state['decrypted_custom_value'],
+       decrypted_value: node.run_state['decrypted_value'],
+    }
   }
 end
 ```

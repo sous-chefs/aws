@@ -24,7 +24,7 @@ alias_method :aws_region, :region
 action :get do
   request = {
     name: name,
-	with_decryption: with_decryption,
+    with_decryption: with_decryption,
   }
   resp = ssm_client.get_parameter(request)
   node.run_state[new_resource.return_key] = resp.parameter.value
