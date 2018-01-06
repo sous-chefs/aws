@@ -1030,12 +1030,13 @@ The 'ssm_parameter_store' resource provider allows one to get, create and delete
 - `description` - Type a description to help identify parameters and their intended use. (create, optional)
 - `value` - Item stored in AWS Systems Manager Parameter Store (create, required)
 - `type` - Describes the value that is stored.  Can be a String, StringList or SecureString (create, required)
-- `key_id` - ARN of KSM key which is used with a SecureString.  If SecureString is chosen and no key_id is specified AWS Systems Manager Parameter Store uses the default AWS KMS key assigned to your AWS account (create, optional)
+- `key_id` - The value after key/ in the ARN of the KSM key which is used with a SecureString.  If SecureString is chosen and no key_id is specified AWS Systems Manager Parameter Store uses the default AWS KMS key assigned to your AWS account (create, optional)
 - `overwrite` - Indicates if create should overwrite an existing parameters with a new value.  AWS Systems Manager Parameter Store versions new values (create, optional defaults to true)
 - `with_decryption` - Indicates if AWS Systems Manager Parameter Store should decrypt the value.  Note that it must have access to the encryption key for this to succeed (get, optional, defaults to false)
 - `allowed_pattern` - A regular expression used to validate the parameter value (create, optional)
 
 #### Examples
+##### Create String Parameter
 ```ruby
 aws_ssm_parameter_store 'create testkitchen record' do
   name 'testkitchen'
@@ -1047,7 +1048,20 @@ aws_ssm_parameter_store 'create testkitchen record' do
   aws_secret_access_key node['aws_test']['access_key']
 end
 ```
-
+##### Create Encrypted String Parameter with Custom KMS Key
+```ruby
+aws_ssm_parameter_store "create encrypted test kitchen record" do
+  name '/testkitchen/EncryptedStringCustomKey'
+  description 'Test Kitchen Encrypted Parameter - Custom'
+  value 'Encrypted Test Kitchen Custom'
+  type 'SecureString'
+  key_id '5d888999-5fca-3c71-9929-014a529236e1'
+  action :create
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+ end
+```
+##### Delete Parameter
 ```ruby
 aws_ssm_parameter_store 'delete testkitchen record' do
   name 'testkitchen'
@@ -1056,7 +1070,55 @@ aws_ssm_parameter_store 'delete testkitchen record' do
   action :delete
 end
 ```
+##### Get Parameters and Populate Template
+```ruby
+aws_ssm_parameter_store 'get clear_value' do
+  name '/testkitchen/ClearTextString'
+  return_key 'clear_value'
+  action :get
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
 
+aws_ssm_parameter_store 'get decrypted_value' do
+  name '/testkitchen/EncryptedStringDefaultKey'
+  return_key 'decrypted_value'
+  with_decryption true
+  action :get
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
+aws_ssm_parameter_store 'get decrypted_custom_value' do
+  name '/testkitchen/EncryptedStringCustomKey'
+  return_key 'decrypted_custom_value'
+  with_decryption true
+  action :get
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
+template '/tmp/file_with_data.txt' do
+  source 'file_with_data.txt.erb'
+  owner 'ec2-user'
+  group 'ec2-user'
+  mode '0755'
+  sensitive true
+  variables lazy {
+    {
+	  :clear_value => node.run_state['clear_value'],
+	  :decrypted_custom_value => node.run_state['decrypted_custom_value'],
+	  :decrypted_value => node.run_state['decrypted_value']
+	}
+  }
+end
+```
+###### Template (file_with_data.txt.erb)
+```ruby
+ClearValue="<%= @clear_value %>"
+DecryptedCustomValue="<%= @decrypted_custom_value %>"
+DecryptedValue="<%= @decrypted_value %>"
+```
 ## License and Authors
 
 - Author:: Chris Walters ([cw@chef.io](mailto:cw@chef.io))
