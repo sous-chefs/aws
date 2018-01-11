@@ -161,6 +161,8 @@ action_class do
     }
     if alias_target
       rr_set[:alias_target] = alias_target
+      rr_set[:set_identifier] = set_identifier
+      rr_set[:geo_location] = geo_location
     elsif geo_location
       rr_set[:set_identifier] = set_identifier
       rr_set[:geo_location] = geo_location
@@ -219,6 +221,7 @@ action_class do
         ],
       },
     }
+    puts "Alejandro #{action} #{request}"
     converge_by("#{action} record #{new_resource.name} ") do
       response = route53_client.change_resource_record_sets(request)
       Chef::Log.debug "Changed record - #{action}: #{response.inspect}"
