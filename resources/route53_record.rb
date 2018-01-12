@@ -194,7 +194,10 @@ action_class do
         name: current[:name],
         type: current[:type],
       }
-      crr_set[:alias_target] = current[:alias_target].to_h unless current[:alias_target].nil?
+      if current[:alias_target]
+        crr_set[:alias_target] = current[:alias_target].to_h
+        crr_set[:alias_target][:dns_name] = current[:alias_target][:dns_name].chomp('.')
+      end
       crr_set[:ttl] = current[:ttl] unless current[:ttl].nil?
       crr_set[:resource_records] = current[:resource_records].sort_by(&:value).map(&:to_h) unless current[:resource_records].empty?
       if current[:geo_location]
@@ -221,7 +224,6 @@ action_class do
         ],
       },
     }
-    puts "Alejandro #{action} #{request}"
     converge_by("#{action} record #{new_resource.name} ") do
       response = route53_client.change_resource_record_sets(request)
       Chef::Log.debug "Changed record - #{action}: #{response.inspect}"
