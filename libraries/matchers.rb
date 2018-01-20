@@ -198,7 +198,7 @@ if defined?(ChefSpec)
 
   # System Manager Parameter Store
   def get_aws_ssm_parameter_store(resource_name)
-    ChefSpec::Matchers::ResourceMatcher.new(:aws_parameter_store, :create, resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_parameter_store, :get, resource_name)
   end
 
   def create_aws_ssm_parameter_store(resource_name)
