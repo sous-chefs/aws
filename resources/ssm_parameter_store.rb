@@ -5,6 +5,7 @@ property :key_id,                      String
 property :overwrite,                   [true, false], default: true
 property :with_decryption,             [true, false], default: false
 property :allowed_pattern,             String
+property :return_key,                  String
 
 # authentication
 property :aws_access_key,        String
@@ -19,6 +20,16 @@ include AwsCookbook::Ec2 # needed for aws_region helper
 # allow use of the property names from the parameter store cookbook
 alias_method :aws_access_key_id, :aws_access_key
 alias_method :aws_region, :region
+
+action :get do
+  request = {
+    name: name,
+    with_decryption: with_decryption,
+  }
+  resp = ssm_client.get_parameter(request)
+  node.run_state[new_resource.return_key] = resp.parameter.value
+  Chef::Log.debug "Get parameter #{name}"
+end
 
 action :create do
   if write_parameter
