@@ -13,7 +13,7 @@ property :piops,                 Integer, default: 0
 property :encrypted,             [true, false], default: false
 property :kms_key_id,            String
 property :delete_on_termination, [true, false], default: false
-property :tags,                  Hash
+property :tags,                  Hash, default: {}
 
 # authentication
 property :aws_access_key,        String
@@ -310,6 +310,7 @@ action_class do
 
   # Deletes the volume and blocks until done (or times out)
   def delete_volume(volume_id, timeout)
+    vol = determine_volume
     raise "Cannot delete volume #{volume_id} as it is currently attached to #{volume_by_id(volume_id)[:attachments].size} node(s)" unless vol[:attachments].empty?
 
     Chef::Log.debug("Deleting #{volume_id}")

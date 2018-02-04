@@ -30,6 +30,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: dynamo_table
     run_list:
@@ -38,6 +39,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: ebs_volume
     run_list:
@@ -46,6 +48,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: elastic_ip
     run_list:
@@ -55,6 +58,7 @@ suites:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
         elastic_ip: <%= ENV['AWS_ELASTIC_IP'] || '54.148.151.62' %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: elb
     run_list:
@@ -63,6 +67,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: resource_tag
     run_list:
@@ -71,6 +76,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: s3_file
     run_list:
@@ -81,6 +87,7 @@ suites:
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
         bucket: <%= ENV['AWS_S3_BUCKET'] || 'aws-cookbook-2' %>
         bucket_west: <%= ENV['AWS_S3_BUCKET_WEST'] || 'aws-cookbook-west' %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
         s3key: <%= ENV['AWS_S3_KEY'] || 'a_file' %>
 
   - name: instance_monitoring
@@ -90,6 +97,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: instance_term_protection
     run_list:
@@ -98,6 +106,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: iam_user
     run_list:
@@ -106,6 +115,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: iam_group
     run_list:
@@ -114,6 +124,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: iam_role
     run_list:
@@ -122,6 +133,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: iam_policy
     run_list:
@@ -130,6 +142,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
   - name: route53
     run_list:
@@ -147,6 +160,7 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
         cloudwatch:
           period: <%= ENV['CLOUDWATCH_PERIOD'] %>
           evaluation_periods: <%= ENV['CLOUDWATCH_EVALUATION_PERIODS'] %>
@@ -163,3 +177,4 @@ suites:
       aws_test:
         key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
         access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
