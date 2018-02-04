@@ -2,8 +2,6 @@ require File.join(File.dirname(__FILE__), 'ec2')
 
 module AwsCookbook
   module STS
-    #include AwsCookbook::Ec2
-
     def sts
       require 'aws-sdk'
 

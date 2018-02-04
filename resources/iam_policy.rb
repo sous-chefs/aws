@@ -85,7 +85,7 @@ action_class do
     # returns an STS ARN.
     if new_resource.account_id.to_s.empty?
       resp = sts.get_caller_identity
-      account_id = %r{^arn:aws:(iam|sts)::(\d+):.*$}.match(resp.arn)[2]
+      account_id = /^arn:aws:(iam|sts)::(\d+):.*$/.match(resp.arn)[2]
     else
       account_id = new_resource.account_id
     end
