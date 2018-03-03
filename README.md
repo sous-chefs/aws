@@ -21,6 +21,7 @@ This cookbook provides resources for configuring and managing nodes running in A
 - S3 Files (`s3_file`)
 - S3 Buckets (`s3_bucket`)
 - Secondary IPs (`secondary_ip`)
+- AWS SSM Parameter Store ('ssm_parameter_store')
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 
@@ -983,6 +984,160 @@ aws_secondary_ip 'assign_additional_ip' do
 end
 ```
 
+### aws_ssm_parameter_store
+
+The 'ssm_parameter_store' resource provider allows one to get, create and delete keys and values in the AWS Systems Manager Parameter Store.  Values can be stored as plain text or as an encrypted string.  In order to use the paramater store resource your ec2 instance role must have the proper policy.  This sample policy allows get, creating and deleting parameters. You can adjust the policy to your needs.  It is recommended that you have one role with the ability to create secrets and another that can only read the secrets.
+```ruby
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:PutParameter",
+                "ssm:DeleteParameter",
+                "ssm:RemoveTagsFromResource",
+                "ssm:GetParameterHistory",
+                "ssm:AddTagsToResource",
+                "ssm:GetParametersByPath",
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+                "ssm:DeleteParameters"
+            ],
+            "Resource": [
+                "arn:aws:ssm:*:*:document/*",
+                "arn:aws:ssm:*:*:parameter/*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "ssm:DescribeParameters",
+            "Resource": "*"
+        }
+    ]
+}
+```
+#### Actions:
+
+- `get` - Retrieve a key/value from the AWS Systems Manager Parameter Store.
+- `create` - Create a key/value in the AWS Systems Manager Parameter Store.
+- `delete` - Remove the key/value from the AWS Systems Manager Parameter Store.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `name` - Identifies the parameters (get, create, delete, required)
+- `description` - Type a description to help identify parameters and their intended use. (create, optional)
+- `value` - Item stored in AWS Systems Manager Parameter Store (create, required)
+- `type` - Describes the value that is stored.  Can be a String, StringList or SecureString (create, required)
+- `key_id` - The value after key/ in the ARN of the KSM key which is used with a SecureString.  If SecureString is chosen and no key_id is specified AWS Systems Manager Parameter Store uses the default AWS KMS key assigned to your AWS account (create, optional)
+- `overwrite` - Indicates if create should overwrite an existing parameters with a new value.  AWS Systems Manager Parameter Store versions new values (create, optional defaults to true)
+- `with_decryption` - Indicates if AWS Systems Manager Parameter Store should decrypt the value.  Note that it must have access to the encryption key for this to succeed (get, optional, defaults to false)
+- `allowed_pattern` - A regular expression used to validate the parameter value (create, optional)
+
+#### Examples
+##### Create String Parameter
+```ruby
+aws_ssm_parameter_store 'create testkitchen record' do
+  name 'testkitchen'
+  description 'testkitchen'
+  value 'testkitchen'
+  type 'String'
+  action :create
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+```
+##### Create Encrypted String Parameter with Custom KMS Key
+```ruby
+aws_ssm_parameter_store "create encrypted test kitchen record" do
+  name '/testkitchen/EncryptedStringCustomKey'
+  description 'Test Kitchen Encrypted Parameter - Custom'
+  value 'Encrypted Test Kitchen Custom'
+  type 'SecureString'
+  key_id '5d888999-5fca-3c71-9929-014a529236e1'
+  action :create
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+ end
+```
+##### Delete Parameter
+```ruby
+aws_ssm_parameter_store 'delete testkitchen record' do
+  name 'testkitchen'
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  action :delete
+end
+```
+##### Get Parameters and Populate Template
+```ruby
+aws_ssm_parameter_store 'get clear_value' do
+  name '/testkitchen/ClearTextString'
+  return_key 'clear_value'
+  action :get
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
+aws_ssm_parameter_store 'get decrypted_value' do
+  name '/testkitchen/EncryptedStringDefaultKey'
+  return_key 'decrypted_value'
+  with_decryption true
+  action :get
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
+aws_ssm_parameter_store 'get decrypted_custom_value' do
+  name '/testkitchen/EncryptedStringCustomKey'
+  return_key 'decrypted_custom_value'
+  with_decryption true
+  action :get
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
+template '/tmp/file_with_data.txt' do
+  source 'file_with_data.txt.erb'
+  owner 'ec2-user'
+  group 'ec2-user'
+  mode '0755'
+  sensitive true
+  variables lazy {
+    {
+       clear_value: node.run_state['clear_value'],
+       decrypted_custom_value: node.run_state['decrypted_custom_value'],
+       decrypted_value: node.run_state['decrypted_value'],
+    }
+  }
+end
+```
+###### Template (file_with_data.txt.erb)
+```ruby
+ClearValue="<%= @clear_value %>"
+DecryptedCustomValue="<%= @decrypted_custom_value %>"
+DecryptedValue="<%= @decrypted_value %>"
+```
+##### Get bucket name and retrieve file
+```ruby
+aws_ssm_parameter_store 'get bucketname' do
+  name 'bucketname'
+  return_key 'bucketname'
+  action :get
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
+aws_s3_file "/tmp/test.txt" do
+  bucket lazy {node.run_state['bucketname']}
+  remote_path "test.txt"
+  aws_access_key_id node[:custom_access_key]
+  aws_secret_access_key node[:custom_secret_key]
+end
+```
 ## License and Authors
 
 - Author:: Chris Walters ([cw@chef.io](mailto:cw@chef.io))
