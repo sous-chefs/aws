@@ -2,6 +2,17 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.3.0 (2018-03-20)
+
+- add aws_instance_role
+- Add option to tag the new volumes and snapshots
+- Added basic functionality for parameter store
+- add `requester_pays` option to `s3_file`
+- fix etag request via head_object when requester_pays
+- Remove name property that isn't necessary
+- Added SSM Parameter Store get functionality
+- Chef 14: Avoid passing nils to remote_file in aws_s3_file resource
+
 ## 7.2.2 (2017-11-14)
 
 - Resolve FC108 warning
