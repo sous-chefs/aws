@@ -358,7 +358,7 @@ action_class do
   end
 
   def add_tags(resource_id)
-    unless new_resource.tags.empty?
+    unless new_resource.tags.nil? || new_resource.tags.empty?
       new_resource.tags.each do |k, v|
         Chef::Log.debug("add tag '#{k}' with value '#{v}' on resource #{resource_id}")
         ec2.create_tags(resources: [resource_id], tags: [{ key: k, value: v }])
