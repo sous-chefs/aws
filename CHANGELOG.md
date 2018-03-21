@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.3.1 (2018-03-21)
+
+- Check for nil as well as empty tags in ebs_volume
+
 ## 7.3.0 (2018-03-20)
 
 - add aws_instance_role
