@@ -6,6 +6,14 @@ property :overwrite,                   [true, false], default: true
 property :with_decryption,             [true, false], default: false
 property :allowed_pattern,             String
 property :return_key,                  String
+property :names,                       [String, Array], required: true
+property :return_keys,                 [String, Array]
+property :return_values,			   [String, Array]
+property :path,                        String, required: true
+property :recursive,                   [true, false], default: false
+property :parameter_filters,           String
+property :next_token,                  String
+property :max_results,                 Integer
 
 # authentication
 property :aws_access_key,        String
@@ -29,6 +37,30 @@ action :get do
   resp = ssm_client.get_parameter(request)
   node.run_state[new_resource.return_key] = resp.parameter.value
   Chef::Log.debug "Get parameter #{name}"
+end
+
+action :get_parameters do
+  request = {
+    names: names,
+    with_decryption: with_decryption,
+  }
+  resp = ssm_client.get_parameters(request)
+  node.run_state[new_resource.return_keys] = resp.parameters
+  Chef::Log.debug "Get parameters #{names}"
+end
+
+action :get_parameters_by_path do
+  request = {
+    path: path,
+    recursive: recursive,
+    parameter_filters: parameter_filters,
+    with_decryption: with_decryption,
+    max_results: max_results,
+    next_token: next_token,
+  }
+  resp = ssm_client.get_parameters_by_path(request)
+  node.run_state[new_resource.return_values] = resp.parameters
+  Chef::Log.debug "Get parameters by path #{path}"
 end
 
 action :create do
@@ -88,6 +120,30 @@ action_class do
 
   def allowed_pattern
     @allowed_pattern ||= new_resource.allowed_pattern
+  end
+
+  def names
+    @names ||= new_resource.names
+  end
+
+  def path
+    @path ||= new_resource.path
+  end
+
+  def recursive
+    @recursive ||= new_resource.recursive
+  end
+
+  def parameter_filters
+    @parameter_filters ||= new_resource.parameter_filters
+  end
+
+  def next_token
+    @next_token ||= new_resource.next_token
+  end
+
+  def max_results
+    @max_results ||= new_resource.max_results
   end
 
   def write_parameter
