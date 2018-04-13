@@ -25,3 +25,5 @@ script:
   - foodcritic --version
   - chef exec delivery local all
 
+env:
+  - AWS_REGION: us-west-2

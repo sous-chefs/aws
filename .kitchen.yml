@@ -1,8 +1,7 @@
-driver_config:
+---
+driver:
   name: ec2
-  aws_ssh_key_id: <%= ENV['AWS_KEYPAIR_NAME'] %>
-  region: us-west-2
-  availability_zone: us-west-2a
+  instance_type: t1.micro
 
 transport:
   ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
@@ -15,10 +14,7 @@ verifier:
   name: inspec
 
 platforms:
-- name: amazon-2017-09
-  driver_config:
-    image_id: ami-da4694a2
-    instance_type: t1.micro
+- name: amazon-2017.09
   transport:
     username: ec2-user
   attributes:
