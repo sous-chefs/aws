@@ -1,7 +1,5 @@
 include AwsCookbook::DynamoDB
 
-provides :dynamo_db
-
 use_inline_resources
 
 def whyrun_supported?
