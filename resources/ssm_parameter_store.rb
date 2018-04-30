@@ -8,7 +8,6 @@ property :allowed_pattern,             String
 property :return_key,                  String
 property :names,                       [String, Array], required: true
 property :return_keys,                 [String, Array]
-property :return_values,			   [String, Array]
 property :path,                        String, required: true
 property :recursive,                   [true, false], default: false
 property :parameter_filters,           String
@@ -59,7 +58,7 @@ action :get_parameters_by_path do
     next_token: next_token,
   }
   resp = ssm_client.get_parameters_by_path(request)
-  node.run_state[new_resource.return_values] = resp.parameters
+  node.run_state[new_resource.return_keys] = resp.parameters
   Chef::Log.debug "Get parameters by path #{path}"
 end
 

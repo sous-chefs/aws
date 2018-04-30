@@ -115,9 +115,9 @@ template '/tmp/file_with_data.txt' do
       clear_value: node.run_state['clear_value'],
       #:decrypted_custom_value => node.run_state['decrypted_custom_value'],
       decrypted_value: node.run_state['decrypted_value'],
-	  path1_value: node.run_state{['path_values']},
- 	  parm1_value: node.run_state{['parameter_values']},
-	  parm2_value: node.run_state{['parameter_values']},
+	  path1_value: node.run_state['path_values'],
+ 	  parm1_value: node.run_state['parameter_values'].value[0],
+	  parm2_value: node.run_state['parameter_values'].value[1],
     }
   }
 end

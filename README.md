@@ -21,7 +21,8 @@ This cookbook provides resources for configuring and managing nodes running in A
 - S3 Files (`s3_file`)
 - S3 Buckets (`s3_bucket`)
 - Secondary IPs (`secondary_ip`)
-- AWS SSM Parameter Store ('ssm_parameter_store')
+- AWS SSM Parameter Store (`ssm_parameter_store`)
+- Autoscaling (`autoscaling`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 
@@ -1138,6 +1139,52 @@ aws_s3_file "/tmp/test.txt" do
   aws_secret_access_key node[:custom_secret_key]
 end
 ```
+### aws_autoscale
+
+`autoscale` can be used to attach and detach EC2 instances to/from an AutoScaling Group (ASG).  Once the instance is attached autoscale allows one to move the instance into and out of standby mode.  Standby mode temporarily takes the instance out of rotation so that maintenance can be performed. 
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `asg_name` - The instance will be attached to this AutoScaling Group.  The name is case sensitive. (attach_instance, required)
+- 'should_decrement_desired_capacity' - Indicates whether the Auto Scaling group decrements the desired capacity value by the number of instances moved to standby or detached. (enter_standby and detach_instance, optional, defaults to true)
+
+#### Actions:
+
+- `attach_instance`: Attach an instance to an ASG.  If the instance is already attached it will generate an error.  
+- `detach_instance`: Detach an instance from an ASG.  If the instance is not already attached and in service it will generate an error.
+- `enter_standby`: Put ths instance into standby mode.  Will generate an error if already in standby mode
+- `exit_standby`: Remove the instance from standby mode.  Will generate an error if not in standby mode
+
+#### Examples:
+
+```ruby
+aws_autoscaling 'attach_instance' do
+  action :attach_instance
+  asg_name 'Test'
+end
+```
+
+```ruby
+aws_autoscaling 'enter_standby' do
+  should_decrement_desired_capacity true
+  action :enter_standby
+end
+```
+
+```ruby
+ aws_autoscaling 'exit_standby' do
+   action :exit_standby
+ end
+```
+
+```ruby
+aws_autoscaling 'detach_instance' do
+  should_decrement_desired_capacity true
+  action :detach_instance
+end
+```
+ 
 ## License and Authors
 
 - Author:: Chris Walters ([cw@chef.io](mailto:cw@chef.io))
