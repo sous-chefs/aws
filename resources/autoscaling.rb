@@ -26,7 +26,8 @@ action :enter_standby do
   }
   resp = autoscaling_client.enter_standby(request)
   node.run_state[new_resource.status_code] = resp.activities[0].status_code
-  Chef::Log.debug "Enter Standby for #{node['ec2']['instance_id']} status = #{status_code}"
+  get_lifecyclestate("Standby")
+  Chef::Log.debug "Enter Standby for #{node['ec2']['instance_id']}"
 end
 
 action :exit_standby do
@@ -36,7 +37,8 @@ action :exit_standby do
   }
   resp = autoscaling_client.exit_standby(request)
   node.run_state[new_resource.status_code] = resp.activities[0].status_code
-  Chef::Log.debug "Exit Standby for #{node['ec2']['instance_id']} status = #{status_code}"
+  get_lifecyclestate("InService")
+  Chef::Log.debug "Exit Standby for #{node['ec2']['instance_id']}"
 end
 
 action :attach_instance do
@@ -45,6 +47,7 @@ action :attach_instance do
     instance_ids: [node['ec2']['instance_id']],
   }
   resp = autoscaling_client.attach_instances(request)
+  get_lifecyclestate("InService")
   Chef::Log.debug "Attach Instance #{node['ec2']['instance_id']} to #{asg_name}"
 end
 
@@ -91,13 +94,31 @@ action_class do
     @max_size ||= new_resource.status_code
   end
  
+  def lifecyclestate
+    @lifecyclestate ||= new_resource.status_code
+  end
+
   def get_asg_name
     request = {
       instance_ids: [node['ec2']['instance_id']],
     }
     response = autoscaling_client.describe_auto_scaling_instances(request)
+	asg_name = response.auto_scaling_instances[0].auto_scaling_group_name
+    Chef::Log.debug "Get ASG Name for #{node['ec2']['instance_id']}, ASG Name = #{asg_name}"
     return response.auto_scaling_instances[0].auto_scaling_group_name
-    Chef::Log.debug "Get ASG Name for #{node['ec2']['instance_id']}"
+  end
+  
+  def get_lifecyclestate(state)
+    request = {
+      instance_ids: [node['ec2']['instance_id']],
+    }
+	lifecyclestate = nil
+	while lifecyclestate != state do
+	  sleep(1)
+      response = autoscaling_client.describe_auto_scaling_instances(request)
+      lifecyclestate = response.auto_scaling_instances[0].lifecycle_state
+      Chef::Log.debug "Get Life Cycle State for #{node['ec2']['instance_id']}, Status = #{lifecyclestate}, State = #{state}"
+	end
   end
   
   def autoscaling_client
