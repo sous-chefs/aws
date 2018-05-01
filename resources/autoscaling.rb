@@ -1,8 +1,8 @@
-property :return_info,				   [String, Array]
+property :return_info, [String, Array]
 property :should_decrement_desired_capacity,	[true, false], default: true
-property :asg_name,					   String
-property :status_code,				   String
-property :max_size,						Integer, default: 4
+property :asg_name,              String
+property :status_code,           String
+property :max_size,              Integer, default: 4
 
 # authentication
 property :aws_access_key,        String
@@ -20,24 +20,24 @@ alias_method :aws_region, :region
 
 action :enter_standby do
   request = {
-    auto_scaling_group_name: get_asg_name,
+    auto_scaling_group_name: read_asg_name,
     instance_ids: [node['ec2']['instance_id']],
-	should_decrement_desired_capacity: should_decrement_desired_capacity,
+    should_decrement_desired_capacity: should_decrement_desired_capacity,
   }
   resp = autoscaling_client.enter_standby(request)
   node.run_state[new_resource.status_code] = resp.activities[0].status_code
-  get_lifecyclestate("Standby")
+  read_lifecyclestate('Standby')
   Chef::Log.debug "Enter Standby for #{node['ec2']['instance_id']}"
 end
 
 action :exit_standby do
   request = {
-    auto_scaling_group_name: get_asg_name,
+    auto_scaling_group_name: read_asg_name,
     instance_ids: [node['ec2']['instance_id']],
   }
   resp = autoscaling_client.exit_standby(request)
   node.run_state[new_resource.status_code] = resp.activities[0].status_code
-  get_lifecyclestate("InService")
+  read_lifecyclestate('InService')
   Chef::Log.debug "Exit Standby for #{node['ec2']['instance_id']}"
 end
 
@@ -46,18 +46,18 @@ action :attach_instance do
     auto_scaling_group_name: asg_name,
     instance_ids: [node['ec2']['instance_id']],
   }
-  resp = autoscaling_client.attach_instances(request)
-  get_lifecyclestate("InService")
+  autoscaling_client.attach_instances(request)
+  read_lifecyclestate('InService')
   Chef::Log.debug "Attach Instance #{node['ec2']['instance_id']} to #{asg_name}"
 end
 
 action :detach_instance do
   request = {
-    auto_scaling_group_name: get_asg_name,
+    auto_scaling_group_name: read_asg_name,
     instance_ids: [node['ec2']['instance_id']],
     should_decrement_desired_capacity: should_decrement_desired_capacity,
   }
-  resp = autoscaling_client.detach_instances(request)
+  autoscaling_client.detach_instances(request)
   Chef::Log.debug "Detach Instance #{node['ec2']['instance_id']} from #{asg_name}"
 end
 
@@ -65,44 +65,44 @@ end
 # I'm not sure that they would be used in an actual cookbook
 action :create_asg do
   request = {
-    auto_scaling_group_name: "AWS_ASG_Test",
-	launch_configuration_name: "AWS_ASG_LC",
-	availability_zones: [node['ec2']['availability_zone']],
-	max_size: 4,
+    auto_scaling_group_name: 'AWS_ASG_Test',
+    launch_configuration_name: 'AWS_ASG_LC',
+    availability_zones: [node['ec2']['availability_zone']],
+    max_size: 4,
     min_size: 0,
-	desired_capacity: 0,
-	vpc_zone_identifier: node['ec2']['subnet_id'],
+    desired_capacity: 0,
+    vpc_zone_identifier: node['ec2']['subnet_id'],
   }
-  resp = autoscaling_client.create_auto_scaling_group(request)
-  Chef::Log.debug "Create ASG"
+  autoscaling_client.create_auto_scaling_group(request)
+  Chef::Log.debug 'Create ASG'
 end
 
 action :delete_asg do
-  sleep(10) #give instance time to detach
+  sleep(10) # give instance time to detach
   request = {
-    auto_scaling_group_name: "AWS_ASG_Test",
-	force_delete: true,
+    auto_scaling_group_name: 'AWS_ASG_Test',
+    force_delete: true,
   }
-  resp = autoscaling_client.delete_auto_scaling_group(request)
-  Chef::Log.debug "Delete ASG"
+  autoscaling_client.delete_auto_scaling_group(request)
+  Chef::Log.debug 'Delete ASG'
 end
 
 action :create_launch_config do
   request = {
-    launch_configuration_name: "AWS_ASG_LC",
-	instance_id: node['ec2']['instance_id'],
-	associate_public_ip_address: false,
+    launch_configuration_name: 'AWS_ASG_LC',
+    instance_id: node['ec2']['instance_id'],
+    associate_public_ip_address: false,
   }
-  resp = autoscaling_client.create_launch_configuration(request)
-  Chef::Log.debug "Create Launch Config"
+  autoscaling_client.create_launch_configuration(request)
+  Chef::Log.debug 'Create Launch Config'
 end
 
 action :delete_launch_config do
   request = {
-    launch_configuration_name: "AWS_ASG_LC",
+    launch_configuration_name: 'AWS_ASG_LC',
   }
-  resp = autoscaling_client.delete_launch_configuration(request)
-  Chef::Log.debug "Delete Launch Config"
+  autoscaling_client.delete_launch_configuration(request)
+  Chef::Log.debug 'Delete Launch Config'
 end
 
 action_class do
@@ -127,38 +127,38 @@ action_class do
   def status_code
     @status_code ||= new_resource.status_code
   end
- 
+
   def max_size
     @max_size ||= new_resource.status_code
   end
- 
+
   def lifecyclestate
     @lifecyclestate ||= new_resource.status_code
   end
 
-  def get_asg_name
+  def read_asg_name
     request = {
       instance_ids: [node['ec2']['instance_id']],
     }
     response = autoscaling_client.describe_auto_scaling_instances(request)
-	asg_name = response.auto_scaling_instances[0].auto_scaling_group_name
+    asg_name = response.auto_scaling_instances[0].auto_scaling_group_name
     Chef::Log.debug "Get ASG Name for #{node['ec2']['instance_id']}, ASG Name = #{asg_name}"
-    return response.auto_scaling_instances[0].auto_scaling_group_name
+    response.auto_scaling_instances[0].auto_scaling_group_name
   end
-  
-  def get_lifecyclestate(state)
+
+  def read_lifecyclestate(state)
     request = {
       instance_ids: [node['ec2']['instance_id']],
     }
-	lifecyclestate = nil
-	while lifecyclestate != state do
-	  sleep(1)
+    lifecyclestate = nil
+    while lifecyclestate != state
+      sleep(1)
       response = autoscaling_client.describe_auto_scaling_instances(request)
       lifecyclestate = response.auto_scaling_instances[0].lifecycle_state
       Chef::Log.debug "Get Life Cycle State for #{node['ec2']['instance_id']}, Status = #{lifecyclestate}, State = #{state}"
-	end
+    end
   end
-  
+
   def autoscaling_client
     @autoscaling ||= begin
       require 'aws-sdk'

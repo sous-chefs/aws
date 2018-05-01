@@ -212,7 +212,7 @@ if defined?(ChefSpec)
   def get_parameters_aws_ssm_parameter_store(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_parameter_store, :get_parameters, resource_name)
   end
-  
+
   def get_parameters_by_path_aws_ssm_parameter_store(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_parameter_store, :get_parameters_by_path, resource_name)
   end
@@ -220,19 +220,19 @@ if defined?(ChefSpec)
   def enter_standby_aws_autoscaling(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_autoscaling, :enter_standby, resource_name)
   end
-  
+
   def exit_standby_aws_autoscaling(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_autoscaling, :exit_standby, resource_name)
   end
-  
+
   def attach_instance_aws_autoscaling(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_autoscaling, :attach_instance, resource_name)
   end
-  
+
   def detach_instance_aws_autoscaling(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_autoscaling, :detach_instance, resource_name)
   end
-  
+
   def create_asg_autoscaling(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_autoscaling, :create_asg, resource_name)
   end
@@ -240,7 +240,7 @@ if defined?(ChefSpec)
   def delete_asg_autoscaling(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_autoscaling, :delete_asg, resource_name)
   end
-   
+
   def create_launch_config_autoscaling(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_autoscaling, :create_launch_config, resource_name)
   end
@@ -248,7 +248,7 @@ if defined?(ChefSpec)
   def delete_launch_config_autoscaling(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_autoscaling, :delete_launch_config, resource_name)
   end
- 
+
   resources = %i(aws_cloudformation_stack aws_dynamodb_table aws_ebs_volume aws_elastic_ip aws_elastic_lb aws_iam_group aws_iam_policy aws_iam_role aws_iam_user aws_instance_monitoring aws_instance_term_protection aws_kinesis_stream aws_resource_tag aws_s3_bucket aws_s3_file aws_secondary_ip aws_cloudwatch aws_route53_record aws_ssm_parameter_store aws_autoscaling)
 
   resources.each do |resource|
