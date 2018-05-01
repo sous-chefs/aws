@@ -2,7 +2,7 @@ property :return_info,				   [String, Array]
 property :should_decrement_desired_capacity,	[true, false], default: true
 property :asg_name,					   String
 property :status_code,				   String
-property :max_size,						Integer, default: 2
+property :max_size,						Integer, default: 4
 
 # authentication
 property :aws_access_key,        String
@@ -61,10 +61,48 @@ action :detach_instance do
   Chef::Log.debug "Detach Instance #{node['ec2']['instance_id']} from #{asg_name}"
 end
 
+# Create_asg and create_launch_config are included for testing
+# I'm not sure that they would be used in an actual cookbook
 action :create_asg do
   request = {
-    auto_scaling_group_name: asg_name,
-	max_size: max_size }
+    auto_scaling_group_name: "AWS_ASG_Test",
+	launch_configuration_name: "AWS_ASG_LC",
+	availability_zones: [node['ec2']['availability_zone']],
+	max_size: 4,
+    min_size: 0,
+	desired_capacity: 0,
+	vpc_zone_identifier: node['ec2']['subnet_id'],
+  }
+  resp = autoscaling_client.create_auto_scaling_group(request)
+  Chef::Log.debug "Create ASG"
+end
+
+action :delete_asg do
+  sleep(10) #give instance time to detach
+  request = {
+    auto_scaling_group_name: "AWS_ASG_Test",
+	force_delete: true,
+  }
+  resp = autoscaling_client.delete_auto_scaling_group(request)
+  Chef::Log.debug "Delete ASG"
+end
+
+action :create_launch_config do
+  request = {
+    launch_configuration_name: "AWS_ASG_LC",
+	instance_id: node['ec2']['instance_id'],
+	associate_public_ip_address: false,
+  }
+  resp = autoscaling_client.create_launch_configuration(request)
+  Chef::Log.debug "Create Launch Config"
+end
+
+action :delete_launch_config do
+  request = {
+    launch_configuration_name: "AWS_ASG_LC",
+  }
+  resp = autoscaling_client.delete_launch_configuration(request)
+  Chef::Log.debug "Delete Launch Config"
 end
 
 action_class do

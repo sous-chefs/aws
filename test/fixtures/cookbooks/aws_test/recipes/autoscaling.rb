@@ -1,10 +1,17 @@
+aws_autoscaling 'create_launch_config' do
+  action :create_launch_config
+end
+
+aws_autoscaling 'create_asg' do
+  action :create_asg
+end
+
 aws_autoscaling 'attach_instance' do
   action :attach_instance
-  asg_name 'Test'
+  asg_name 'AWS_ASG_Test'
 end
   
 aws_autoscaling 'enter_standby' do
-  should_decrement_desired_capacity false
   action :enter_standby
 end
 
@@ -13,6 +20,13 @@ end
  end
  
 aws_autoscaling 'detach_instance' do
-  should_decrement_desired_capacity false
   action :detach_instance
+end
+
+aws_autoscaling 'delete_asg' do
+  action :delete_asg
+end
+
+aws_autoscaling 'delete_launch_config' do
+  action :delete_launch_config
 end
