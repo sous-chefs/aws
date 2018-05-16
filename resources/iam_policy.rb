@@ -110,10 +110,6 @@ action_class do
       policy_arn: make_policy_arn(new_resource.policy_name),
       version_id: version
     )
-    if URI.unescape(resp.policy_version.document) == new_resource.policy_document
-      false
-    else
-      true
-    end
+    !(URI.unescape(resp.policy_version.document) == new_resource.policy_document)
   end
 end
