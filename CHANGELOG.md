@@ -2,6 +2,14 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.4.0 (2018-05-17)
+
+- Allow installation of either aws-sdk v2 or v3
+- Add support for STS assumed roles
+- Add default empty hashes to several properties
+- Resolve a few more Chef 14 incompatibilities
+- Fix a failure when deleting ebs volumes
+
 ## 7.3.1 (2018-03-21)
 
 - Check for nil as well as empty tags in ebs_volume
