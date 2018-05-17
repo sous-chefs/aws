@@ -310,6 +310,7 @@ action_class do
 
   # Deletes the volume and blocks until done (or times out)
   def delete_volume(volume_id, timeout)
+    vol = volume_by_id(volume_id)
     raise "Cannot delete volume #{volume_id} as it is currently attached to #{volume_by_id(volume_id)[:attachments].size} node(s)" unless vol[:attachments].empty?
 
     Chef::Log.debug("Deleting #{volume_id}")
