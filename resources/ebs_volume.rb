@@ -13,7 +13,7 @@ property :piops,                 Integer, default: 0
 property :encrypted,             [true, false], default: false
 property :kms_key_id,            String
 property :delete_on_termination, [true, false], default: false
-property :tags,                  Hash
+property :tags,                  Hash, default: {}
 
 # authentication
 property :aws_access_key,        String

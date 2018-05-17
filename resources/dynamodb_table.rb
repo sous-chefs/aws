@@ -7,7 +7,7 @@ attribute :key_schema, kind_of: Array, required: true
 attribute :local_secondary_indexes, kind_of: Array
 attribute :global_secondary_indexes, kind_of: Array
 attribute :provisioned_throughput, kind_of: Hash, required: true
-attribute :stream_specification, kind_of: Hash
+attribute :stream_specification, kind_of: Hash, default: {}
 attribute :region, kind_of: String, default: lazy { fallback_region }
 
 # authentication
