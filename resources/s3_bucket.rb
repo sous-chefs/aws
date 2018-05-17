@@ -19,7 +19,7 @@ action :create do
     end
   else # create the bucket from scratch
     converge_by "create S3 bucket #{new_resource.name}" do
-      s3_bucket.create(new_resource.name)
+      s3_bucket.create
       s3_bucket.wait_until_exists
     end
   end
