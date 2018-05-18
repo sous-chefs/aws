@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.4.1 (2018-05-17)
+
+- Rescue Aws::EC2::Errors::InvalidSnapshotInUse with a friendly message
+
 ## 7.4.0 (2018-05-17)
 
 - Allow installation of either aws-sdk v2 or v3
