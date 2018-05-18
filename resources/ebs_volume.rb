@@ -134,7 +134,11 @@ action :prune do
     old_snapshots[new_resource.snapshots_to_keep, old_snapshots.length].each do |die|
       converge_by("delete snapshot with id: #{die[:snapshot_id]}") do
         Chef::Log.info "Deleting old snapshot #{die[:snapshot_id]}"
-        ec2.delete_snapshot(snapshot_id: die[:snapshot_id])
+        begin
+          ec2.delete_snapshot(snapshot_id: die[:snapshot_id])
+        rescue Aws::EC2::Errors::InvalidSnapshotInUse
+          Chef::Log.debug "Snapshot with ID #{die[:snapshot_id]} cannot be deleted because it is currently in use."
+        end
       end
     end
   end
