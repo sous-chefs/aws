@@ -1,26 +1,26 @@
-property :description,                 String
-property :value,                       String, required: true
-property :type,                        String, required: true
-property :key_id,                      String
-property :overwrite,                   [true, false], default: true
-property :with_decryption,             [true, false], default: false
-property :allowed_pattern,             String
-property :return_key,                  String
-property :names,                       [String, Array], required: true
-property :return_keys,                 [String, Array]
-property :path,                        String, required: true
-property :recursive,                   [true, false], default: false
-property :parameter_filters,           String
-property :next_token,                  String
-property :max_results,                 Integer
+property :description, String
+property :value, String, required: true
+property :type, String, required: true
+property :key_id, String
+property :overwrite, [true, false], default: true
+property :with_decryption, [true, false], default: false
+property :allowed_pattern, String
+property :return_key, String
+property :names, [String, Array], required: true
+property :return_keys, [String, Hash]
+property :path, String, required: true
+property :recursive, [true, false], default: false
+property :parameter_filters, String
+property :next_token, String
+property :max_results, Integer
 
 # authentication
-property :aws_access_key,        String
+property :aws_access_key, String
 property :aws_secret_access_key, String
-property :aws_session_token,     String
-property :aws_assume_role_arn,   String
+property :aws_session_token, String
+property :aws_assume_role_arn, String
 property :aws_role_session_name, String
-property :region,                String, default: lazy { fallback_region }
+property :region, String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 
@@ -44,11 +44,16 @@ action :get_parameters do
     with_decryption: with_decryption,
   }
   resp = ssm_client.get_parameters(request)
-  node.run_state[new_resource.return_keys] = resp.parameters
+  secret_info = {}
+  resp.parameters.each do |secret|
+    secret_info["#{secret.name}"] = secret.value
+  end
   Chef::Log.debug "Get parameters #{names}"
+  node.run_state[new_resource.return_keys] = secret_info
 end
 
 action :get_parameters_by_path do
+  secrets = []
   request = {
     path: path,
     recursive: recursive,
@@ -57,9 +62,15 @@ action :get_parameters_by_path do
     max_results: max_results,
     next_token: next_token,
   }
-  resp = ssm_client.get_parameters_by_path(request)
-  node.run_state[new_resource.return_keys] = resp.parameters
+  ssm_client.get_parameters_by_path(request).each do |resp|
+    secrets.push(*resp.parameters)
+  end
+  secret_info = {}
+  secrets.each do |secret|
+    secret_info["#{secret.name}"] = secret.value
+  end
   Chef::Log.debug "Get parameters by path #{path}"
+  node.run_state[new_resource.return_keys] = secret_info
 end
 
 action :create do

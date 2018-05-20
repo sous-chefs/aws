@@ -109,15 +109,16 @@ template '/tmp/file_with_data.txt' do
   owner 'ec2-user'
   group 'ec2-user'
   mode '0755'
-  sensitive false
+  sensitive true
   variables lazy {
     {
       clear_value: node.run_state['clear_value'],
       #:decrypted_custom_value => node.run_state['decrypted_custom_value'],
       decrypted_value: node.run_state['decrypted_value'],
-      path1_value: node.run_state['path_values'],
-      parm1_value: node.run_state['parameter_values'].value[0],
-      parm2_value: node.run_state['parameter_values'].value[1],
+      path1_value: node.run_state['path_values']['/pathtest/path1'],
+      path2_value: node.run_state['path_values']['/pathtest/path2'],
+      parm1_value: node.run_state['parameter_values']['/testkitchen/ClearTextString'],
+      parm2_value: node.run_state['parameter_values']['/testkitchen'],
     }
   }
 end
