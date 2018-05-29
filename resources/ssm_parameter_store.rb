@@ -67,7 +67,7 @@ action :get_parameters_by_path do
   end
   secret_info = {}
   secrets.each do |secret|
-    secret_info["#{secret.name}"] = secret.value
+    secret_info[secret.name] = secret.value
   end
   Chef::Log.debug "Get parameters by path #{path}"
   node.run_state[new_resource.return_keys] = secret_info

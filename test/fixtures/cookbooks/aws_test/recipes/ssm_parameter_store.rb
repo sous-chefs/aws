@@ -134,23 +134,13 @@ aws_ssm_parameter_store 'create test kitchen record' do
   aws_secret_access_key node['aws_test']['access_key']
 end
 
-aws_ssm_parameter_store 'delete testkitchen record' do
-  name 'testkitchen'
-  aws_access_key node['aws_test']['key_id']
-  aws_secret_access_key node['aws_test']['access_key']
-  action :delete
+# Delete Test Keys
+%w(testkitchen /pathtest/path1 /pathtest/path2).each do |pskey|
+  aws_ssm_parameter_store "delete testkitchen record #{pskey}" do
+    name pskey
+    aws_access_key node['aws_test']['key_id']
+    aws_secret_access_key node['aws_test']['access_key']
+    action :delete
+  end
 end
 
-aws_ssm_parameter_store 'delete testkitchen record' do
-  name '/pathtest/path1'
-  aws_access_key node['aws_test']['key_id']
-  aws_secret_access_key node['aws_test']['access_key']
-  action :delete
-end
-
-aws_ssm_parameter_store 'delete testkitchen record' do
-  name '/pathtest/path2'
-  aws_access_key node['aws_test']['key_id']
-  aws_secret_access_key node['aws_test']['access_key']
-  action :delete
-end
