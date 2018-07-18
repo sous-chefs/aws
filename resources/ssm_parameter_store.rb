@@ -1,19 +1,26 @@
-property :description,                 String
-property :value,                       String, required: true
-property :type,                        String, required: true
-property :key_id,                      String
-property :overwrite,                   [true, false], default: true
-property :with_decryption,             [true, false], default: false
-property :allowed_pattern,             String
-property :return_key,                  String
+property :description, String
+property :value, String, required: true
+property :type, String, required: true
+property :key_id, String
+property :overwrite, [true, false], default: true
+property :with_decryption, [true, false], default: false
+property :allowed_pattern, String
+property :return_key, String
+property :names, [String, Array], required: true
+property :return_keys, [String, Hash]
+property :path, String, required: true
+property :recursive, [true, false], default: false
+property :parameter_filters, String
+property :next_token, String
+property :max_results, Integer
 
 # authentication
-property :aws_access_key,        String
+property :aws_access_key, String
 property :aws_secret_access_key, String
-property :aws_session_token,     String
-property :aws_assume_role_arn,   String
+property :aws_session_token, String
+property :aws_assume_role_arn, String
 property :aws_role_session_name, String
-property :region,                String, default: lazy { fallback_region }
+property :region, String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 
@@ -29,6 +36,41 @@ action :get do
   resp = ssm_client.get_parameter(request)
   node.run_state[new_resource.return_key] = resp.parameter.value
   Chef::Log.debug "Get parameter #{name}"
+end
+
+action :get_parameters do
+  request = {
+    names: names,
+    with_decryption: with_decryption,
+  }
+  resp = ssm_client.get_parameters(request)
+  secret_info = {}
+  resp.parameters.each do |secret|
+    secret_info["#{secret.name}"] = secret.value
+  end
+  Chef::Log.debug "Get parameters #{names}"
+  node.run_state[new_resource.return_keys] = secret_info
+end
+
+action :get_parameters_by_path do
+  secrets = []
+  request = {
+    path: path,
+    recursive: recursive,
+    parameter_filters: parameter_filters,
+    with_decryption: with_decryption,
+    max_results: max_results,
+    next_token: next_token,
+  }
+  ssm_client.get_parameters_by_path(request).each do |resp|
+    secrets.push(*resp.parameters)
+  end
+  secret_info = {}
+  secrets.each do |secret|
+    secret_info[secret.name] = secret.value
+  end
+  Chef::Log.debug "Get parameters by path #{path}"
+  node.run_state[new_resource.return_keys] = secret_info
 end
 
 action :create do
@@ -88,6 +130,30 @@ action_class do
 
   def allowed_pattern
     @allowed_pattern ||= new_resource.allowed_pattern
+  end
+
+  def names
+    @names ||= new_resource.names
+  end
+
+  def path
+    @path ||= new_resource.path
+  end
+
+  def recursive
+    @recursive ||= new_resource.recursive
+  end
+
+  def parameter_filters
+    @parameter_filters ||= new_resource.parameter_filters
+  end
+
+  def next_token
+    @next_token ||= new_resource.next_token
+  end
+
+  def max_results
+    @max_results ||= new_resource.max_results
   end
 
   def write_parameter

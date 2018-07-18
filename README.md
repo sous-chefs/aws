@@ -21,7 +21,8 @@ This cookbook provides resources for configuring and managing nodes running in A
 - S3 Files (`s3_file`)
 - S3 Buckets (`s3_bucket`)
 - Secondary IPs (`secondary_ip`)
-- AWS SSM Parameter Store ('ssm_parameter_store')
+- AWS SSM Parameter Store (`ssm_parameter_store`)
+- Autoscaling (`autoscaling`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 
@@ -986,7 +987,7 @@ end
 
 ### aws_ssm_parameter_store
 
-The 'ssm_parameter_store' resource provider allows one to get, create and delete keys and values in the AWS Systems Manager Parameter Store.  Values can be stored as plain text or as an encrypted string.  In order to use the paramater store resource your ec2 instance role must have the proper policy.  This sample policy allows get, creating and deleting parameters. You can adjust the policy to your needs.  It is recommended that you have one role with the ability to create secrets and another that can only read the secrets.
+The `ssm_parameter_store` resource provider allows one to get, create and delete keys and values in the AWS Systems Manager Parameter Store.  Values can be stored as plain text or as an encrypted string.  In order to use the paramater store resource your ec2 instance role must have the proper policy.  This sample policy allows get, creating and deleting parameters. You can adjust the policy to your needs.  It is recommended that you have one role with the ability to create secrets and another that can only read the secrets.  **It is important to set _sensitive true_ in the resources where the secrets are used so that secrets are not exposed in log files.**
 ```ruby
 {
     "Version": "2012-10-17",
@@ -1022,6 +1023,8 @@ The 'ssm_parameter_store' resource provider allows one to get, create and delete
 #### Actions:
 
 - `get` - Retrieve a key/value from the AWS Systems Manager Parameter Store.
+- `get_parameters` - Retrieve multiple key/values by name from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the key name.
+- `get_parameters_by_path` - Retrieve multiple key/values by path from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the key name.  If recursive is set to true the code will retrieve all parameters in the path hierarchy.
 - `create` - Create a key/value in the AWS Systems Manager Parameter Store.
 - `delete` - Remove the key/value from the AWS Systems Manager Parameter Store.
 
@@ -1029,6 +1032,9 @@ The 'ssm_parameter_store' resource provider allows one to get, create and delete
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `name` - Identifies the parameters (get, create, delete, required)
+- `names` - Used to specify multiple parameters (get_parameters, required)
+- `path` - Specify the parameter hierarchy where parameters are located (get_parameters_by_path, required)
+- `recursive` - If set to `true` the code will retrieve all parameters in the hierarchy (get_parameters_by_path, optional defaults to false)
 - `description` - Type a description to help identify parameters and their intended use. (create, optional)
 - `value` - Item stored in AWS Systems Manager Parameter Store (create, required)
 - `type` - Describes the value that is stored.  Can be a String, StringList or SecureString (create, required)
@@ -1100,6 +1106,24 @@ aws_ssm_parameter_store 'get decrypted_custom_value' do
   aws_secret_access_key node['aws_test']['access_key']
 end
 
+aws_ssm_parameter_store 'getParameters' do
+  names ['/testkitchen/ClearTextString', '/testkitchen']
+  return_keys 'parameter_values'
+  action :get_parameters
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
+aws_ssm_parameter_store 'getParametersbypath' do
+  path '/pathtest/'
+  recursive true
+  with_decryption true
+  return_keys 'path_values'
+  action :get_parameters_by_path
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+end
+
 template '/tmp/file_with_data.txt' do
   source 'file_with_data.txt.erb'
   owner 'ec2-user'
@@ -1111,6 +1135,10 @@ template '/tmp/file_with_data.txt' do
        clear_value: node.run_state['clear_value'],
        decrypted_custom_value: node.run_state['decrypted_custom_value'],
        decrypted_value: node.run_state['decrypted_value'],
+       path1_value: node.run_state['path_values']['/pathtest/path1'],
+       path2_value: node.run_state['path_values']['/pathtest/path2'],
+       parm1_value: node.run_state['parameter_values']['/testkitchen/ClearTextString'],
+       parm2_value: node.run_state['parameter_values']['/testkitchen'],
     }
   }
 end
@@ -1120,6 +1148,10 @@ end
 ClearValue="<%= @clear_value %>"
 DecryptedCustomValue="<%= @decrypted_custom_value %>"
 DecryptedValue="<%= @decrypted_value %>"
+Path1_value = "<%= @path1_value %>"
+Path2_value = "<%= @path2_value %>"
+Parm1_value = "<%= @parm1_value %>"
+Parm2_value = "<%= @parm2_value %>"
 ```
 ##### Get bucket name and retrieve file
 ```ruby
@@ -1134,10 +1166,57 @@ end
 aws_s3_file "/tmp/test.txt" do
   bucket lazy {node.run_state['bucketname']}
   remote_path "test.txt"
+  sensitive true
   aws_access_key_id node[:custom_access_key]
   aws_secret_access_key node[:custom_secret_key]
 end
 ```
+### aws_autoscale
+
+`autoscale` can be used to attach and detach EC2 instances to/from an AutoScaling Group (ASG).  Once the instance is attached autoscale allows one to move the instance into and out of standby mode.  Standby mode temporarily takes the instance out of rotation so that maintenance can be performed.
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `asg_name` - The instance will be attached to this AutoScaling Group.  The name is case sensitive. (attach_instance, required)
+- 'should_decrement_desired_capacity' - Indicates whether the Auto Scaling group decrements the desired capacity value by the number of instances moved to standby or detached. (enter_standby and detach_instance, optional, defaults to true)
+
+#### Actions:
+
+- `attach_instance`: Attach an instance to an ASG.  If the instance is already attached it will generate an error.  
+- `detach_instance`: Detach an instance from an ASG.  If the instance is not already attached and in service it will generate an error.
+- `enter_standby`: Put ths instance into standby mode.  Will generate an error if already in standby mode
+- `exit_standby`: Remove the instance from standby mode.  Will generate an error if not in standby mode
+
+#### Examples:
+
+```ruby
+aws_autoscaling 'attach_instance' do
+  action :attach_instance
+  asg_name 'Test'
+end
+```
+
+```ruby
+aws_autoscaling 'enter_standby' do
+  should_decrement_desired_capacity true
+  action :enter_standby
+end
+```
+
+```ruby
+ aws_autoscaling 'exit_standby' do
+   action :exit_standby
+ end
+```
+
+```ruby
+aws_autoscaling 'detach_instance' do
+  should_decrement_desired_capacity true
+  action :detach_instance
+end
+```
+ 
 ## License and Authors
 
 - Author:: Chris Walters ([cw@chef.io](mailto:cw@chef.io))

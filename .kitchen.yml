@@ -105,3 +105,11 @@ suites:
   - name: secondary_ip
     run_list:
     - recipe[aws_test::secondary_ip]
+
+  - name: autoscaling
+    run_list:
+    - recipe[aws_test::autoscaling]
+
+  - name: ssm_parameter_store
+    run_list:
+    - recipe[aws_test::ssm_parameter_store]
