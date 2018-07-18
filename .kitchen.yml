@@ -1,8 +1,7 @@
-driver_config:
+---
+driver:
   name: ec2
-  aws_ssh_key_id: <%= ENV['AWS_KEYPAIR_NAME'] %>
-  region: us-west-2
-  availability_zone: us-west-2a
+  instance_type: t1.micro
 
 transport:
   ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
@@ -15,70 +14,48 @@ verifier:
   name: inspec
 
 platforms:
-- name: amazon-2017-09
-  driver_config:
-    image_id: ami-da4694a2
-    instance_type: t1.micro
+- name: amazon-2017.09
   transport:
     username: ec2-user
+  attributes:
+    aws_test:
+      key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+      access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+      session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
 
 suites:
   - name: cfn_stack
     run_list:
     - recipe[aws_test::cfn_stack]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: dynamo_table
     run_list:
     - recipe[aws_test::dynamodb_table]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: ebs_volume
     run_list:
     - recipe[aws_test::ebs_volume]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: elastic_ip
     run_list:
     - recipe[aws_test::elastic_ip]
     attributes:
       aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
         elastic_ip: <%= ENV['AWS_ELASTIC_IP'] || '54.148.151.62' %>
 
   - name: elb
     run_list:
     - recipe[aws_test::elb]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: resource_tag
     run_list:
     - recipe[aws_test::resource_tag]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: s3_file
     run_list:
     - recipe[aws_test::s3_file]
     attributes:
       aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
         bucket: <%= ENV['AWS_S3_BUCKET'] || 'aws-cookbook-2' %>
         bucket_west: <%= ENV['AWS_S3_BUCKET_WEST'] || 'aws-cookbook-west' %>
         s3key: <%= ENV['AWS_S3_KEY'] || 'a_file' %>
@@ -86,66 +63,36 @@ suites:
   - name: instance_monitoring
     run_list:
     - recipe[aws_test::instance_monitoring]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: instance_term_protection
     run_list:
     - recipe[aws_test::instance_term_protection]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: iam_user
     run_list:
     - recipe[aws_test::iam_user]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: iam_group
     run_list:
     - recipe[aws_test::iam_group]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: iam_role
     run_list:
     - recipe[aws_test::iam_role]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: iam_policy
     run_list:
     - recipe[aws_test::iam_policy]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: route53
     run_list:
     - recipe[aws_test::route53]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: cloudwatch_alarm
     run_list:
     - recipe[aws_test::cloudwatch_alarm]
     attributes:
       aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
         cloudwatch:
           period: <%= ENV['CLOUDWATCH_PERIOD'] %>
           evaluation_periods: <%= ENV['CLOUDWATCH_EVALUATION_PERIODS'] %>
@@ -158,23 +105,11 @@ suites:
   - name: secondary_ip
     run_list:
     - recipe[aws_test::secondary_ip]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: autoscaling
     run_list:
     - recipe[aws_test::autoscaling]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 
   - name: ssm_parameter_store
     run_list:
     - recipe[aws_test::ssm_parameter_store]
-    attributes:
-      aws_test:
-        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>

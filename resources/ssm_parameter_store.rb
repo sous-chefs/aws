@@ -167,11 +167,11 @@ action_class do
     response = ssm_client.get_parameter(request)
     return false if response.parameter.name == name && response.parameter.value == value
     return true if new_resource.overwrite
-    return false
+    false
   rescue Aws::SSM::Errors::ParameterNotFound => msg
     # Paremeter doesn't exist
     Chef::Log.info "get_parameter exception: #{msg}"
-    return true
+    true
   end
 
   def ssm_client

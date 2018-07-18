@@ -18,9 +18,9 @@ action :assign do
   assigned_addresses = interface_private_ips(new_resource.interface)
 
   if assigned_addresses.include? ip
-    Chef::Log.debug("secondary ip (#{ip}) is already attached to the #{interface}")
+    Chef::Log.debug("secondary ip (#{ip}) is already attached to the #{new_resource.interface}")
   else
-    converge_by("assign secondary #{ip} to #{interface}") do
+    converge_by("assign secondary #{ip} to #{new_resource.interface}") do
       assign(eni, ip)
 
       begin
@@ -39,7 +39,7 @@ action :assign do
       rescue Timeout::Error
         raise "Timed out waiting for assignment after #{new_resource.timeout} seconds"
       end
-      Chef::Log.debug("Secondary IP #{ip} assigned to #{interface}")
+      Chef::Log.debug("Secondary IP #{ip} assigned to #{new_resource.interface}")
     end
   end
 end
