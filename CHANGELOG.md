@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.5.0 (2018-07-18)
+
+- Fixing getting Route53 record when geo location is set
+- added autoscaling resource
+- Adds `http_proxy` to the AWS client options so the Seahorse client traverses the proxy if the environment variable is defined
+- Cleanup tests so they can be more easily run outside Chef
+
 ## 7.4.1 (2018-05-17)
 
 - Rescue Aws::EC2::Errors::InvalidSnapshotInUse with a friendly message
