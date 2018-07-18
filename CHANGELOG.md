@@ -2,6 +2,33 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 7.4.1 (2018-05-17)
+
+- Rescue Aws::EC2::Errors::InvalidSnapshotInUse with a friendly message
+
+## 7.4.0 (2018-05-17)
+
+- Allow installation of either aws-sdk v2 or v3
+- Add support for STS assumed roles
+- Add default empty hashes to several properties
+- Resolve a few more Chef 14 incompatibilities
+- Fix a failure when deleting ebs volumes
+
+## 7.3.1 (2018-03-21)
+
+- Check for nil as well as empty tags in ebs_volume
+
+## 7.3.0 (2018-03-20)
+
+- add aws_instance_role
+- Add option to tag the new volumes and snapshots
+- Added basic functionality for parameter store
+- add `requester_pays` option to `s3_file`
+- fix etag request via head_object when requester_pays
+- Remove name property that isn't necessary
+- Added SSM Parameter Store get functionality
+- Chef 14: Avoid passing nils to remote_file in aws_s3_file resource
+
 ## 7.2.2 (2017-11-14)
 
 - Resolve FC108 warning

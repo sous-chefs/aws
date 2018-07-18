@@ -75,23 +75,24 @@ end
 
 action_class do
   include AwsCookbook::IAM
+  include AwsCookbook::STS
 
   # make_policy_arn - construct the policy ARN - this is needed for some
   # IAM API calls that do not take a direct policy name.
   def make_policy_arn(policy_name)
-    # we use the signed user to do this. I am currently not 100% sure if this
-    # will use an assume role ARN or not (this is what we want, but it needs to
-    # be tested).
+    # we use the STS caller identity for this. If a regular user is signed in,
+    # it uses their user ARN. If it is an assumed role or federated user it
+    # returns an STS ARN.
     if new_resource.account_id.to_s.empty?
-      resp = iam.get_user
-      account_id = %r{^arn:aws:iam::(\d+):user\/.*$}.match(resp.user.arn)[1]
+      resp = sts.get_caller_identity
+      account_id = /^arn:aws:(iam|sts)::(\d+):.*$/.match(resp.arn)[2]
     else
       account_id = new_resource.account_id
     end
     "arn:aws:iam::#{account_id}:policy/#{policy_name}"
   end
 
-  # policy_exists - logic for checking if the user exists
+  # policy_exists - logic for checking if the policy exists
   def policy_exists?(policy_name)
     resp = iam.get_policy(policy_arn: make_policy_arn(policy_name))
     if !resp.empty?
@@ -110,10 +111,6 @@ action_class do
       policy_arn: make_policy_arn(new_resource.policy_name),
       version_id: version
     )
-    if URI.unescape(resp.policy_version.document) == new_resource.policy_document
-      false
-    else
-      true
-    end
+    !(URI.unescape(resp.policy_version.document) == new_resource.policy_document)
   end
 end

@@ -88,11 +88,7 @@ action_class do
   # cfn_stack_changed - get the stack JSON, and compare with local template
   def cfn_stack_changed?
     resp = cfn.get_template(stack_name: new_resource.stack_name)
-    if resp.template_body == ::IO.read(@template_path)
-      false
-    else
-      true
-    end
+    !(resp.template_body == ::IO.read(@template_path))
   end
 
   # cfn_params_chagned - see if parameters have updated

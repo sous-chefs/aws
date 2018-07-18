@@ -115,10 +115,6 @@ action_class do
   # and compare with content in new_resource
   def assume_role_policy_changed?
     resp = iam.get_role(role_name: new_resource.role_name)
-    if URI.unescape(resp.role.assume_role_policy_document) == JSON.dump(JSON.parse(new_resource.assume_role_policy_document))
-      false
-    else
-      true
-    end
+    !(URI.unescape(resp.role.assume_role_policy_document) == JSON.dump(JSON.parse(new_resource.assume_role_policy_document)))
   end
 end

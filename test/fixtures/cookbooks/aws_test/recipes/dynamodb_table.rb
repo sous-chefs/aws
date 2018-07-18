@@ -1,6 +1,7 @@
 aws_dynamodb_table 'test-dynamodb-table-create' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
+  aws_session_token node['aws_test']['session_token']
   table_name 'test-dynamodb-table'
   action :create
   attribute_definitions [
@@ -60,6 +61,7 @@ end
 aws_dynamodb_table 'test-dynamodb-table-update' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
+  aws_session_token node['aws_test']['session_token']
   table_name 'test-dynamodb-table'
   retries 6
   retry_delay 10

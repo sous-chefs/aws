@@ -117,12 +117,12 @@ action_class do
     remote_file new_resource.name do
       path new_resource.path
       source s3url
-      owner new_resource.owner
-      group new_resource.group
-      mode new_resource.mode
-      checksum new_resource.checksum
+      owner new_resource.owner if new_resource.owner
+      group new_resource.group if new_resource.group
+      mode new_resource.mode if new_resource.mode
+      checksum new_resource.checksum if new_resource.checksum
       backup new_resource.backup
-      headers new_resource.headers
+      headers new_resource.headers if new_resource.headers
       use_etag new_resource.use_etag
       use_last_modified new_resource.use_last_modified
       atomic_update new_resource.atomic_update

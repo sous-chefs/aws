@@ -13,7 +13,7 @@ property :piops,                 Integer, default: 0
 property :encrypted,             [true, false], default: false
 property :kms_key_id,            String
 property :delete_on_termination, [true, false], default: false
-property :tags,                  Hash
+property :tags,                  Hash, default: {}
 
 # authentication
 property :aws_access_key,        String
@@ -47,7 +47,7 @@ action :create do
       Chef::Log.debug("The volume matches the resource's definition, so the volume is assumed to be already created")
       converge_by("update the node data with volume id: #{attached_volume.volume_id}") do
         node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume.volume_id
-        node.save
+        node.save # ~FC075
       end
     else
       # If not, create volume and register its id in the node data
@@ -65,7 +65,7 @@ action :create do
                              new_resource.kms_key_id)
         add_tags(nvid)
         node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
-        node.save
+        node.save # ~FC075
       end
     end
   end
@@ -92,7 +92,7 @@ action :attach do
       mark_delete_on_termination(new_resource.device, vol[:volume_id], instance_id) if new_resource.delete_on_termination
       # always use a symbol here, it is a Hash
       node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:volume_id]
-      node.save
+      node.save # ~FC075
     end
   end
 end
@@ -134,7 +134,11 @@ action :prune do
     old_snapshots[new_resource.snapshots_to_keep, old_snapshots.length].each do |die|
       converge_by("delete snapshot with id: #{die[:snapshot_id]}") do
         Chef::Log.info "Deleting old snapshot #{die[:snapshot_id]}"
-        ec2.delete_snapshot(snapshot_id: die[:snapshot_id])
+        begin
+          ec2.delete_snapshot(snapshot_id: die[:snapshot_id])
+        rescue Aws::EC2::Errors::InvalidSnapshotInUse
+          Chef::Log.debug "Snapshot with ID #{die[:snapshot_id]} cannot be deleted because it is currently in use."
+        end
       end
     end
   end
@@ -310,7 +314,8 @@ action_class do
 
   # Deletes the volume and blocks until done (or times out)
   def delete_volume(volume_id, timeout)
-    raise "Cannot delete volume #{volume_id} as it is currently attached to #{volume_by_id(volume_id)[:attachments].size} node(s)" unless vol[:attachments].empty?
+    vol = volume_by_id(volume_id)
+    raise "Cannot delete volume #{volume_id} as it is currently attached to #{vol[:attachments].size} node(s)" unless vol[:attachments].empty?
 
     Chef::Log.debug("Deleting #{volume_id}")
     ec2.delete_volume(volume_id: volume_id)
@@ -358,7 +363,7 @@ action_class do
   end
 
   def add_tags(resource_id)
-    unless new_resource.tags.empty?
+    unless new_resource.tags.nil? || new_resource.tags.empty?
       new_resource.tags.each do |k, v|
         Chef::Log.debug("add tag '#{k}' with value '#{v}' on resource #{resource_id}")
         ec2.create_tags(resources: [resource_id], tags: [{ key: k, value: v }])
