@@ -46,7 +46,7 @@ action :get_parameters do
   resp = ssm_client.get_parameters(request)
   secret_info = {}
   resp.parameters.each do |secret|
-    secret_info["#{secret.name}"] = secret.value
+    secret_info[secret.name] = secret.value
   end
   Chef::Log.debug "Get parameters #{names}"
   node.run_state[new_resource.return_keys] = secret_info
