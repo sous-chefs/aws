@@ -73,7 +73,7 @@ action_class do
   include AwsCookbook::Ec2
 
   def cwh
-    require 'aws-sdk'
+    require 'aws-sdk-cloudwatch'
     Chef::Log.debug('Initializing the CloudWatch Client')
     @cwh ||= create_aws_interface(::Aws::CloudWatch::Client, region: new_resource.region)
   end

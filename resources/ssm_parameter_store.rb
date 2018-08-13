@@ -176,7 +176,7 @@ action_class do
 
   def ssm_client
     @ssm ||= begin
-      require 'aws-sdk'
+      require 'aws-sdk-ssm'
       Chef::Log.debug('Initializing Aws::SSM::Client')
       create_aws_interface(::Aws::SSM::Client, region: new_resource.region)
     end

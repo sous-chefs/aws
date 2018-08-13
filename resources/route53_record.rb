@@ -148,7 +148,7 @@ action_class do
 
   def route53_client
     @route53 ||= begin
-      require 'aws-sdk'
+      require 'aws-sdk-route53'
       Chef::Log.debug('Initializing Aws::Route53::Client')
       create_aws_interface(::Aws::Route53::Client, region: new_resource.region, mock: new_resource.mock)
     end

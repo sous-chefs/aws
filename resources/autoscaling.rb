@@ -184,7 +184,7 @@ action_class do
 
   def autoscaling_client
     @autoscaling ||= begin
-      require 'aws-sdk'
+      require 'aws-sdk-autoscaling'
       Chef::Log.debug('Initializing Aws::AutoScaling::Client')
       create_aws_interface(::Aws::AutoScaling::Client, region: new_resource.region)
     end

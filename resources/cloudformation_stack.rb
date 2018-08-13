@@ -50,7 +50,7 @@ action_class do
   require 'fileutils'
 
   def cfn
-    require 'aws-sdk'
+    require 'aws-sdk-cloudformation'
 
     Chef::Log.debug('Initializing the CloudFormation Client')
     @cfn ||= create_aws_interface(::Aws::CloudFormation::Client, region: new_resource.region)

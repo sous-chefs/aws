@@ -162,7 +162,7 @@ This assumes you have also stored the `cfn_role_arn`, and `mfa_serial` attribute
 Note that MFA codes cannot be recycled, hence the importance of creating a single STS session and passing that to resources. If multiple roles need to be assumed using MFA, it is probably prudent that these be broken up into different recipes and `chef-client` runs.
 
 ```ruby
-require 'aws-sdk'
+require 'aws-sdk-core'
 require 'securerandom'
 
 session_id = SecureRandom.hex(8)
@@ -1216,7 +1216,7 @@ aws_autoscaling 'detach_instance' do
   action :detach_instance
 end
 ```
- 
+
 ## License and Authors
 
 - Author:: Chris Walters ([cw@chef.io](mailto:cw@chef.io))
