@@ -34,7 +34,7 @@ action_class do
   include AwsCookbook::Ec2
 
   def kinesis
-    require 'aws-sdk'
+    require 'aws-sdk-kinesis'
 
     Chef::Log.debug('Initializing the Kinesis Client')
     @kinesis ||= create_aws_interface(::Aws::Kinesis::Client, region: new_resource.region)

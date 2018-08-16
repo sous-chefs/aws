@@ -70,7 +70,7 @@ action_class do
 
   def s3_client
     @s3_client ||= begin
-      require 'aws-sdk'
+      require 'aws-sdk-s3'
       Chef::Log.debug('Initializing Aws::S3::Client')
       create_aws_interface(::Aws::S3::Client, region: new_resource.region)
     end
@@ -78,7 +78,7 @@ action_class do
 
   def s3_bucket
     @s3_bucket ||= begin
-      require 'aws-sdk'
+      require 'aws-sdk-s3'
       Chef::Log.debug('Initializing Aws::S3::Bucket')
       ::Aws::S3::Bucket.new(new_resource.name, client: s3_client)
     end

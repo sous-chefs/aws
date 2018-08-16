@@ -63,7 +63,7 @@ action_class do
   include AwsCookbook::Ec2
 
   def elb
-    require 'aws-sdk'
+    require 'aws-sdk-elasticloadbalancing'
     Chef::Log.debug('Initializing the ElasticLoadBalancing Client')
     @elb ||= create_aws_interface(::Aws::ElasticLoadBalancing::Client, region: new_resource.region)
   end

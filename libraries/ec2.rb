@@ -18,7 +18,8 @@
 module AwsCookbook
   module Ec2
     def ec2
-      require 'aws-sdk'
+      require 'aws-sdk-core'
+      require 'aws-sdk-ec2'
 
       Chef::Log.debug('Initializing the EC2 Client')
       @ec2 ||= create_aws_interface(::Aws::EC2::Client, region: new_resource.region)

@@ -46,7 +46,7 @@ action :get_parameters do
   resp = ssm_client.get_parameters(request)
   secret_info = {}
   resp.parameters.each do |secret|
-    secret_info["#{secret.name}"] = secret.value
+    secret_info[secret.name] = secret.value
   end
   Chef::Log.debug "Get parameters #{names}"
   node.run_state[new_resource.return_keys] = secret_info
@@ -176,7 +176,7 @@ action_class do
 
   def ssm_client
     @ssm ||= begin
-      require 'aws-sdk'
+      require 'aws-sdk-ssm'
       Chef::Log.debug('Initializing Aws::SSM::Client')
       create_aws_interface(::Aws::SSM::Client, region: new_resource.region)
     end
