@@ -21,8 +21,8 @@ end
 
 # authentication
 property :aws_access_key, String
-property :aws_secret_access_key, String
-property :aws_session_token, String
+property :aws_secret_access_key, String, sensitive: true
+property :aws_session_token, String, sensitive: true
 property :aws_assume_role_arn, String
 property :aws_role_session_name, String
 
@@ -66,6 +66,27 @@ action_class do
     @s3_obj ||= ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
   end
 
+  class ::File
+    def each_part(part_size)
+      yield read(part_size = part_size) until eof?
+    end
+  end
+
+  def calculate_multipart_md5(file_path, part_size)
+    require 'digest'
+    file = ::File.open(file_path, 'rb')
+    hashes = []
+
+    file.each_part(part_size) do |part|
+      hashes << Digest::MD5.hexdigest(part)
+    end
+
+    file.close
+
+    multipart_hash = Digest::MD5.hexdigest([hashes.join].pack('H*'))
+    "#{multipart_hash}-#{hashes.count}"
+  end
+
   def compare_md5s(remote_object, local_file_path)
     return false unless ::File.exist?(local_file_path)
     local_md5 = ::Digest::MD5.new
@@ -83,13 +104,21 @@ action_class do
         remote_object.etag.delete('"') # etags are always quoted
       end
 
-    ::File.open(local_file_path, 'rb') do |f|
-      f.each_line do |line|
-        local_md5.update line
+    if remote_hash.match('-')
+      # Calculate the remote file chunk size of the original multi part upload.
+      chunk_count_from_etag = Integer(remote_hash.split('-')[1])
+      file_size_mb = Float(remote_object.size) / 1024 / 1024
+      chunks = (file_size_mb / chunk_count_from_etag).ceil
+      multi_part_upload_chunk_size = chunks * 1024 * 1024
+      local_hash = calculate_multipart_md5(local_file_path, multi_part_upload_chunk_size)
+    else
+      ::File.open(local_file_path, 'rb') do |f|
+        f.each_line do |line|
+          local_md5.update line
+        end
       end
+      local_hash = local_md5.hexdigest
     end
-
-    local_hash = local_md5.hexdigest
 
     Chef::Log.debug "Remote file md5 hash:  #{remote_hash}"
     Chef::Log.debug "Local file md5 hash:   #{local_hash}"
