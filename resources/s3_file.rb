@@ -105,7 +105,7 @@ action_class do
       end
 
     if remote_hash.to_s =~ /\-/
-      # Calculate the remote file chunk size of the original multi part upload.
+      # Calculate the remote file chunk size of the original multi part upload
       chunk_count_from_etag = Integer(remote_hash.split('-')[1])
       file_size_mb = Float(remote_object.size) / 1024 / 1024
       chunks = (file_size_mb / chunk_count_from_etag).ceil
