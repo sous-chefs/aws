@@ -14,6 +14,7 @@ property :use_last_modified, [true, false], default: true
 property :atomic_update, [true, false], default: true
 property :force_unlink, [true, false], default: false
 property :manage_symlink_source, [true, false]
+property :s3_url, String
 if node['platform_family'] == 'windows'
   property :inherits, [true, false], default: true
   property :rights, Hash
@@ -21,8 +22,8 @@ end
 
 # authentication
 property :aws_access_key, String
-property :aws_secret_access_key, String
-property :aws_session_token, String
+property :aws_secret_access_key, String, sensitive: true
+property :aws_session_token, String, sensitive: true
 property :aws_assume_role_arn, String
 property :aws_role_session_name, String
 
@@ -51,19 +52,39 @@ action_class do
   include AwsCookbook::Ec2
 
   def s3
-    require 'aws-sdk-s3'
+    require 'aws-sdk'
 
     Chef::Log.debug('Initializing the S3 Client')
     @s3 ||= create_aws_interface(::Aws::S3::Client, region: new_resource.region)
   end
 
   def s3_obj
-    require 'aws-sdk-s3'
+    require 'aws-sdk'
     remote_path = new_resource.remote_path.dup
     remote_path.sub!(%r{^/*}, '')
 
     Chef::Log.debug("Initializing the S3 Object for bucket: #{new_resource.bucket} path: #{remote_path}")
     @s3_obj ||= ::Aws::S3::Object.new(bucket_name: new_resource.bucket, key: remote_path, client: s3)
+  end
+
+  class ::File
+    def each_part(part_size)
+      yield read(part_size = part_size) until eof?
+    end
+  end
+
+  def calculate_multipart_md5(file_path, part_size)
+    file = ::File.open(file_path, 'rb')
+    hashes = []
+
+    file.each_part(part_size) do |part|
+      hashes << ::Digest::MD5.hexdigest(part)
+    end
+
+    file.close
+
+    multipart_hash = ::Digest::MD5.hexdigest([hashes.join].pack('H*'))
+    "#{multipart_hash}-#{hashes.count}"
   end
 
   def compare_md5s(remote_object, local_file_path)
@@ -83,18 +104,34 @@ action_class do
         remote_object.etag.delete('"') # etags are always quoted
       end
 
-    ::File.open(local_file_path, 'rb') do |f|
-      f.each_line do |line|
-        local_md5.update line
+    if remote_hash.match('-')
+      # Calculate the remote file chunk size of the original multi part upload.
+      chunk_count_from_etag = Integer(remote_hash.split('-')[1])
+      file_size_mb = Float(remote_object.size) / 1024 / 1024
+      chunks = (file_size_mb / chunk_count_from_etag).ceil
+      multi_part_upload_chunk_size = chunks * 1024 * 1024
+      local_hash = calculate_multipart_md5(local_file_path, multi_part_upload_chunk_size)
+    else
+      ::File.open(local_file_path, 'rb') do |f|
+        f.each_line do |line|
+          local_md5.update line
+        end
       end
+      local_hash = local_md5.hexdigest
     end
-
-    local_hash = local_md5.hexdigest
 
     Chef::Log.debug "Remote file md5 hash:  #{remote_hash}"
     Chef::Log.debug "Local file md5 hash:   #{local_hash}"
 
     local_hash == remote_hash
+  end
+
+  def s3_url
+    s3_url_params = { expires_in: 300 }
+    s3_url_params[:request_payer] = 'requester' if new_resource.requester_pays
+    s3url = s3_obj.presigned_url(:get, s3_url_params).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
+    Chef::Log.debug("Using S3 URL #{s3url}")
+    @s3_url ||= s3url
   end
 
   def do_s3_file(resource_action)
@@ -109,14 +146,9 @@ action_class do
       end
     end
 
-    s3_url_params = { expires_in: 300 }
-    s3_url_params[:request_payer] = 'requester' if new_resource.requester_pays
-    s3url = s3_obj.presigned_url(:get, s3_url_params).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
-    Chef::Log.debug("Using S3 URL #{s3url}")
-
     remote_file new_resource.name do
       path new_resource.path
-      source s3url
+      source s3_url
       owner new_resource.owner if new_resource.owner
       group new_resource.group if new_resource.group
       mode new_resource.mode if new_resource.mode
