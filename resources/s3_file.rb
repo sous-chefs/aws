@@ -104,7 +104,7 @@ action_class do
         remote_object.etag.delete('"') # etags are always quoted
       end
 
-    if remote_hash.match('-')
+    if remote_hash.to_s =~ /\-/
       # Calculate the remote file chunk size of the original multi part upload.
       chunk_count_from_etag = Integer(remote_hash.split('-')[1])
       file_size_mb = Float(remote_object.size) / 1024 / 1024
