@@ -52,14 +52,14 @@ action_class do
   include AwsCookbook::Ec2
 
   def s3
-    require 'aws-sdk'
+    require 'aws-sdk-s3'
 
     Chef::Log.debug('Initializing the S3 Client')
     @s3 ||= create_aws_interface(::Aws::S3::Client, region: new_resource.region)
   end
 
   def s3_obj
-    require 'aws-sdk'
+    require 'aws-sdk-s3'
     remote_path = new_resource.remote_path.dup
     remote_path.sub!(%r{^/*}, '')
 
