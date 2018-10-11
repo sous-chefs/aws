@@ -15,7 +15,6 @@ property :with_decryption, [false, true], default: false
 # => run_state key to put the Retrieved Value(s)
 property :return_key,        String
 property :parameter_filters, Array, required: false
-property :max_results,       Integer
 
 # => Create Properties
 property :value,           String
@@ -73,13 +72,19 @@ action :get_parameters_by_path do
     recursive: new_resource.recursive,
     parameter_filters: new_resource.parameter_filters,
     with_decryption: new_resource.with_decryption,
-    max_results: new_resource.max_results,
+    max_results: 10,
   }
   Chef::Log.debug "Get parameters by path #{request[:path]}"
-  resp = ssm_client.get_parameters_by_path(request)
-  resp.parameters.each do |parm|
+  parms = []
+  while (resp = ssm_client.get_parameters_by_path(request))
+    parms.concat(resp.parameters)
+    break unless resp.next_token
+    request[:next_token] = resp.next_token
+  end
+  parms.each do |parm|
     # => Strip Leading Path
-    pname = parm.name.sub(::File.dirname(request[:path]), '')
+    # pname = parm.name.sub(request[:path], '')
+    pname = parm.name.sub(::Pathname.new(request[:path]).cleanpath.to_s, '')
     # => Convert the Param to a Hash
     hsh = param_to_hash(pname, parm.value)
     # => Merge the resulting Hash into the Destination
