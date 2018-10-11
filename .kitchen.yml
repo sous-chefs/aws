@@ -1,7 +1,7 @@
 ---
 driver:
   name: ec2
-  instance_type: t1.micro
+  instance_type: t3.micro
 
 transport:
   ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
@@ -113,3 +113,8 @@ suites:
   - name: ssm_parameter_store
     run_list:
     - recipe[aws_test::ssm_parameter_store]
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>

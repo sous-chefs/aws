@@ -1,5 +1,4 @@
-aws_ssm_parameter_store 'create testkitchen record' do
-  name 'testkitchen'
+aws_ssm_parameter_store 'testkitchen' do
   description 'testkitchen'
   value 'testkitchen'
   type 'String'
@@ -8,8 +7,7 @@ aws_ssm_parameter_store 'create testkitchen record' do
   aws_secret_access_key node['aws_test']['access_key']
 end
 
-aws_ssm_parameter_store 'create test kitchen record' do
-  name '/testkitchen/ClearTextString'
+aws_ssm_parameter_store '/testkitchen/ClearTextString' do
   description 'Test Kitchen String Parameter'
   value 'Clear Text Test Kitchen'
   type 'String'
@@ -19,7 +17,7 @@ aws_ssm_parameter_store 'create test kitchen record' do
 end
 
 aws_ssm_parameter_store 'create test kitchen record path1' do
-  name '/pathtest/path1'
+  path '/pathtest/path1'
   description 'path1'
   value 'path1'
   type 'String'
@@ -29,7 +27,7 @@ aws_ssm_parameter_store 'create test kitchen record path1' do
 end
 
 aws_ssm_parameter_store 'create test kitchen record path2' do
-  name '/pathtest/path2'
+  path '/pathtest/path2'
   description 'path2'
   value 'path2'
   type 'SecureString'
@@ -39,7 +37,7 @@ aws_ssm_parameter_store 'create test kitchen record path2' do
 end
 
 aws_ssm_parameter_store 'create encrypted test kitchen record with default key' do
-  name '/testkitchen/EncryptedStringDefaultKey'
+  path '/testkitchen/EncryptedStringDefaultKey'
   description 'Test Kitchen Encrypted Parameter - Default'
   value 'Encrypted Test Kitchen Default'
   type 'SecureString'
@@ -61,8 +59,8 @@ end
 # end
 
 aws_ssm_parameter_store 'getParameters' do
-  names ['/testkitchen/ClearTextString', '/testkitchen']
-  return_keys 'parameter_values'
+  path ['/testkitchen/ClearTextString', '/testkitchen']
+  return_key 'parameter_values'
   action :get_parameters
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
@@ -72,14 +70,28 @@ aws_ssm_parameter_store 'getParametersbypath' do
   path '/pathtest/'
   recursive true
   with_decryption true
-  return_keys 'path_values'
+  return_key 'path_values'
   action :get_parameters_by_path
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
 end
 
+file '/tmp/test_params' do
+  content(
+    lazy { node.run_state['path_values'].inspect }
+  )
+  action :create
+end
+
+ruby_block 'test_params' do
+  block do
+    Chef::Log.warn Chef::JSONCompat.to_json_pretty(node.run_state['path_values'])
+  end
+  action :run
+end
+
 aws_ssm_parameter_store 'get clear_value' do
-  name '/testkitchen/ClearTextString'
+  path '/testkitchen/ClearTextString'
   return_key 'clear_value'
   action :get
   aws_access_key node['aws_test']['key_id']
@@ -87,7 +99,7 @@ aws_ssm_parameter_store 'get clear_value' do
 end
 
 aws_ssm_parameter_store 'get decrypted_value' do
-  name '/testkitchen/EncryptedStringDefaultKey'
+  path '/testkitchen/EncryptedStringDefaultKey'
   return_key 'decrypted_value'
   with_decryption true
   action :get
@@ -104,27 +116,30 @@ end
 # aws_secret_access_key node['aws_test']['access_key']
 # end
 
-template '/tmp/file_with_data.txt' do
-  source 'file_with_data.txt.erb'
-  owner 'ec2-user'
-  group 'ec2-user'
-  mode '0755'
-  sensitive true
-  variables lazy {
-    {
+# file '/tmp/file_with_data.txt' do
+#   sensitive
+#   content <<-EOF
+#   EOF
+#   action :create
+# end
+
+file '/tmp/ssm_parameters.json' do
+  content lazy {
+    Chef::JSONCompat.to_json_pretty(
       clear_value: node.run_state['clear_value'],
       #:decrypted_custom_value => node.run_state['decrypted_custom_value'],
       decrypted_value: node.run_state['decrypted_value'],
       path1_value: node.run_state['path_values']['/pathtest/path1'],
       path2_value: node.run_state['path_values']['/pathtest/path2'],
       parm1_value: node.run_state['parameter_values']['/testkitchen/ClearTextString'],
-      parm2_value: node.run_state['parameter_values']['/testkitchen'],
-    }
+      parm2_value: node.run_state['parameter_values']['/testkitchen']
+    )
   }
+  action :create
 end
 
 aws_ssm_parameter_store 'create test kitchen record' do
-  name '/testkitchen/ClearTextString'
+  path '/testkitchen/ClearTextString'
   description 'NewString'
   value 'NewString'
   type 'String'
@@ -137,7 +152,7 @@ end
 # Delete Test Keys
 %w(testkitchen /pathtest/path1 /pathtest/path2).each do |pskey|
   aws_ssm_parameter_store "delete testkitchen record #{pskey}" do
-    name pskey
+    path pskey
     aws_access_key node['aws_test']['key_id']
     aws_secret_access_key node['aws_test']['access_key']
     action :delete
