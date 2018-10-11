@@ -78,8 +78,10 @@ action :get_parameters_by_path do
   Chef::Log.debug "Get parameters by path #{request[:path]}"
   resp = ssm_client.get_parameters_by_path(request)
   resp.parameters.each do |parm|
+    # => Strip Leading Path
+    pname = parm.name.sub(::File.dirname(request[:path]), '')
     # => Convert the Param to a Hash
-    hsh = param_to_hash(parm.name, parm.value)
+    hsh = param_to_hash(pname, parm.value)
     # => Merge the resulting Hash into the Destination
     deep_merge!(hsh, node.run_state[new_resource.return_key] ||= {})
   end
