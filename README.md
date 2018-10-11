@@ -1023,8 +1023,8 @@ The `ssm_parameter_store` resource provider allows one to get, create and delete
 #### Actions:
 
 - `get` - Retrieve a key/value from the AWS Systems Manager Parameter Store.
-- `get_parameters` - Retrieve multiple key/values by name from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the key name.
-- `get_parameters_by_path` - Retrieve multiple key/values by path from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the keys leaf name.  If recursive is set to true the code will retrieve all parameters in the path hierarchy.
+- `get_parameters` - Retrieve multiple key/values by name from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the corresponding path value.
+- `get_parameters_by_path` - Retrieve multiple key/values by path from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the key's name.  If recursive is set to true, it will retrieve all parameters in the path hierarchy, constructing a representative hash structure with nested keys/values.
 - `create` - Create a key/value in the AWS Systems Manager Parameter Store.
 - `delete` - Remove the key/value from the AWS Systems Manager Parameter Store.
 

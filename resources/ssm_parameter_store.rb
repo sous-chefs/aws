@@ -83,7 +83,6 @@ action :get_parameters_by_path do
   end
   parms.each do |parm|
     # => Strip Leading Path
-    # pname = parm.name.sub(request[:path], '')
     pname = parm.name.sub(::Pathname.new(request[:path]).cleanpath.to_s, '')
     # => Convert the Param to a Hash
     hsh = param_to_hash(pname, parm.value)

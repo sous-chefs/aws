@@ -12,6 +12,6 @@ describe json('/tmp/ssm_parameters.json') do
   its(%w(parameter_values /testkitchen/ClearTextString)) { should eq 'Clear Text Test Kitchen' }
 
   # => Get Parameters by Path - Hash Return (:get_parameters_by_path)
-  its(%w(path_values pathtest path1)) { should eq 'path1_value' }
-  its(%w(path_values pathtest path2)) { should eq 'path2_value' }
+  its(%w(path_values path1)) { should eq 'path1_value' }
+  its(%w(path_values path2)) { should eq 'path2_value' }
 end

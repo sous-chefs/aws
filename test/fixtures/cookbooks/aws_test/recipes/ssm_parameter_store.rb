@@ -71,20 +71,6 @@ aws_ssm_parameter_store 'Get Parameters by Path' do
   aws_secret_access_key node['aws_test']['access_key']
 end
 
-file '/tmp/test_params' do
-  content(
-    lazy { node.run_state['path_values'].inspect }
-  )
-  action :create
-end
-
-ruby_block 'test_params' do
-  block do
-    Chef::Log.warn Chef::JSONCompat.to_json_pretty(node.run_state['path_values'])
-  end
-  action :run
-end
-
 aws_ssm_parameter_store 'get clear_value' do
   path '/testkitchen/ClearTextString'
   return_key 'clear_value'
@@ -102,15 +88,6 @@ aws_ssm_parameter_store 'get decrypted_value' do
   aws_secret_access_key node['aws_test']['access_key']
 end
 
-# aws_ssm_parameter_store 'get decrypted_custom_value' do
-# name '/testkitchen/EncryptedStringCustomKey'
-# return_key 'decrypted_custom_value'
-# with_decryption true
-# action :get
-# aws_access_key node['aws_test']['key_id']
-# aws_secret_access_key node['aws_test']['access_key']
-# end
-
 file '/tmp/ssm_parameters.json' do
   content lazy {
     Chef::JSONCompat.to_json_pretty(
@@ -119,8 +96,8 @@ file '/tmp/ssm_parameters.json' do
       decrypted_value: node.run_state['decrypted_value'],
       path_values: node.run_state['path_values'],
       parameter_values: node.run_state['parameter_values'],
-      path1_value: node.run_state['path_values']['pathtest']['path1'],
-      path2_value: node.run_state['path_values']['pathtest']['path2'],
+      path1_value: node.run_state['path_values']['path1'],
+      path2_value: node.run_state['path_values']['path2'],
       parm1_value: node.run_state['parameter_values']['/testkitchen/ClearTextString'],
       parm2_value: node.run_state['parameter_values']['/testkitchen']
     )
