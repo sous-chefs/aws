@@ -126,18 +126,15 @@ action_class do
   end
 
   def write_parameter
-    # If the paremeter doesn't exist or one of the values has changed and overwrite
-    # is set to true then we'll write the parameter.
-    return true if new_resource.overwrite
-
     request = {
       name: new_resource.path,
       with_decryption: (new_resource.type == 'SecureString'),
     }
-
+    # => Poll the Parameter's existence
     r = ssm_client.get_parameter(request)
-    return false if r.parameter.name == new_resource.path && r.parameter.value == new_resource.value
-    true
+    return false if r.parameter.value == new_resource.value
+    return true if new_resource.overwrite
+    false
   rescue Aws::SSM::Errors::ParameterNotFound
     true
   end
