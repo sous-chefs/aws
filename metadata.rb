@@ -14,14 +14,19 @@ source_url 'https://github.com/chef-cookbooks/aws'
 issues_url 'https://github.com/chef-cookbooks/aws/issues'
 chef_version '>= 12.9' if respond_to?(:chef_version)
 
-gem 'aws-sdk-cloudformation'
-gem 'aws-sdk-cloudwatch'
-gem 'aws-sdk-core'
-gem 'aws-sdk-dynamodb'
-gem 'aws-sdk-ec2'
-gem 'aws-sdk-elasticloadbalancing'
-gem 'aws-sdk-iam'
-gem 'aws-sdk-kinesis'
-gem 'aws-sdk-route53'
-gem 'aws-sdk-s3'
-gem 'aws-sdk-ssm'
+# Pin the aws sdk to the minor version to only pull
+# in new patches by default. For some of these
+# gems AWS typically releases a new minor version
+# daily so this should reduce the number of gem
+# versions that someone has installed.
+gem 'aws-sdk-cloudformation', '~> 1.13.0'
+gem 'aws-sdk-cloudwatch', '~> 1.13.0'
+gem 'aws-sdk-core', '~> 3.44.0'
+gem 'aws-sdk-dynamodb', '~> 1.18.0'
+gem 'aws-sdk-ec2', '~> 1.63.0'
+gem 'aws-sdk-elasticloadbalancing', '~> 1.8.0'
+gem 'aws-sdk-iam', '~> 1.13.0'
+gem 'aws-sdk-kinesis', '~> 1.9.0'
+gem 'aws-sdk-route53', '~> 1.16.0'
+gem 'aws-sdk-s3', '~> 1.30.0'
+gem 'aws-sdk-ssm', '~> 1.34.0'
