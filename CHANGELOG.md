@@ -2,6 +2,16 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.0.0 (2018-12-14)
+
+- Switch to aws-sdk-v3 gems and only install the minimum required gems - [@bdwyertech](https://github.com/bdwyertech)
+- s3_file: Fixed local ETag calculation to handle file originally uploaded as multi part. - [@joshs85](https://github.com/joshs85)
+- s3_file: Created s3_url property to be able to retrieve the pre signed url. - [@joshs85](https://github.com/joshs85)
+- s3_file: Made secret access key and token sensitive properties so they don't show up in logs. - [@joshs85](https://github.com/joshs85)
+- ssm_parameter_store: Fix namespacing issues and clean up the ssm_parameter_store resource parameters - [@bdwyertech](https://github.com/bdwyertech)
+- ssm_parameter_store: add proper handling of pagination for path-based queries - [@bdwyertech](https://github.com/bdwyertech)
+- Lock aws gems to their latest minor version to prevent installing every updated gem Amazon releases - [@majormoses](https://github.com/majormoses)
+
 ## 7.5.0 (2018-07-18)
 
 - Fixing getting Route53 record when geo location is set
