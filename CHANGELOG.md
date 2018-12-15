@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.0.1 (2018-12-14)
+
+- Fix the gem metadata to prevent failurs to install the gems - [@majormoses](https://github.com/majormoses)
+
 ## 8.0.0 (2018-12-14)
 
 - Switch to aws-sdk-v3 gems and only install the minimum required gems - [@bdwyertech](https://github.com/bdwyertech)
