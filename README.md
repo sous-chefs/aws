@@ -1023,17 +1023,15 @@ The `ssm_parameter_store` resource provider allows one to get, create and delete
 #### Actions:
 
 - `get` - Retrieve a key/value from the AWS Systems Manager Parameter Store.
-- `get_parameters` - Retrieve multiple key/values by name from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the key name.
-- `get_parameters_by_path` - Retrieve multiple key/values by path from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the key name.  If recursive is set to true the code will retrieve all parameters in the path hierarchy.
+- `get_parameters` - Retrieve multiple key/values by name from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the corresponding path value.
+- `get_parameters_by_path` - Retrieve multiple key/values by path from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the key's name.  If recursive is set to true, it will retrieve all parameters in the path hierarchy, constructing a representative hash structure with nested keys/values.
 - `create` - Create a key/value in the AWS Systems Manager Parameter Store.
 - `delete` - Remove the key/value from the AWS Systems Manager Parameter Store.
 
 #### Properties:
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
-- `name` - Identifies the parameters (get, create, delete, required)
-- `names` - Used to specify multiple parameters (get_parameters, required)
-- `path` - Specify the parameter hierarchy where parameters are located (get_parameters_by_path, required)
+- `path` - Specify the target parameter (String) or parameters (Array - `:get_parameters`). (required)
 - `recursive` - If set to `true` the code will retrieve all parameters in the hierarchy (get_parameters_by_path, optional defaults to false)
 - `description` - Type a description to help identify parameters and their intended use. (create, optional)
 - `value` - Item stored in AWS Systems Manager Parameter Store (create, required)
@@ -1047,7 +1045,7 @@ The `ssm_parameter_store` resource provider allows one to get, create and delete
 ##### Create String Parameter
 ```ruby
 aws_ssm_parameter_store 'create testkitchen record' do
-  name 'testkitchen'
+  path 'testkitchen'
   description 'testkitchen'
   value 'testkitchen'
   type 'String'
@@ -1056,10 +1054,11 @@ aws_ssm_parameter_store 'create testkitchen record' do
   aws_secret_access_key node['aws_test']['access_key']
 end
 ```
+
 ##### Create Encrypted String Parameter with Custom KMS Key
 ```ruby
 aws_ssm_parameter_store "create encrypted test kitchen record" do
-  name '/testkitchen/EncryptedStringCustomKey'
+  path '/testkitchen/EncryptedStringCustomKey'
   description 'Test Kitchen Encrypted Parameter - Custom'
   value 'Encrypted Test Kitchen Custom'
   type 'SecureString'
@@ -1072,7 +1071,7 @@ aws_ssm_parameter_store "create encrypted test kitchen record" do
 ##### Delete Parameter
 ```ruby
 aws_ssm_parameter_store 'delete testkitchen record' do
-  name 'testkitchen'
+  path 'testkitchen'
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
   action :delete
@@ -1081,7 +1080,7 @@ end
 ##### Get Parameters and Populate Template
 ```ruby
 aws_ssm_parameter_store 'get clear_value' do
-  name '/testkitchen/ClearTextString'
+  path '/testkitchen/ClearTextString'
   return_key 'clear_value'
   action :get
   aws_access_key node['aws_test']['key_id']
@@ -1089,7 +1088,7 @@ aws_ssm_parameter_store 'get clear_value' do
 end
 
 aws_ssm_parameter_store 'get decrypted_value' do
-  name '/testkitchen/EncryptedStringDefaultKey'
+  path '/testkitchen/EncryptedStringDefaultKey'
   return_key 'decrypted_value'
   with_decryption true
   action :get
@@ -1098,7 +1097,7 @@ aws_ssm_parameter_store 'get decrypted_value' do
 end
 
 aws_ssm_parameter_store 'get decrypted_custom_value' do
-  name '/testkitchen/EncryptedStringCustomKey'
+  path '/testkitchen/EncryptedStringCustomKey'
   return_key 'decrypted_custom_value'
   with_decryption true
   action :get
@@ -1107,7 +1106,7 @@ aws_ssm_parameter_store 'get decrypted_custom_value' do
 end
 
 aws_ssm_parameter_store 'getParameters' do
-  names ['/testkitchen/ClearTextString', '/testkitchen']
+  path ['/testkitchen/ClearTextString', '/testkitchen']
   return_keys 'parameter_values'
   action :get_parameters
   aws_access_key node['aws_test']['key_id']
@@ -1123,40 +1122,12 @@ aws_ssm_parameter_store 'getParametersbypath' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
 end
+```
 
-template '/tmp/file_with_data.txt' do
-  source 'file_with_data.txt.erb'
-  owner 'ec2-user'
-  group 'ec2-user'
-  mode '0755'
-  sensitive true
-  variables lazy {
-    {
-       clear_value: node.run_state['clear_value'],
-       decrypted_custom_value: node.run_state['decrypted_custom_value'],
-       decrypted_value: node.run_state['decrypted_value'],
-       path1_value: node.run_state['path_values']['/pathtest/path1'],
-       path2_value: node.run_state['path_values']['/pathtest/path2'],
-       parm1_value: node.run_state['parameter_values']['/testkitchen/ClearTextString'],
-       parm2_value: node.run_state['parameter_values']['/testkitchen'],
-    }
-  }
-end
-```
-###### Template (file_with_data.txt.erb)
-```ruby
-ClearValue="<%= @clear_value %>"
-DecryptedCustomValue="<%= @decrypted_custom_value %>"
-DecryptedValue="<%= @decrypted_value %>"
-Path1_value = "<%= @path1_value %>"
-Path2_value = "<%= @path2_value %>"
-Parm1_value = "<%= @parm1_value %>"
-Parm2_value = "<%= @parm2_value %>"
-```
 ##### Get bucket name and retrieve file
 ```ruby
 aws_ssm_parameter_store 'get bucketname' do
-  name 'bucketname'
+  path 'bucketname'
   return_key 'bucketname'
   action :get
   aws_access_key node['aws_test']['key_id']

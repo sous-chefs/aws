@@ -1,20 +1,30 @@
-property :description, String
-property :value, String, required: true
-property :type, String, required: true
-property :key_id, String
-property :overwrite, [true, false], default: true
-property :with_decryption, [true, false], default: false
-property :allowed_pattern, String
-property :return_key, String
-property :names, [String, Array], required: true
-property :return_keys, [String, Hash]
-property :path, String, required: true
-property :recursive, [true, false], default: false
-property :parameter_filters, String
-property :next_token, String
-property :max_results, Integer
+#
+# Cookbook:: aws
+# Resource:: ssm_parameter_store
+#
 
-# authentication
+resource_name :ssm_parameter_store
+provides :aws_ssm_parameter_store
+
+# => Define the Resource Properties
+property :path, [String, Array], name_property: true
+
+# => Retrieval Properties
+property :recursive,       [FalseClass, TrueClass], default: false
+property :with_decryption, [false, true], default: false
+# => run_state key to put the Retrieved Value(s)
+property :return_key,        String
+property :parameter_filters, Array, required: false
+
+# => Create Properties
+property :value,           String
+property :description,     String
+property :type,            %w(String StringList SecureString)
+property :key_id,          String
+property :overwrite,       [false, true], default: true
+property :allowed_pattern, String
+
+# => AWS Config
 property :aws_access_key, String
 property :aws_secret_access_key, String
 property :aws_session_token, String
@@ -23,154 +33,109 @@ property :aws_role_session_name, String
 property :region, String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
+include Chef::Mixin::DeepMerge
 
 # allow use of the property names from the parameter store cookbook
 alias_method :aws_access_key_id, :aws_access_key
 alias_method :aws_region, :region
 
+# => Retrieve Single Parameter
 action :get do
   request = {
-    name: name,
-    with_decryption: with_decryption,
+    name: new_resource.path,
+    with_decryption: new_resource.with_decryption,
   }
+  Chef::Log.debug "Get parameter: #{request[:name]}"
   resp = ssm_client.get_parameter(request)
   node.run_state[new_resource.return_key] = resp.parameter.value
-  Chef::Log.debug "Get parameter #{name}"
 end
 
+# => Retrieve Multiple Parameters
 action :get_parameters do
   request = {
-    names: names,
-    with_decryption: with_decryption,
+    names: Array(new_resource.path),
+    with_decryption: new_resource.with_decryption,
   }
+  Chef::Log.debug "Get parameters: #{request[:names]}"
   resp = ssm_client.get_parameters(request)
   secret_info = {}
   resp.parameters.each do |secret|
     secret_info[secret.name] = secret.value
   end
-  Chef::Log.debug "Get parameters #{names}"
-  node.run_state[new_resource.return_keys] = secret_info
+  node.run_state[new_resource.return_key] = secret_info
 end
 
 action :get_parameters_by_path do
-  secrets = []
+  # => Build the Request
   request = {
-    path: path,
-    recursive: recursive,
-    parameter_filters: parameter_filters,
-    with_decryption: with_decryption,
-    max_results: max_results,
-    next_token: next_token,
+    path: new_resource.path,
+    recursive: new_resource.recursive,
+    parameter_filters: new_resource.parameter_filters,
+    with_decryption: new_resource.with_decryption,
+    max_results: 10,
   }
-  ssm_client.get_parameters_by_path(request).each do |resp|
-    secrets.push(*resp.parameters)
+  Chef::Log.debug "Get parameters by path #{request[:path]}"
+  parms = []
+  while (resp = ssm_client.get_parameters_by_path(request))
+    parms.concat(resp.parameters)
+    break unless resp.next_token
+    request[:next_token] = resp.next_token
   end
-  secret_info = {}
-  secrets.each do |secret|
-    secret_info[secret.name] = secret.value
+  parms.each do |parm|
+    # => Strip Leading Path
+    pname = parm.name.sub(::Pathname.new(request[:path]).cleanpath.to_s, '')
+    # => Convert the Param to a Hash
+    hsh = param_to_hash(pname, parm.value)
+    # => Merge the resulting Hash into the Destination
+    deep_merge!(hsh, node.run_state[new_resource.return_key] ||= {})
   end
-  Chef::Log.debug "Get parameters by path #{path}"
-  node.run_state[new_resource.return_keys] = secret_info
 end
 
 action :create do
   if write_parameter
     request = {
-      name: name,
-      description: description,
-      value: value,
-      type: type,
-      key_id: key_id,
-      overwrite: overwrite,
-      allowed_pattern: allowed_pattern,
+      name: new_resource.path,
+      description: new_resource.description,
+      value: new_resource.value,
+      type: new_resource.type,
+      key_id: new_resource.key_id,
+      overwrite: new_resource.overwrite,
+      allowed_pattern: new_resource.allowed_pattern,
     }
+    Chef::Log.debug "Put parameter #{new_resource.path}"
     ssm_client.put_parameter(request)
-    Chef::Log.debug "Put parameter #{name}"
   end
 end
 
 action :delete do
   request = {
-    name: name,
+    name: new_resource.path,
   }
+  Chef::Log.info "Deleting Parameter: #{new_resource.path}"
   ssm_client.delete_parameter(request)
-  Chef::Log.info "parameter deleted: #{name}"
 end
 
 action_class do
   include AwsCookbook::Ec2
 
-  def name
-    @name ||= new_resource.name
-  end
-
-  def value
-    @value ||= new_resource.value
-  end
-
-  def type
-    @type ||= new_resource.type
-  end
-
-  def description
-    @description ||= new_resource.description
-  end
-
-  def key_id
-    @key_id ||= new_resource.key_id
-  end
-
-  def overwrite
-    @overwrite ||= new_resource.overwrite
-  end
-
-  def with_decryption
-    @with_decryption ||= new_resource.with_decryption
-  end
-
-  def allowed_pattern
-    @allowed_pattern ||= new_resource.allowed_pattern
-  end
-
-  def names
-    @names ||= new_resource.names
-  end
-
-  def path
-    @path ||= new_resource.path
-  end
-
-  def recursive
-    @recursive ||= new_resource.recursive
-  end
-
-  def parameter_filters
-    @parameter_filters ||= new_resource.parameter_filters
-  end
-
-  def next_token
-    @next_token ||= new_resource.next_token
-  end
-
-  def max_results
-    @max_results ||= new_resource.max_results
+  def param_to_hash(path, value)
+    # => Recursively descend a ParameterStore Path and build a Hash
+    #  INPUT: '/Ensure/This/Path' = 'Exists'
+    # OUTPUT: ['Ensure']['This']['Path'] => 'Exists'
+    path.split('/').reject(&:empty?).reverse.inject(value) { |acc, elem| { elem => acc } }
   end
 
   def write_parameter
-    # If the paremeter doesn't exist or one of the values has changed and overwrite
-    # is set to true then we'll write the parameter.
-
     request = {
-      name: name,
-      with_decryption: (type == 'SecureString'),
+      name: new_resource.path,
+      with_decryption: (new_resource.type == 'SecureString'),
     }
-    response = ssm_client.get_parameter(request)
-    return false if response.parameter.name == name && response.parameter.value == value
+    # => Poll the Parameter's existence
+    r = ssm_client.get_parameter(request)
+    return false if r.parameter.value == new_resource.value
     return true if new_resource.overwrite
     false
-  rescue Aws::SSM::Errors::ParameterNotFound => msg
-    # Paremeter doesn't exist
-    Chef::Log.info "get_parameter exception: #{msg}"
+  rescue Aws::SSM::Errors::ParameterNotFound
     true
   end
 
