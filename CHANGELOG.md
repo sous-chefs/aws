@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.0.2 (2018-12-18)
+
+- add `alias_method` for `reutrn_key` and `return_keys` - [@majormoses](https://github.com/majormoses)
+
 ## 8.0.1 (2018-12-14)
 
 - Fix the gem metadata to prevent failurs to install the gems - [@majormoses](https://github.com/majormoses)
