@@ -38,7 +38,7 @@ include Chef::Mixin::DeepMerge
 # allow use of the property names from the parameter store cookbook
 alias_method :aws_access_key_id, :aws_access_key
 alias_method :aws_region, :region
-alias_method :return_key, :return_keys
+alias_method :return_keys, :return_key
 
 # => Retrieve Single Parameter
 action :get do
