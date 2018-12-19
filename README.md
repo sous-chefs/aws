@@ -1107,7 +1107,7 @@ end
 
 aws_ssm_parameter_store 'getParameters' do
   path ['/testkitchen/ClearTextString', '/testkitchen']
-  return_keys 'parameter_values'
+  return_key 'parameter_values'
   action :get_parameters
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
@@ -1117,7 +1117,7 @@ aws_ssm_parameter_store 'getParametersbypath' do
   path '/pathtest/'
   recursive true
   with_decryption true
-  return_keys 'path_values'
+  return_key 'path_values'
   action :get_parameters_by_path
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
@@ -1154,7 +1154,7 @@ end
 
 #### Actions:
 
-- `attach_instance`: Attach an instance to an ASG.  If the instance is already attached it will generate an error.  
+- `attach_instance`: Attach an instance to an ASG.  If the instance is already attached it will generate an error.
 - `detach_instance`: Detach an instance from an ASG.  If the instance is not already attached and in service it will generate an error.
 - `enter_standby`: Put ths instance into standby mode.  Will generate an error if already in standby mode
 - `exit_standby`: Remove the instance from standby mode.  Will generate an error if not in standby mode
