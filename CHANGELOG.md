@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.0.3 (2018-12-21)
+
+- Use the right alias - [@majormoses](https://github.com/majormoses)
+- remove refs to `return_keys` - [@majormoses](https://github.com/majormoses)
+
 ## 8.0.2 (2018-12-18)
 
 - add `alias_method` for `reutrn_key` and `return_keys` - [@majormoses](https://github.com/majormoses)
