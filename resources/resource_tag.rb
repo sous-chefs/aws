@@ -30,7 +30,7 @@ action :add do
   Chef::Log.debug("The current tags on the node are #{current_tags}")
 
   new_resource.tags.each do |k, v|
-    if current_tags.keys.include?(k)
+    if current_tags.key?(k)
       Chef::Log.debug("AWS: Resource #{new_resource.resource_id} already has a tag with key '#{k}', will not add tag '#{k}' => '#{v}'")
     else
       converge_by("add tag '#{k}' with value '#{v}' on resource #{new_resource.resource_id}") do
@@ -46,7 +46,7 @@ action :remove do
   # iterate over the tags specified for deletion
   # delete them if they exist on the node and the values match
   new_resource.tags.keys.each do |key|
-    if current_tags.keys.include?(key) && current_tags[key] == new_resource.tags[key]
+    if current_tags.key?(key) && current_tags[key] == new_resource.tags[key]
       converge_by("delete tag '#{key}' on resource #{new_resource.resource_id} with value '#{current_tags[key]}'") do
         ec2.delete_tags(resources: [new_resource.resource_id], tags: [{ key => new_resource.tags[key] }])
       end
@@ -60,7 +60,7 @@ action :force_remove do
   Chef::Log.debug("The current tags on the node are #{current_tags}")
 
   new_resource.tags.keys.each do |key|
-    if current_tags.keys.include?(key)
+    if current_tags.key?(key)
       converge_by("delete tag '#{key}' on resource #{new_resource.resource_id} with value '#{current_tags[key]}'") do
         ec2.delete_tags(resources: [new_resource.resource_id], tags: [{ key: key }])
       end

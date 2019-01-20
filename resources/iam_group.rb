@@ -33,9 +33,7 @@ action :create do
         end
       end
       # remove policies that are present from the new policies to add
-      if new_resource.policy_members.include?(policy.policy_arn)
-        new_policies.delete(policy.policy_arn)
-      end
+      new_policies.delete(policy.policy_arn) if new_resource.policy_members.include?(policy.policy_arn)
     end
     # add any leftover new policies if they exist.
     unless new_policies.empty?
@@ -63,9 +61,7 @@ action :create do
         end
       end
       # remove users that are present from the new users to add
-      if new_resource.members.include?(user.user_name)
-        new_users.delete(user.user_name)
-      end
+      new_users.delete(user.user_name) if new_resource.members.include?(user.user_name)
     end
     # add any leftover new policies if they exist.
     unless new_users.empty?

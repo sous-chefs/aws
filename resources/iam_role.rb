@@ -41,9 +41,7 @@ action :create do
         end
       end
       # remove policies that are present from the new policies to add
-      if new_resource.policy_members.include?(policy.policy_arn)
-        new_policies.delete(policy.policy_arn)
-      end
+      new_policies.delete(policy.policy_arn) if new_resource.policy_members.include?(policy.policy_arn)
     end
     # add any leftover new policies if they exist.
     unless new_policies.empty?

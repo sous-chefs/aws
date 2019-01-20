@@ -77,9 +77,7 @@ action_class do
       disable_rollback: new_resource.disable_rollback,
       capabilities: [],
     }
-    unless new_resource.stack_policy_body.nil?
-      options[:stack_policy_body] = new_resource.stack_policy_body
-    end
+    options[:stack_policy_body] = new_resource.stack_policy_body unless new_resource.stack_policy_body.nil?
     options[:capabilities] << 'CAPABILITY_IAM' if new_resource.iam_capability
     options[:capabilities] << 'CAPABILITY_NAMED_IAM' if new_resource.named_iam_capability
     options

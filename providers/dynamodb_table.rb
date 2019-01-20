@@ -111,9 +111,7 @@ private
 def load_gsi_creates(api_indexes, res_indexes)
   creates = []
   res_indexes.each do |res_index|
-    unless api_indexes && api_indexes.index { |x| x.index_name == res_index[:index_name] }
-      creates.push(create: res_index)
-    end
+    creates.push(create: res_index) unless api_indexes && api_indexes.index { |x| x.index_name == res_index[:index_name] }
   end
   creates
 end
@@ -150,9 +148,7 @@ private
 def load_gsi_deletes(api_indexes, res_indexes)
   deletes = []
   api_indexes.each do |api_index|
-    unless res_indexes.index { |x| x[:index_name] == api_index.index_name }
-      deletes.push(delete: { index_name: api_index.index_name })
-    end
+    deletes.push(delete: { index_name: api_index.index_name }) unless res_indexes.index { |x| x[:index_name] == api_index.index_name }
   end
   deletes
 end
