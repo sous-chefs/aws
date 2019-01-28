@@ -1122,6 +1122,25 @@ aws_ssm_parameter_store 'getParametersbypath' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
 end
+
+template '/tmp/file_with_data.txt' do
+  source 'file_with_data.txt.erb'
+  owner 'ec2-user'
+  group 'ec2-user'
+  mode '0755'
+  sensitive true
+  variables lazy {
+    {
+       clear_value: node.run_state['clear_value'],
+       decrypted_custom_value: node.run_state['decrypted_custom_value'],
+       decrypted_value: node.run_state['decrypted_value'],
+       path1_value: node.run_state['path_values']['/pathtest/path1'],
+       path2_value: node.run_state['path_values']['/pathtest/path2'],
+       parm1_value: node.run_state['parameter_values']['/testkitchen/ClearTextString'],
+       parm2_value: node.run_state['parameter_values']['/testkitchen'],
+    }
+  }
+end
 ```
 
 ##### Get bucket name and retrieve file
