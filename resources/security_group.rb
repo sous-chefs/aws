@@ -2,6 +2,11 @@
 # Cookbook:: aws
 # Resource:: security_group
 #
+# Technically managing the security group and the ingress/egress
+# rules are unique API calls.  It's much easier to handle them in
+# a single provider, partially to limit the number of API calls.
+# Mostly because describing a security group returns the entire object
+# which we can use to compare against our object
 
 resource_name :security_group
 provides :aws_security_group
@@ -10,6 +15,10 @@ provides :aws_security_group
 property :name, String, name_property: true
 property :description, String
 property :vpc_id, String, required: true
+
+# Ingress/Egress rules
+property :ip_permissions, Array, default: []
+property :ip_permissions_egress, Array, default: []
 
 # => AWS Config
 property :aws_access_key, String
@@ -28,10 +37,55 @@ action :create do
       Chef::Log.info("creating security group #{new_resource.name}")
       # https://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#create_security_group-instance_method
       response = action_class_create_security_group(new_resource.name, new_resource.description, new_resource.vpc_id)
-      Chef::Log.info "Created group_id: #{response.group_id}"
+      group_id = response.group_id
+      Chef::Log.info "Created group_id: #{group_id}"
+      # Reload
+      existing_security_group.reload.data
     end
   else
+    group_id = existing_security_group.group_id
     Chef::Log.debug("security group #{existing_security_group} already exists")
+  end
+
+  # TODO: Manage Tags
+
+  # Convert the chef array of hashes for ip_permissions to an actual AWS data structure
+  # This will be beneficial since it will:
+  # Automatically order/sort all keys
+  # Initialize default values
+  # Protect against compatibility problems if this class is ever updated
+  chef_ingress = new_resource.ip_permissions.map { |i| Aws::EC2::Types::IpPermission.new(i).to_h }
+  aws_ingress = existing_security_group['ip_permissions'].map(&:to_h)
+  aws_ingress_rules_not_in_chef = aws_ingress - chef_ingress
+  unless aws_ingress_rules_not_in_chef.empty?
+    converge_by("removing security group ingress rules for #{new_resource.name}") do
+      Chef::Log.info "removing #{aws_ingress_rules_not_in_chef}"
+      action_class_delete_security_group_ingress(group_id, aws_ingress_rules_not_in_chef)
+    end
+  end
+  chef_ingress_rules_not_in_aws = chef_ingress - aws_ingress
+  unless chef_ingress_rules_not_in_aws.empty?
+    converge_by("adding security group ingress rules for #{new_resource.name}") do
+      Chef::Log.info "adding #{chef_ingress_rules_not_in_aws}"
+      action_class_create_security_group_ingress(group_id, chef_ingress_rules_not_in_aws)
+    end
+  end
+
+  chef_egress = new_resource.ip_permissions_egress.map { |i| Aws::EC2::Types::IpPermission.new(i).to_h }
+  aws_egress = existing_security_group['ip_permissions_egress'].map(&:to_h)
+  aws_egress_rules_not_in_chef = aws_egress - chef_egress
+  unless aws_egress_rules_not_in_chef.empty?
+    converge_by("removing security group egress rules for #{new_resource.name}") do
+      Chef::Log.info "removing #{aws_egress_rules_not_in_chef}"
+      action_class_delete_security_group_egress(group_id, aws_egress_rules_not_in_chef)
+    end
+  end
+  chef_egress_rules_not_in_aws = chef_egress - aws_egress
+  unless chef_egress_rules_not_in_aws.empty?
+    converge_by("adding security group egress rules for #{new_resource.name}") do
+      Chef::Log.info "adding #{chef_egress_rules_not_in_aws}"
+      action_class_create_security_group_egress(group_id, chef_egress_rules_not_in_aws)
+    end
   end
 end
 
@@ -49,6 +103,54 @@ action_class do
       description: description,
       group_name: name,
       vpc_id: vpc_id
+    )
+  end
+
+  # Creates a security group ingress rule
+  # See the below documentation for parameter details
+  # https://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#authorize_security_group_ingress-instance_method
+  # @param group_id [String]
+  # @param ip_permissions [Array<Types::IpPermission>]
+  def action_class_create_security_group_ingress(group_id, ip_permissions)
+    ec2.authorize_security_group_ingress(
+      group_id: group_id,
+      ip_permissions: ip_permissions
+    )
+  end
+
+  # Deletes a security group ingress rule
+  # See the below documentation for parameter details
+  # https://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#revoke_security_group_ingress-instance_method
+  # @param group_id [String]
+  # @param ip_permissions [Array<Types::IpPermission>]
+  def action_class_delete_security_group_ingress(group_id, ip_permissions)
+    ec2.revoke_security_group_ingress(
+      group_id: group_id,
+      ip_permissions: ip_permissions
+    )
+  end
+
+  # Creates a security group egress rule
+  # See the below documentation for parameter details
+  # https://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#authorize_security_group_egress-instance_method
+  # @param group_id [String]
+  # @param ip_permissions [Array<Types::IpPermission>]
+  def action_class_create_security_group_egress(group_id, ip_permissions)
+    ec2.authorize_security_group_egress(
+      group_id: group_id,
+      ip_permissions: ip_permissions
+    )
+  end
+
+  # Deletes a security group egress rule
+  # See the below documentation for parameter details
+  # https://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#revoke_security_group_egress-instance_method
+  # @param group_id [String]
+  # @param ip_permissions [Array<Types::IpPermission>]
+  def action_class_delete_security_group_egress(group_id, ip_permissions)
+    ec2.revoke_security_group_egress(
+      group_id: group_id,
+      ip_permissions: ip_permissions
     )
   end
 

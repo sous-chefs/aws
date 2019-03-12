@@ -21,6 +21,7 @@ This cookbook provides resources for configuring and managing nodes running in A
 - S3 Files (`s3_file`)
 - S3 Buckets (`s3_bucket`)
 - Secondary IPs (`secondary_ip`)
+- Security Groups (`security_group`)
 - AWS SSM Parameter Store (`ssm_parameter_store`)
 - Autoscaling (`autoscaling`)
 
@@ -982,6 +983,87 @@ aws_secondary_ip 'assign_additional_ip' do
   ip ip_info['private_ip']
   interface 'eth0'
   action :assign
+end
+```
+
+### aws_security_group
+
+`security_group` can be used to create or update security groups and associated rules.
+
+#### Actions:
+
+- `create`: Creates the security group
+
+#### Properties:
+
+- `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
+- `region` - The AWS region containing the group. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+- `name` - The name of the security group to manage
+- `description` - The security group description
+- `vpc_id` - The vpc_id where the security group should be created
+
+# Ingress/Egress rules
+Note - this manages ALL rules on the security group.  Any exist rules not included in these definitions will be removed.
+- `ip_permissions` - Ingress rules.  Default: []
+- `ip_permissions_egress` - Egress rules.  Default []
+
+#### Examples:
+
+```ruby
+aws_security_group 'some-unique-name' do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  description 'some-unique-description'
+  vpc_id 'vpc-000000000'
+  ip_permissions []
+  ip_permissions_egress []
+  action :create
+end
+```
+
+Manages ingress/egress rules
+```ruby
+aws_security_group 'some-unique-name' do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  description 'some-unique-description'
+  vpc_id 'vpc-000000000'
+  ip_permissions [{
+                   from_port: 22,
+                   ip_protocol: 'tcp',
+                   ip_ranges: [
+                     {
+                       cidr_ip: '10.10.10.10/24',
+                       description: 'SSH access from the office',
+                     },
+                   ],
+                   to_port: 22,
+                  }]
+  ip_permissions_egress [{
+                   from_port: 123,
+                   ip_protocol: 'udp',
+                   ip_ranges: [
+                     {
+                       cidr_ip: '10.10.10.10/24',
+                       description: 'ntp from the office',
+                     },
+                   ],
+                   to_port: 123,
+                        }]
+  action :create
+end
+```
+
+Alternatively you can use the class definitions for a more strongly typed object
+```ruby
+aws_security_group 'some-unique-name' do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  description 'some-unique-description'
+  vpc_id 'vpc-000000000'
+  ip_permissions [Aws::EC2::Types::IpPermission.new.to_h]
+  ip_permissions_egress [Aws::EC2::Types::IpPermission.new.to_h]
+  action :create
 end
 ```
 
