@@ -2,7 +2,7 @@ property :resource_id,           [String, Array], regex: /(i|snap|vol)-[a-fA-F0-
 property :tags,                  Hash, required: true
 
 # authentication
-property :aws_access_key,        String, sensitive: true
+property :aws_access_key,        String
 property :aws_secret_access_key, String, sensitive: true
 property :aws_session_token,     String, sensitive: true
 property :aws_assume_role_arn,   String

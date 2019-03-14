@@ -2,7 +2,7 @@ property :ip,                    String, name_property: true
 property :timeout,               [Integer, nil], default: 3 * 60 # 3 mins, nil or 0 for no timeout
 
 # authentication
-property :aws_access_key,        String, sensitive: true
+property :aws_access_key,        String
 property :aws_secret_access_key, String, sensitive: true
 property :aws_session_token,     String, sensitive: true
 property :aws_assume_role_arn,   String
