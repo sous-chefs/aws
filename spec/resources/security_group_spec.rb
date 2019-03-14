@@ -25,11 +25,22 @@ describe 'aws_security_group' do
 
     it {
       # Set up mocks
-      describe_security_groups_stub = ec2_client.stub_data(
+      # First call should return empty
+      describe_security_groups_stub_before = ec2_client.stub_data(
+          :describe_security_groups, security_groups: [])
+      # Subsequent call it should return the group
+      describe_security_groups_stub_after = ec2_client.stub_data(
         :describe_security_groups,
-          security_groups: []
+          security_groups:  [{ description: 'hello_world_description',
+                               group_name: 'hello_world',
+                               ip_permissions: [],
+                               ip_permissions_egress: [],
+                               owner_id: '333333333333',
+                               group_id: 'sg-00000000000000000',
+                               tags: []
+                           }]
       )
-      ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
+      ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub_before,describe_security_groups_stub_after)
       create_security_group_stub = ec2_client.stub_data(
         :create_security_group,
           group_id: '12345'
@@ -90,6 +101,130 @@ describe 'aws_security_group' do
         req[:operation_name] == :create_security_group
       end
       expect(create_security_group_request).to eq(nil)
+    }
+  end
+
+  context 'should not update tags' do
+    recipe do
+      aws_security_group 'security_group_name' do
+        description 'security_group_description'
+        vpc_id 'vpc-00000000'
+        tags [
+          {
+            key: 'Stack',
+            value: 'production',
+          },
+          {
+            key: 'CreatedBy',
+            value: 'Chef',
+          },
+        ]
+        action :create
+      end
+    end
+
+    it {
+      # Mock the ec2 data
+      describe_security_groups_stub = ec2_client.stub_data(
+        :describe_security_groups,
+          security_groups:  [{ description: 'security_group_description',
+                               group_name: 'security_group_name',
+                               ip_permissions: [],
+                               owner_id: '333333333333',
+                               group_id: 'sg-00000000000000000',
+                               ip_permissions_egress: [],
+                               tags: [
+                                 {
+                                   key: 'CreatedBy',
+                                   value: 'Chef',
+                                 },
+                                 {
+                                   key: 'Stack',
+                                   value: 'production',
+                                 },
+                               ],
+                               vpc_id: 'vpc-00000000',
+                             }]
+      )
+      ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
+      allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
+
+      # Run the recipe
+      expect { chef_run }.to_not raise_error
+      expect(chef_run).to create_aws_security_group('security_group_name')
+
+      # Expect that it doesn't try to create tags
+      create_tags_request = ec2_client.api_requests.find do |req|
+        req[:operation_name] == :create_tags
+      end
+      expect(create_tags_request).to eq(nil)
+    }
+  end
+
+  context 'should create and delete update tags' do
+    recipe do
+      aws_security_group 'security_group_name' do
+        description 'security_group_description'
+        vpc_id 'vpc-00000000'
+        tags [
+          {
+            key: 'ChefTag',
+            value: 'ToAdd',
+          },
+          {
+            key: 'Tag',
+            value: 'ToKeep',
+          },
+        ]
+        action :create
+      end
+    end
+
+    it {
+      # Mock the ec2 data
+      describe_security_groups_stub = ec2_client.stub_data(
+        :describe_security_groups,
+          security_groups:  [{ description: 'security_group_description',
+                               group_name: 'security_group_name',
+                               ip_permissions: [],
+                               owner_id: '333333333333',
+                               group_id: 'sg-00000000000000000',
+                               ip_permissions_egress: [],
+                               tags: [
+                                 {
+                                   key: 'AwsTag',
+                                   value: 'ToRemove',
+                                 },
+                                 {
+                                   key: 'Tag',
+                                   value: 'ToKeep',
+                                 },
+                               ],
+                               vpc_id: 'vpc-00000000',
+                             }]
+      )
+      ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
+      allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
+
+      # Run the recipe
+      expect { chef_run }.to_not raise_error
+      expect(chef_run).to create_aws_security_group('security_group_name')
+
+      # Expect that it creates tags
+      create_tags_request = ec2_client.api_requests.find do |req|
+        req[:operation_name] == :create_tags
+      end
+      expect(create_tags_request[:params][:tags].length).to eq(1)
+      expect(create_tags_request[:params][:tags][0][:key]).to eq('ChefTag')
+      expect(create_tags_request[:params][:tags][0][:value]).to eq('ToAdd')
+
+      # Expect that it deletes tags
+      delete_tags_request = ec2_client.api_requests.find do |req|
+        req[:operation_name] == :delete_tags
+      end
+      expect(delete_tags_request[:params][:tags].length).to eq(1)
+      expect(delete_tags_request[:params][:tags][0][:key]).to eq('AwsTag')
+      expect(delete_tags_request[:params][:tags][0][:value]).to eq('ToRemove')
     }
   end
 
@@ -246,49 +381,49 @@ describe 'aws_security_group' do
       aws_security_group 'security_group_name' do
         description 'security_group_description'
         ip_permissions [{
-                             from_port: 9999,
-                             ip_protocol: 'tcp',
-                             ip_ranges: [
-                                 {
-                                     cidr_ip: '10.10.10.10/24',
-                                     description: 'Ingress rule to add',
-                                 },
-                             ],
-                             to_port: 9999,
-                         }, {
-                             from_port: 22,
-                             ip_protocol: 'tcp',
-                             ip_ranges: [
-                                 {
-                                     cidr_ip: '10.10.10.20/24',
-                                     description: 'Ingress rule to stay the same',
-                                 },
-                             ],
-                             to_port: 22,
-                         }
+          from_port: 9999,
+          ip_protocol: 'tcp',
+          ip_ranges: [
+            {
+              cidr_ip: '10.10.10.10/24',
+              description: 'Ingress rule to add',
+            },
+          ],
+          to_port: 9999,
+        }, {
+          from_port: 22,
+          ip_protocol: 'tcp',
+          ip_ranges: [
+            {
+              cidr_ip: '10.10.10.20/24',
+              description: 'Ingress rule to stay the same',
+            },
+          ],
+          to_port: 22,
+        }
         ]
         ip_permissions_egress [{
-                                   from_port: 8888,
-                                   ip_protocol: 'udp',
-                                   ip_ranges: [
-                                       {
-                                           cidr_ip: '10.10.10.10/24',
-                                           description: 'Egress rule to add',
-                                       },
-                                   ],
-                                   to_port: 8888,
-                               }, {
-                                   from_port: 22,
-                                   ip_protocol: 'udp',
-                                   ip_ranges: [
-                                       {
-                                           cidr_ip: '10.10.10.20/24',
-                                           description: 'Egress rule to stay the same',
+          from_port: 8888,
+          ip_protocol: 'udp',
+          ip_ranges: [
+            {
+              cidr_ip: '10.10.10.10/24',
+              description: 'Egress rule to add',
+            },
+          ],
+          to_port: 8888,
+        }, {
+          from_port: 22,
+          ip_protocol: 'udp',
+          ip_ranges: [
+            {
+              cidr_ip: '10.10.10.20/24',
+              description: 'Egress rule to stay the same',
 
-                                       },
-                                   ],
-                                   to_port: 22,
-                               }
+            },
+          ],
+          to_port: 22,
+        }
                               ]
         vpc_id 'vpc-00000000'
         action :create
@@ -298,59 +433,59 @@ describe 'aws_security_group' do
     it {
       # Mock the ec2 data
       describe_security_groups_stub = ec2_client.stub_data(
-          :describe_security_groups,
+        :describe_security_groups,
           security_groups:  [{ description: 'security_group_description',
                                group_name: 'security_group_name',
                                ip_permissions: [{
-                                                    from_port: 1111,
-                                                    ip_protocol: 'tcp',
-                                                    ip_ranges: [
-                                                        {
-                                                            cidr_ip: '10.10.10.10/24',
-                                                            description: 'Ingress rule to remove',
-                                                        },
-                                                    ],
-                                                    to_port: 1111,
-                                                }, {
-                                                    from_port: 22,
-                                                    ip_protocol: 'tcp',
-                                                    ip_ranges: [
-                                                        {
-                                                            cidr_ip: '10.10.10.20/24',
-                                                            description: 'Ingress rule to stay the same',
+                                 from_port: 1111,
+                                 ip_protocol: 'tcp',
+                                 ip_ranges: [
+                                   {
+                                     cidr_ip: '10.10.10.10/24',
+                                     description: 'Ingress rule to remove',
+                                   },
+                                 ],
+                                 to_port: 1111,
+                               }, {
+                                 from_port: 22,
+                                 ip_protocol: 'tcp',
+                                 ip_ranges: [
+                                   {
+                                     cidr_ip: '10.10.10.20/24',
+                                     description: 'Ingress rule to stay the same',
 
-                                                        },
-                                                    ],
-                                                    to_port: 22,
-                                                }
+                                   },
+                                 ],
+                                 to_port: 22,
+                               }
                                ],
                                owner_id: '333333333333',
                                group_id: 'sg-00000000000000000',
                                ip_permissions_egress: [{
-                                                           from_port: 2222,
-                                                           ip_protocol: 'udp',
-                                                           ip_ranges: [
-                                                               {
-                                                                   cidr_ip: '10.10.10.10/24',
-                                                                   description: 'Egress rule to remove',
-                                                               },
-                                                           ],
-                                                           to_port: 2222,
-                                                       }, {
-                                                           from_port: 22,
-                                                           ip_protocol: 'udp',
-                                                           ip_ranges: [
-                                                               {
-                                                                   cidr_ip: '10.10.10.20/24',
-                                                                   description: 'Egress rule to stay the same',
+                                 from_port: 2222,
+                                 ip_protocol: 'udp',
+                                 ip_ranges: [
+                                   {
+                                     cidr_ip: '10.10.10.10/24',
+                                     description: 'Egress rule to remove',
+                                   },
+                                 ],
+                                 to_port: 2222,
+                               }, {
+                                 from_port: 22,
+                                 ip_protocol: 'udp',
+                                 ip_ranges: [
+                                   {
+                                     cidr_ip: '10.10.10.20/24',
+                                     description: 'Egress rule to stay the same',
 
-                                                               },
-                                                           ],
-                                                           to_port: 22,
-                                                       }
+                                   },
+                                 ],
+                                 to_port: 22,
+                               }
                                ],
                                tags: [
-                                   { key: 'tag_key', value: 'tag_value' },
+                                 { key: 'tag_key', value: 'tag_value' },
                                ],
                                vpc_id: 'vpc-00000000',
                              }]

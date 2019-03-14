@@ -13,25 +13,29 @@ provides :aws_security_group
 
 # => Define the Resource Properties
 property :name, String, name_property: true
-property :description, String
+property :description, String, default: 'created by chef'
 property :vpc_id, String, required: true
 
 # Ingress/Egress rules
 property :ip_permissions, Array, default: []
 property :ip_permissions_egress, Array, default: []
 
+# Tags
+property :tags, Array, default: []
+
 # => AWS Config
-property :aws_access_key, String
-property :aws_secret_access_key, String
-property :aws_session_token, String
+property :aws_access_key
+property :aws_secret_access_key, String, sensitive: true
+property :aws_session_token, String, sensitive: true
 property :aws_assume_role_arn, String
 property :aws_role_session_name, String
 property :region, String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
+include AwsCookbook::SecurityGroup # ip_permissions helpers
 
 action :create do
-  existing_security_group = action_class_describe_security_groups(new_resource.name)
+  existing_security_group = action_class_describe_security_groups(new_resource.vpc_id, new_resource.name)
   if existing_security_group.nil?
     converge_by("create security group #{new_resource.name}") do
       Chef::Log.info("creating security group #{new_resource.name}")
@@ -40,50 +44,64 @@ action :create do
       group_id = response.group_id
       Chef::Log.info "Created group_id: #{group_id}"
       # Reload
-      existing_security_group.reload.data
+      existing_security_group = action_class_wait_until_ready(new_resource.vpc_id, new_resource.name)
     end
   else
-    group_id = existing_security_group.group_id
     Chef::Log.debug("security group #{existing_security_group} already exists")
   end
 
-  # TODO: Manage Tags
+  group_id = existing_security_group.group_id
 
-  # Convert the chef array of hashes for ip_permissions to an actual AWS data structure
-  # This will be beneficial since it will:
-  # Automatically order/sort all keys
-  # Initialize default values
-  # Protect against compatibility problems if this class is ever updated
-  chef_ingress = new_resource.ip_permissions.map { |i| Aws::EC2::Types::IpPermission.new(i).to_h }
-  aws_ingress = existing_security_group['ip_permissions'].map(&:to_h)
+  # Tags
+  chef_tags = new_resource.tags.map(&:to_h)
+  aws_tags = existing_security_group.tags.map(&:to_h)
+  aws_tags_not_in_chef = aws_tags - chef_tags
+  unless aws_tags_not_in_chef.empty?
+    converge_by("removing security group tags for #{new_resource.name}") do
+      Chef::Log.info "removing tags #{aws_tags_not_in_chef}"
+      action_class_delete_tags(group_id, aws_tags_not_in_chef)
+    end
+  end
+  chef_tags_not_in_aws = chef_tags - aws_tags
+  unless chef_tags_not_in_aws.empty?
+    converge_by("adding security group tags for #{new_resource.name}") do
+      Chef::Log.info "adding tags #{chef_tags_not_in_aws}"
+      action_class_create_tags(group_id, chef_tags_not_in_aws)
+    end
+  end
+
+  # Ingress
+  chef_ingress = AwsCookbook::SecurityGroup.normalize_hash_ip_permissions(new_resource.ip_permissions)
+  aws_ingress = AwsCookbook::SecurityGroup.normalize_aws_types_ip_permissions(existing_security_group['ip_permissions'])
   aws_ingress_rules_not_in_chef = aws_ingress - chef_ingress
   unless aws_ingress_rules_not_in_chef.empty?
     converge_by("removing security group ingress rules for #{new_resource.name}") do
-      Chef::Log.info "removing #{aws_ingress_rules_not_in_chef}"
+      Chef::Log.info "removing  ingress #{aws_ingress_rules_not_in_chef}"
       action_class_delete_security_group_ingress(group_id, aws_ingress_rules_not_in_chef)
     end
   end
   chef_ingress_rules_not_in_aws = chef_ingress - aws_ingress
   unless chef_ingress_rules_not_in_aws.empty?
     converge_by("adding security group ingress rules for #{new_resource.name}") do
-      Chef::Log.info "adding #{chef_ingress_rules_not_in_aws}"
+      Chef::Log.info "adding ingress #{chef_ingress_rules_not_in_aws}"
       action_class_create_security_group_ingress(group_id, chef_ingress_rules_not_in_aws)
     end
   end
 
-  chef_egress = new_resource.ip_permissions_egress.map { |i| Aws::EC2::Types::IpPermission.new(i).to_h }
-  aws_egress = existing_security_group['ip_permissions_egress'].map(&:to_h)
+  # Egress
+  chef_egress = AwsCookbook::SecurityGroup.normalize_hash_ip_permissions(new_resource.ip_permissions_egress)
+  aws_egress = AwsCookbook::SecurityGroup.normalize_aws_types_ip_permissions(existing_security_group['ip_permissions_egress'])
   aws_egress_rules_not_in_chef = aws_egress - chef_egress
   unless aws_egress_rules_not_in_chef.empty?
     converge_by("removing security group egress rules for #{new_resource.name}") do
-      Chef::Log.info "removing #{aws_egress_rules_not_in_chef}"
+      Chef::Log.info "removing egress #{aws_egress_rules_not_in_chef}"
       action_class_delete_security_group_egress(group_id, aws_egress_rules_not_in_chef)
     end
   end
   chef_egress_rules_not_in_aws = chef_egress - aws_egress
   unless chef_egress_rules_not_in_aws.empty?
     converge_by("adding security group egress rules for #{new_resource.name}") do
-      Chef::Log.info "adding #{chef_egress_rules_not_in_aws}"
+      Chef::Log.info "adding egress #{chef_egress_rules_not_in_aws}"
       action_class_create_security_group_egress(group_id, chef_egress_rules_not_in_aws)
     end
   end
@@ -91,6 +109,49 @@ end
 
 action_class do
   include AwsCookbook::Ec2
+
+  # Creates sg tags
+  # https://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#create_tags-instance_method
+  # @param group_id[String]
+  # @param tags [Array<Types::Tag>]
+  def action_class_create_tags(group_id, tags)
+    ec2.create_tags(
+      resources: [
+        group_id,
+      ],
+      tags: tags
+    )
+  end
+
+  # Deletes sg tags
+  # https://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#delete_tags-instance_method
+  # @param group_id[String]
+  # @param tags [Array<Types::Tag>]
+  def action_class_delete_tags(group_id, tags)
+    ec2.delete_tags(
+      resources: [
+        group_id,
+      ],
+      tags: tags
+    )
+  end
+
+  # Waits for a security group to exist, returning the group
+  # This is a hack until -> https://github.com/aws/aws-sdk-ruby/pull/1992
+  # @param vpc_id [String]
+  # @param security_group_name [String]
+  def action_class_wait_until_ready(vpc_id, security_group_name)
+    sleep(5)
+    begin
+      retries ||= 0
+      sg = action_class_describe_security_groups(vpc_id, security_group_name)
+      raise "#{security_group_name} does not yet exist..." if sg.nil?
+    rescue StandardError
+      sleep(5)
+      retry if (retries += 1) < 5
+    end
+    sg
+  end
 
   # Creates a security group
   # See the below documentation for parameter details
@@ -157,16 +218,31 @@ action_class do
   # Describes a security group, by name
   # See the below documentation for parameter details
   # http://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#describe_security_groups-instance_method
+  # @param vpc_id [String]
   # @param security_group_name [String]
-  def action_class_describe_security_groups(security_group_name)
-    group_names = [security_group_name]
-    options = {}
-    # options[:filters] = filters if filters.any?
-    options[:group_names] = group_names if group_names.any?
-    # options[:group_ids] = group_ids if group_ids.any?
-    options[:max_results] = 1
+  def action_class_describe_security_groups(vpc_id, security_group_name)
+    require 'aws-sdk-ec2'
 
-    response = ec2.describe_security_groups(options)
+    # Filter by vpc as the name may not be unique across vpcs
+    filter_vpc = Aws::EC2::Types::Filter.new
+    filter_vpc.name = 'vpc-id'
+    filter_vpc.values = [vpc_id]
+
+    # Use a group-name filter to avoid the exception:
+    # "You may not reference Amazon VPC security groups by name."
+    filter_name = Aws::EC2::Types::Filter.new
+    filter_name.name = 'group-name'
+    filter_name.values = [security_group_name]
+
+    options = {}
+    options[:filters] = [filter_vpc, filter_name]
+
+    begin
+      response = ec2.describe_security_groups(options)
+    rescue Aws::EC2::Errors::InvalidGroupNotFound
+      # This is OK - we'll create it if it doesn't exist
+      return nil
+    end
 
     # We only expect one security group to be returned
     if response.security_groups.empty?
