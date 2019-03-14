@@ -1002,6 +1002,9 @@ end
 - `description` - The security group description
 - `vpc_id` - The vpc_id where the security group should be created
 
+# Tags
+- `tags` - Security Group tags.  Default: []
+
 # Ingress/Egress rules
 Note - this manages ALL rules on the security group.  Any exist rules not included in these definitions will be removed.
 - `ip_permissions` - Ingress rules.  Default: []
@@ -1017,6 +1020,21 @@ aws_security_group 'some-unique-name' do
   vpc_id 'vpc-000000000'
   ip_permissions []
   ip_permissions_egress []
+  tags []
+  action :create
+end
+```
+
+Manages tags
+```ruby
+aws_security_group 'some-unique-name' do
+  aws_access_key aws['aws_access_key_id']
+  aws_secret_access_key aws['aws_secret_access_key']
+  description 'some-unique-description'
+  vpc_id 'vpc-000000000'
+  ip_permissions []
+  ip_permissions_egress []
+  tags [{ key: 'tag_key', value: 'tag_value' }]
   action :create
 end
 ```
