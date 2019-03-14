@@ -3,9 +3,9 @@ property :starting_shard_count, Integer, required: true
 property :region, String, default: lazy { fallback_region }
 
 # authentication
-property :aws_access_key, String
-property :aws_secret_access_key, String
-property :aws_session_token, String
+property :aws_access_key, String, sensitive: true
+property :aws_secret_access_key, String, sensitive: true
+property :aws_session_token, String, sensitive: true
 property :aws_assume_role_arn, String
 property :aws_role_session_name, String
 
