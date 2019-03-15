@@ -1,5 +1,5 @@
-# Removes empty values from a hash
 class Hash
+  # Removes empty values from a hash
   def remove_empty
     def _empty?(val)
       case val
@@ -20,7 +20,6 @@ end
 
 module AwsCookbook
   module SecurityGroup
-
     # Removes keys which contain nil values and empty arrays
     # This will let us compare hashes and ignore nils
     #
