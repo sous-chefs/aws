@@ -31,15 +31,16 @@ describe 'aws_security_group' do
       # Subsequent call it should return the group
       describe_security_groups_stub_after = ec2_client.stub_data(
         :describe_security_groups,
-          security_groups:  [{
-            description: 'hello_world_description',
-            group_name: 'hello_world',
-            ip_permissions: [],
-            ip_permissions_egress: [],
-            owner_id: '333333333333',
-            group_id: 'sg-00000000000000000',
-            tags: [],
-          }]
+          security_groups:
+              [{
+                description: 'hello_world_description',
+                group_name: 'hello_world',
+                ip_permissions: [],
+                ip_permissions_egress: [],
+                owner_id: '333333333333',
+                group_id: 'sg-00000000000000000',
+                tags: [],
+              }]
       )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub_before, describe_security_groups_stub_after)
       create_security_group_stub = ec2_client.stub_data(
@@ -78,18 +79,19 @@ describe 'aws_security_group' do
       # Mock the ec2 data
       describe_security_groups_stub = ec2_client.stub_data(
         :describe_security_groups,
-          security_groups:  [{
-            description: 'security_group_description',
-            group_name: 'security_group_name',
-            ip_permissions: [],
-            owner_id: '333333333333',
-            group_id: 'sg-00000000000000000',
-            ip_permissions_egress: [],
-            tags: [
-              { key: 'tag_key', value: 'tag_value' },
-            ],
-            vpc_id: 'vpc-00000000',
-          }]
+          security_groups:
+              [{
+                description: 'security_group_description',
+                group_name: 'security_group_name',
+                ip_permissions: [],
+                owner_id: '333333333333',
+                group_id: 'sg-00000000000000000',
+                ip_permissions_egress: [],
+                tags: [
+                  { key: 'tag_key', value: 'tag_value' },
+                ],
+                vpc_id: 'vpc-00000000',
+              }]
       )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
@@ -129,25 +131,26 @@ describe 'aws_security_group' do
       # Mock the ec2 data
       describe_security_groups_stub = ec2_client.stub_data(
         :describe_security_groups,
-          security_groups:  [{
-            description: 'security_group_description',
-            group_name: 'security_group_name',
-            ip_permissions: [],
-            owner_id: '333333333333',
-            group_id: 'sg-00000000000000000',
-            ip_permissions_egress: [],
-            tags: [
-              {
-                key: 'CreatedBy',
-                value: 'Chef',
-              },
-              {
-                key: 'Stack',
-                value: 'production',
-              },
-            ],
-            vpc_id: 'vpc-00000000',
-          }]
+          security_groups:
+              [{
+                description: 'security_group_description',
+                group_name: 'security_group_name',
+                ip_permissions: [],
+                owner_id: '333333333333',
+                group_id: 'sg-00000000000000000',
+                ip_permissions_egress: [],
+                tags: [
+                  {
+                    key: 'CreatedBy',
+                    value: 'Chef',
+                  },
+                  {
+                    key: 'Stack',
+                    value: 'production',
+                  },
+                ],
+                vpc_id: 'vpc-00000000',
+              }]
       )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
@@ -187,25 +190,26 @@ describe 'aws_security_group' do
       # Mock the ec2 data
       describe_security_groups_stub = ec2_client.stub_data(
         :describe_security_groups,
-          security_groups:  [{
-            description: 'security_group_description',
-            group_name: 'security_group_name',
-            ip_permissions: [],
-            owner_id: '333333333333',
-            group_id: 'sg-00000000000000000',
-            ip_permissions_egress: [],
-            tags: [
-              {
-                key: 'AwsTag',
-                value: 'ToRemove',
-              },
-              {
-                key: 'Tag',
-                value: 'ToKeep',
-              },
-            ],
-            vpc_id: 'vpc-00000000',
-          }]
+          security_groups:
+              [{
+                description: 'security_group_description',
+                group_name: 'security_group_name',
+                ip_permissions: [],
+                owner_id: '333333333333',
+                group_id: 'sg-00000000000000000',
+                ip_permissions_egress: [],
+                tags: [
+                  {
+                    key: 'AwsTag',
+                    value: 'ToRemove',
+                  },
+                  {
+                    key: 'Tag',
+                    value: 'ToKeep',
+                  },
+                ],
+                vpc_id: 'vpc-00000000',
+              }]
       )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
@@ -291,62 +295,63 @@ describe 'aws_security_group' do
       # Mock the ec2 data
       describe_security_groups_stub = ec2_client.stub_data(
         :describe_security_groups,
-          security_groups:  [{
-            description: 'security_group_description',
-            group_name: 'security_group_name',
-            ip_permissions: [{
-              from_port: 99,
-              ip_protocol: 'tcp',
-              ip_ranges: [
-                {
-                  cidr_ip: '10.10.10.10/24',
-                  description: 'SSH access from the LA office',
-                },
-              ],
-              to_port: 99,
-            }, {
-              from_port: 22,
-              ip_protocol: 'tcp',
-              ip_ranges: [
-                {
-                  cidr_ip: '10.10.10.20/24',
-                  description: 'SSH access from the NY office',
+          security_groups:
+              [{
+                description: 'security_group_description',
+                group_name: 'security_group_name',
+                ip_permissions: [{
+                  from_port: 99,
+                  ip_protocol: 'tcp',
+                  ip_ranges: [
+                    {
+                      cidr_ip: '10.10.10.10/24',
+                      description: 'SSH access from the LA office',
+                    },
+                  ],
+                  to_port: 99,
+                }, {
+                  from_port: 22,
+                  ip_protocol: 'tcp',
+                  ip_ranges: [
+                    {
+                      cidr_ip: '10.10.10.20/24',
+                      description: 'SSH access from the NY office',
 
-                },
-              ],
-              to_port: 22,
-            }
+                    },
+                  ],
+                  to_port: 22,
+                }
                                                  ],
-            owner_id: '333333333333',
-            group_id: 'sg-00000000000000000',
-            ip_permissions_egress: [{
-              from_port: 9909,
-              ip_protocol: 'udp',
-              ip_ranges: [
-                {
-                  cidr_ip: '10.10.10.10/24',
-                  description: 'UDP access from the LA office',
-                },
-              ],
-              to_port: 9909,
-            }, {
-              from_port: 2202,
-              ip_protocol: 'udp',
-              ip_ranges: [
-                {
-                  cidr_ip: '10.10.10.20/24',
-                  description: 'UDP access from the NY office',
+                owner_id: '333333333333',
+                group_id: 'sg-00000000000000000',
+                ip_permissions_egress: [{
+                  from_port: 9909,
+                  ip_protocol: 'udp',
+                  ip_ranges: [
+                    {
+                      cidr_ip: '10.10.10.10/24',
+                      description: 'UDP access from the LA office',
+                    },
+                  ],
+                  to_port: 9909,
+                }, {
+                  from_port: 2202,
+                  ip_protocol: 'udp',
+                  ip_ranges: [
+                    {
+                      cidr_ip: '10.10.10.20/24',
+                      description: 'UDP access from the NY office',
 
-                },
-              ],
-              to_port: 2202,
-            }
+                    },
+                  ],
+                  to_port: 2202,
+                }
                                ],
-            tags: [
-              { key: 'tag_key', value: 'tag_value' },
-            ],
-            vpc_id: 'vpc-00000000',
-          }]
+                tags: [
+                  { key: 'tag_key', value: 'tag_value' },
+                ],
+                vpc_id: 'vpc-00000000',
+              }]
       )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
@@ -439,62 +444,63 @@ describe 'aws_security_group' do
       # Mock the ec2 data
       describe_security_groups_stub = ec2_client.stub_data(
         :describe_security_groups,
-          security_groups:  [{
-            description: 'security_group_description',
-            group_name: 'security_group_name',
-            ip_permissions: [{
-              from_port: 1111,
-              ip_protocol: 'tcp',
-              ip_ranges: [
-                {
-                  cidr_ip: '10.10.10.10/24',
-                  description: 'Ingress rule to remove',
-                },
-              ],
-              to_port: 1111,
-            }, {
-              from_port: 22,
-              ip_protocol: 'tcp',
-              ip_ranges: [
-                {
-                  cidr_ip: '10.10.10.20/24',
-                  description: 'Ingress rule to stay the same',
+          security_groups:
+              [{
+                description: 'security_group_description',
+                group_name: 'security_group_name',
+                ip_permissions: [{
+                  from_port: 1111,
+                  ip_protocol: 'tcp',
+                  ip_ranges: [
+                    {
+                      cidr_ip: '10.10.10.10/24',
+                      description: 'Ingress rule to remove',
+                    },
+                  ],
+                  to_port: 1111,
+                }, {
+                  from_port: 22,
+                  ip_protocol: 'tcp',
+                  ip_ranges: [
+                    {
+                      cidr_ip: '10.10.10.20/24',
+                      description: 'Ingress rule to stay the same',
 
-                },
-              ],
-              to_port: 22,
-            }
+                    },
+                  ],
+                  to_port: 22,
+                }
                                ],
-            owner_id: '333333333333',
-            group_id: 'sg-00000000000000000',
-            ip_permissions_egress: [{
-              from_port: 2222,
-              ip_protocol: 'udp',
-              ip_ranges: [
-                {
-                  cidr_ip: '10.10.10.10/24',
-                  description: 'Egress rule to remove',
-                },
-              ],
-              to_port: 2222,
-            }, {
-              from_port: 22,
-              ip_protocol: 'udp',
-              ip_ranges: [
-                {
-                  cidr_ip: '10.10.10.20/24',
-                  description: 'Egress rule to stay the same',
+                owner_id: '333333333333',
+                group_id: 'sg-00000000000000000',
+                ip_permissions_egress: [{
+                  from_port: 2222,
+                  ip_protocol: 'udp',
+                  ip_ranges: [
+                    {
+                      cidr_ip: '10.10.10.10/24',
+                      description: 'Egress rule to remove',
+                    },
+                  ],
+                  to_port: 2222,
+                }, {
+                  from_port: 22,
+                  ip_protocol: 'udp',
+                  ip_ranges: [
+                    {
+                      cidr_ip: '10.10.10.20/24',
+                      description: 'Egress rule to stay the same',
 
-                },
-              ],
-              to_port: 22,
-            }
+                    },
+                  ],
+                  to_port: 22,
+                }
                                ],
-            tags: [
-              { key: 'tag_key', value: 'tag_value' },
-            ],
-            vpc_id: 'vpc-00000000',
-          }]
+                tags: [
+                  { key: 'tag_key', value: 'tag_value' },
+                ],
+                vpc_id: 'vpc-00000000',
+              }]
       )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
