@@ -41,12 +41,12 @@ describe 'aws_security_group' do
                 group_id: 'sg-00000000000000000',
                 tags: [],
               }]
-      )
+        )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub_before, describe_security_groups_stub_after)
       create_security_group_stub = ec2_client.stub_data(
         :create_security_group,
           group_id: '12345'
-      )
+        )
       ec2_client.stub_responses(:create_security_group, create_security_group_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
 
@@ -92,7 +92,7 @@ describe 'aws_security_group' do
                 ],
                 vpc_id: 'vpc-00000000',
               }]
-      )
+        )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
 
@@ -151,7 +151,7 @@ describe 'aws_security_group' do
                 ],
                 vpc_id: 'vpc-00000000',
               }]
-      )
+        )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
 
@@ -210,7 +210,7 @@ describe 'aws_security_group' do
                 ],
                 vpc_id: 'vpc-00000000',
               }]
-      )
+        )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
 
@@ -352,7 +352,7 @@ describe 'aws_security_group' do
                 ],
                 vpc_id: 'vpc-00000000',
               }]
-      )
+        )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
 
@@ -501,7 +501,7 @@ describe 'aws_security_group' do
                 ],
                 vpc_id: 'vpc-00000000',
               }]
-      )
+        )
       ec2_client.stub_responses(:describe_security_groups, describe_security_groups_stub)
       allow(Aws::EC2::Client).to receive(:new).and_return(ec2_client)
 
