@@ -12,7 +12,7 @@ resource_name :security_group
 provides :aws_security_group
 
 # => Define the Resource Properties
-property :name, String, name_property: true
+property :security_group_name, String, name_property: true
 property :description, String, default: 'created by chef'
 property :vpc_id, String, required: true
 
@@ -35,16 +35,17 @@ include AwsCookbook::Ec2 # needed for aws_region helper
 include AwsCookbook::SecurityGroup # ip_permissions helpers
 
 action :create do
-  existing_security_group = action_class_describe_security_groups(new_resource.vpc_id, new_resource.name)
+  security_group_name = new_resource.security_group_name
+  existing_security_group = action_class_describe_security_groups(new_resource.vpc_id, security_group_name)
   if existing_security_group.nil?
-    converge_by("create security group #{new_resource.name}") do
-      Chef::Log.info("creating security group #{new_resource.name}")
+    converge_by("create security group #{security_group_name}") do
+      Chef::Log.info("creating security group #{security_group_name}")
       # https://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Client.html#create_security_group-instance_method
-      response = action_class_create_security_group(new_resource.name, new_resource.description, new_resource.vpc_id)
+      response = action_class_create_security_group(security_group_name, new_resource.description, new_resource.vpc_id)
       group_id = response.group_id
       Chef::Log.info "Created group_id: #{group_id}"
       # Reload
-      existing_security_group = action_class_wait_until_ready(new_resource.vpc_id, new_resource.name)
+      existing_security_group = action_class_wait_until_ready(new_resource.vpc_id, security_group_name)
     end
   else
     Chef::Log.debug("security group #{existing_security_group} already exists")
@@ -57,14 +58,14 @@ action :create do
   aws_tags = existing_security_group.tags.map(&:to_h)
   aws_tags_not_in_chef = aws_tags - chef_tags
   unless aws_tags_not_in_chef.empty?
-    converge_by("removing security group tags for #{new_resource.name}") do
+    converge_by("removing security group tags for #{security_group_name}") do
       Chef::Log.info "removing tags #{aws_tags_not_in_chef}"
       action_class_delete_tags(group_id, aws_tags_not_in_chef)
     end
   end
   chef_tags_not_in_aws = chef_tags - aws_tags
   unless chef_tags_not_in_aws.empty?
-    converge_by("adding security group tags for #{new_resource.name}") do
+    converge_by("adding security group tags for #{security_group_name}") do
       Chef::Log.info "adding tags #{chef_tags_not_in_aws}"
       action_class_create_tags(group_id, chef_tags_not_in_aws)
     end
@@ -75,14 +76,14 @@ action :create do
   aws_ingress = AwsCookbook::SecurityGroup.normalize_aws_types_ip_permissions(existing_security_group['ip_permissions'])
   aws_ingress_rules_not_in_chef = aws_ingress - chef_ingress
   unless aws_ingress_rules_not_in_chef.empty?
-    converge_by("removing security group ingress rules for #{new_resource.name}") do
+    converge_by("removing security group ingress rules for #{security_group_name}") do
       Chef::Log.info "removing  ingress #{aws_ingress_rules_not_in_chef}"
       action_class_delete_security_group_ingress(group_id, aws_ingress_rules_not_in_chef)
     end
   end
   chef_ingress_rules_not_in_aws = chef_ingress - aws_ingress
   unless chef_ingress_rules_not_in_aws.empty?
-    converge_by("adding security group ingress rules for #{new_resource.name}") do
+    converge_by("adding security group ingress rules for #{security_group_name}") do
       Chef::Log.info "adding ingress #{chef_ingress_rules_not_in_aws}"
       action_class_create_security_group_ingress(group_id, chef_ingress_rules_not_in_aws)
     end
@@ -93,14 +94,14 @@ action :create do
   aws_egress = AwsCookbook::SecurityGroup.normalize_aws_types_ip_permissions(existing_security_group['ip_permissions_egress'])
   aws_egress_rules_not_in_chef = aws_egress - chef_egress
   unless aws_egress_rules_not_in_chef.empty?
-    converge_by("removing security group egress rules for #{new_resource.name}") do
+    converge_by("removing security group egress rules for #{security_group_name}") do
       Chef::Log.info "removing egress #{aws_egress_rules_not_in_chef}"
       action_class_delete_security_group_egress(group_id, aws_egress_rules_not_in_chef)
     end
   end
   chef_egress_rules_not_in_aws = chef_egress - aws_egress
   unless chef_egress_rules_not_in_aws.empty?
-    converge_by("adding security group egress rules for #{new_resource.name}") do
+    converge_by("adding security group egress rules for #{security_group_name}") do
       Chef::Log.info "adding egress #{chef_egress_rules_not_in_aws}"
       action_class_create_security_group_egress(group_id, chef_egress_rules_not_in_aws)
     end
