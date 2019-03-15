@@ -1,20 +1,12 @@
 class Hash
   # Removes empty values from a hash
   def remove_empty
-    def _empty?(val)
-      case val
-      when Hash then
-        val.compact.empty?
-      when Array then
-        val.all? { |v| _empty?(v) }
-      when String then
-        val.empty?
-      when NilClass then
-        true
-        # ... add any custom checking
-      end
+    p = proc do |*args|
+      v = args.last
+      v.delete_if(&p) if v.respond_to? :delete_if
+      v.nil? || v.respond_to?(:"empty?") && v.empty?
     end
-    delete_if { |_key, val| _empty?(val) }
+    delete_if(&p)
   end
 end
 
