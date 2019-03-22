@@ -7,3 +7,7 @@
 source 'https://rubygems.org'
 
 gem 'community_cookbook_releaser'
+
+gem 'rspec'
+
+gem 'aws-sdk-ec2'
