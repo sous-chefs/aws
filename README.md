@@ -28,6 +28,23 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 
 - [aws_security](https://supermarket.chef.io/cookbooks/aws_security)
 
+## Important - Security Implications
+
+Please review any and all security implications of using any of these resources.  
+This cookbook presents resources which could easily be poorly implemented, abused or exploited.
+- They have the ability to perform destructive actions (ex. `delete *`)
+- They manage sensitive resources (ex. `IAM/SSM`)
+- They require IAM keys which could be compromised
+
+You will want to understand any and all security implications and architect your implementation accordingly before proceeding.  
+
+Some recommendations are below:
+- Do not use IAM credentials of the node - pass a separate set of credentials to these resources
+- Use IAM to restrict credentials to only the actions required, implementing conditions whenever necessary (follow least privileged principles.)
+See [iam_restrictions_and_conditions](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_actions-resources-contextkeys.html)
+- Follow any and all aws best practices for managing credentials and security
+- Review your cookbook implementation as `cloudformation` or alternative tooling may be a better fit for managing aws infrastructure as code.
+
 ## Requirements
 
 ### Platforms
