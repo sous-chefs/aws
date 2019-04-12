@@ -127,7 +127,8 @@ action_class do
   end
 
   def s3_url
-    s3_url_params = { expires_in: 300 }
+    utc_offset = Time.new.utc_offset
+    s3_url_params = { expires_in: 300 + utc_offset.abs }
     s3_url_params[:request_payer] = 'requester' if new_resource.requester_pays
     s3url = s3_obj.presigned_url(:get, s3_url_params).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
     Chef::Log.debug("Using S3 URL #{s3url}")
