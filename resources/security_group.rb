@@ -18,6 +18,10 @@ property :vpc_id, String, required: true
 
 # Ingress/Egress rules
 property :ip_permissions, Array, default: []
+# Even though `ip_permissions` matches the aws def
+# The alias of _ingress makes it more explicit considering
+# there is an _egress
+alias :ip_permissions_ingress :ip_permissions
 property :ip_permissions_egress, Array, default: []
 
 # Tags
