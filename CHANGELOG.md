@@ -2,6 +2,17 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.0.4 (2019-05-16)
+
+- Added a basic chefspec test - [@dualbus](https://github.com/dualbus)
+- Add code owners file - [@tas50](https://github.com/tas50)
+- Rename the kitchen config - [@tas50](https://github.com/tas50)
+- Cookstyle fixes - [@tas50](https://github.com/tas50)
+- Add security section to the readme - [@smcavallo](https://github.com/smcavallo)
+- mark all secret_access_key/session_token parameters as sensitive - [@smcavallo](https://github.com/smcavallo)
+- account for timezone in setting s3 presigned url expiration - [@majormoses](https://github.com/majormoses)
+- bump aws-sdk-* gems for aws-sigv4 compatibility - [@scalp42](https://github.com/scalp42)
+
 ## 8.0.3 (2018-12-21)
 
 - Use the right alias - [@majormoses](https://github.com/majormoses)
@@ -21,9 +32,10 @@ This file is used to list changes made in each version of the aws cookbook.
 - s3_file: Fixed local ETag calculation to handle file originally uploaded as multi part. - [@joshs85](https://github.com/joshs85)
 - s3_file: Created s3_url property to be able to retrieve the pre signed url. - [@joshs85](https://github.com/joshs85)
 - s3_file: Made secret access key and token sensitive properties so they don't show up in logs. - [@joshs85](https://github.com/joshs85)
-- ssm_parameter_store: Fix namespacing issues and clean up the ssm_parameter_store resource parameters - [@bdwyertech](https://github.com/bdwyertech)
+- ssm_parameter_store: Fix namespacing issues and clean up the ssm_parameter_store resource parameters. This is a `BREAKING CHANGE` as it removes the parameters path from the key returned to the run_state. If you had a path such as `/creds-path/`, a credential called `some_token`, and a `return_keys` of `some-app`: `node.run_state['some-app']` will contain `{"some_token"=>"token_value"}` where previously it returned `{"/creds-path/some_token"=>"token_value"}`. As such you will need to update all refrences that use this. - [@bdwyertech](https://github.com/bdwyertech)
 - ssm_parameter_store: add proper handling of pagination for path-based queries - [@bdwyertech](https://github.com/bdwyertech)
 - Lock aws gems to their latest minor version to prevent installing every updated gem Amazon releases - [@majormoses](https://github.com/majormoses)
+
 
 ## 7.5.0 (2018-07-18)
 

@@ -18,7 +18,7 @@ branches:
 # Ensure we make ChefDK's Ruby the default
 before_script:
   - eval "$(chef shell-init bash)"
-  - bundle install
+  - export CHEF_LICENSE="accept-silent"
 
 script:
   - chef --version
