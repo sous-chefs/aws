@@ -171,6 +171,11 @@ if defined?(ChefSpec)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_secondary_ip, :assign, resource_name)
   end
 
+  # security_group
+  def create_aws_security_group(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:aws_security_group, :create, resource_name)
+  end
+
   # cloudwatch
   def create_aws_cloudwatch(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:aws_cloudwatch, :create, resource_name)
