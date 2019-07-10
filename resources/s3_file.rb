@@ -14,6 +14,7 @@ property :use_last_modified, [true, false], default: true
 property :atomic_update, [true, false], default: true
 property :force_unlink, [true, false], default: false
 property :manage_symlink_source, [true, false]
+property :virtual_host, [true, false], default: false
 property :s3_url, String
 if node['platform_family'] == 'windows'
   property :inherits, [true, false], default: true
@@ -130,6 +131,7 @@ action_class do
     utc_offset = Time.new.utc_offset
     s3_url_params = { expires_in: 300 + utc_offset.abs }
     s3_url_params[:request_payer] = 'requester' if new_resource.requester_pays
+    s3_url_params[:virtual_host] = true if new_resource.virtual_host
     s3url = s3_obj.presigned_url(:get, s3_url_params).gsub(%r{https://([\w\.\-]*)\.\{1\}s3.amazonaws.com:443}, 'https://s3.amazonaws.com:443/\1') # Fix for ssl cert issue
     Chef::Log.debug("Using S3 URL #{s3url}")
     @s3_url ||= s3url
