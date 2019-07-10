@@ -923,6 +923,7 @@ This feature is available only to instances within VPCs. It allows you to assign
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `region` - The AWS region containing the file. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
+- `virtual_host` - set to true will use bucket name as a virtual host (defaults to false). See https://docs.aws.amazon.com/AmazonS3/latest/dev/VirtualHosting.html.
 
 #### Actions:
 
