@@ -3,7 +3,6 @@ maintainer 'Chef Software, Inc.'
 maintainer_email 'cookbooks@chef.io'
 license 'Apache-2.0'
 description 'Provides resources for managing AWS resources'
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version '8.0.4'
 
 %w(ubuntu debian centos redhat amazon scientific fedora oracle freebsd windows suse opensuse opensuseleap).each do |os|
@@ -12,7 +11,7 @@ end
 
 source_url 'https://github.com/chef-cookbooks/aws'
 issues_url 'https://github.com/chef-cookbooks/aws/issues'
-chef_version '>= 12.9' if respond_to?(:chef_version)
+chef_version '>= 12.9'
 
 # Pin the aws sdk to the minor version to only pull
 # in new patches by default. For some of these
