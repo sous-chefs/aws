@@ -223,7 +223,7 @@ action_class do
         loop do
           vol = volume_by_id(nv[:volume_id])
           if vol
-            if ['in-use', 'available'].include?(vol[:state])
+            if %w(in-use available).include?(vol[:state])
               Chef::Log.info("Volume #{nv[:volume_id]} is available")
               break
             else
