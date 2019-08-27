@@ -1,15 +1,14 @@
-
-dist: trusty
-sudo: false
 addons:
   apt:
     sources:
-      - chef-current-trusty
+      - chef-current-xenial
     packages:
-      - chefdk
+      - chef-workstation
 
-# Don't `bundle install`
 install: echo "skip bundle install"
+
+env:
+  - CHEF_LICENSE=accept
 
 branches:
   only:
@@ -18,13 +17,10 @@ branches:
 # Ensure we make ChefDK's Ruby the default
 before_script:
   - eval "$(chef shell-init bash)"
-  - export CHEF_LICENSE="accept-silent"
 
 script:
   - chef --version
-  - cookstyle --version
-  - foodcritic --version
-  - chef exec delivery local all
+  - delivery local all
 
 env:
   - AWS_REGION: us-west-2

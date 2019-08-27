@@ -9,6 +9,7 @@ transport:
 provisioner:
   name: chef_zero
   deprecations_as_errors: true
+  chef_license: accept-no-persist
 
 verifier:
   name: inspec
