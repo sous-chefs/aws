@@ -1,7 +1,5 @@
 include AwsCookbook::DynamoDB
 
-use_inline_resources # ~FC113
-
 def whyrun_supported?
   true
 end
