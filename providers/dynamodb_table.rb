@@ -1,9 +1,5 @@
 include AwsCookbook::DynamoDB
 
-def whyrun_supported?
-  true
-end
-
 action :create do
   load_current_resource
   if @table_exists
