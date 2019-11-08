@@ -11,3 +11,22 @@ gem 'community_cookbook_releaser'
 gem 'rspec'
 
 gem 'aws-sdk-ec2'
+
+# group :test_dep_issues do
+#   gem 'aws-sdk-cloudformation', '~> 1.21.0'
+#   gem 'aws-sdk-cloudwatch', '~> 1.22.0'
+#   gem 'aws-sdk-core', '~> 3.71.0'
+#   gem 'aws-sdk-dynamodb', '~> 1.28.0'
+#   gem 'aws-sdk-ec2', '~> 1.115.0'
+#   gem 'aws-sdk-elasticloadbalancing', '~> 1.14.0'
+#   gem 'aws-eventstream', '~> 1.0.3'
+#   gem 'aws-sdk-iam', '~> 1.22.0'
+#   gem 'aws-sdk-kinesis', '~> 1.15.0'
+#   gem 'aws-sdk-kms', '~> 1.20.0'
+#   gem 'aws-sdk-resources', '~> 3.56.0'
+#   gem 'aws-sdk-route53', '~> 1.24.0'
+#   gem 'aws-partitions', '~> 1.162.0'
+#   gem 'aws-sdk-s3', '~> 1.38.0'
+#   gem 'aws-sigv4', '~> 1.1.0'
+#   gem 'aws-sdk-ssm', '~> 1.46.0'
+# end
