@@ -2,6 +2,17 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.1.0 (2019-11-08)
+
+- Add Security group functionality (#379) - [@smcavallo](https://github.com/smcavallo)
+- Adding support for virtualHost on s3
+- Remove the long_description and if respond_to? in metadata.rb - [@tas50](https://github.com/tas50)
+- Remove the ChefSpec matchers - [@tas50](https://github.com/tas50)
+- Remove use_inline_resources in the provider - [@tas50](https://github.com/tas50)
+- Remove the why-run check in the dynamo provider - [@tas50](https://github.com/tas50)
+- Use platform? helpers where we can - [@tas50](https://github.com/tas50)
+- Attempt to fix gem install issues with aws gems - [@majormoses](https://github.com/majormoses)
+
 ## 8.0.4 (2019-05-16)
 
 - Added a basic chefspec test - [@dualbus](https://github.com/dualbus)

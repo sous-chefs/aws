@@ -1,5 +1,4 @@
 default_action :create
-actions :create, :delete
 
 attribute :table_name, kind_of: String, name_attribute: true
 attribute :attribute_definitions, kind_of: Array, required: true

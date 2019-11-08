@@ -3,7 +3,7 @@
 # Resource:: security_group
 #
 # Technically managing the security group and the ingress/egress
-# rules are unique API calls.  It's much easier to handle them in
+# rules are unique API calls. It's much easier to handle them in
 # a single provider, partially to limit the number of API calls.
 # Mostly because describing a security group returns the entire object
 # which we can use to compare against our object
