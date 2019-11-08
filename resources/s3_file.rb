@@ -16,6 +16,9 @@ property :force_unlink, [true, false], default: false
 property :manage_symlink_source, [true, false]
 property :virtual_host, [true, false], default: false
 property :s3_url, String
+# Intentionally not using platform_family?('windows') due to a bug/issue
+# where this method is not abvailable in the context of gating properties
+# TODO: update when this is fixed
 if node['platform_family'] == 'windows'
   property :inherits, [true, false], default: true
   property :rights, Hash
@@ -166,7 +169,7 @@ action_class do
       sensitive new_resource.sensitive
       retries new_resource.retries
       retry_delay new_resource.retry_delay
-      if node['platform_family'] == 'windows'
+      if platform_family?('windows')
         inherits new_resource.inherits
         rights new_resource.rights
       end
