@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.1.1 (2019-11-10)
+
+- bump aws-partitions for aws-sdk-core fix - [@scalp42](https://github.com/scalp42)
+
 ## 8.1.0 (2019-11-08)
 
 - Add Security group functionality (#379) - [@smcavallo](https://github.com/smcavallo)
