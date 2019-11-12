@@ -1158,6 +1158,7 @@ The `ssm_parameter_store` resource provider allows one to get, create and delete
 - `overwrite` - Indicates if create should overwrite an existing parameters with a new value.  AWS Systems Manager Parameter Store versions new values (create, optional defaults to true)
 - `with_decryption` - Indicates if AWS Systems Manager Parameter Store should decrypt the value.  Note that it must have access to the encryption key for this to succeed (get, optional, defaults to false)
 - `allowed_pattern` - A regular expression used to validate the parameter value (create, optional)
+- `return_key` - The key name to set the returned value into. This can then be used by calling `node.run_state['returnkeyname']` in other resources (get, optional) 
 
 #### Examples
 ##### Create String Parameter
