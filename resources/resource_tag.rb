@@ -18,9 +18,9 @@ action :update do
   if updated_tags.eql?(current_tags)
     Chef::Log.debug("AWS: Tags for resource #{new_resource.resource_id} are unchanged")
   else
-    # tags that begin with "aws" are reserved
+    # tags that begin with "aws:" are reserved
     converge_by("Updating the following tags for resource #{new_resource.resource_id} (skipping AWS tags): " + updated_tags.inspect) do
-      updated_tags.delete_if { |key, _value| key.to_s =~ /^aws/ }
+      updated_tags.delete_if { |key, _value| key.to_s =~ /^aws:/ }
       ec2.create_tags(resources: [new_resource.resource_id], tags: updated_tags.collect { |k, v| { key: k, value: v } })
     end
   end
