@@ -47,7 +47,7 @@ action :create do
       Chef::Log.debug("The volume matches the resource's definition, so the volume is assumed to be already created")
       converge_by("update the node data with volume id: #{attached_volume.volume_id}") do
         node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume.volume_id
-        node.save # ~FC075
+        node.save
       end
     else
       # If not, create volume and register its id in the node data
@@ -65,7 +65,7 @@ action :create do
                              new_resource.kms_key_id)
         add_tags(nvid)
         node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
-        node.save # ~FC075
+        node.save
       end
     end
   end
@@ -92,7 +92,7 @@ action :attach do
       mark_delete_on_termination(new_resource.device, vol[:volume_id], instance_id) if new_resource.delete_on_termination
       # always use a symbol here, it is a Hash
       node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:volume_id]
-      node.save # ~FC075
+      node.save
     end
   end
 end
