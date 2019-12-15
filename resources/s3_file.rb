@@ -2,25 +2,25 @@ property :path, String, name_property: true
 property :remote_path, String
 property :region, String, default: lazy { fallback_region }
 property :bucket, String
-property :requester_pays, [true, false], default: false
+property :requester_pays, [TrueClass, FalseClass], default: false
 property :owner, regex: Chef::Config[:user_valid_regex]
 property :group, regex: Chef::Config[:group_valid_regex]
 property :mode, [String, nil]
 property :checksum, [String, nil]
 property :backup, [Integer, false], default: 5
 property :headers, Hash
-property :use_etag, [true, false], default: true
-property :use_last_modified, [true, false], default: true
-property :atomic_update, [true, false], default: true
-property :force_unlink, [true, false], default: false
-property :manage_symlink_source, [true, false]
-property :virtual_host, [true, false], default: false
+property :use_etag, [TrueClass, FalseClass], default: true
+property :use_last_modified, [TrueClass, FalseClass], default: true
+property :atomic_update, [TrueClass, FalseClass], default: true
+property :force_unlink, [TrueClass, FalseClass], default: false
+property :manage_symlink_source, [TrueClass, FalseClass]
+property :virtual_host, [TrueClass, FalseClass], default: false
 property :s3_url, String
 # Intentionally not using platform_family?('windows') due to a bug/issue
 # where this method is not abvailable in the context of gating properties
 # TODO: update when this is fixed
 if node['platform_family'] == 'windows' # rubocop:disable ChefStyle/UsePlatformHelpers
-  property :inherits, [true, false], default: true
+  property :inherits, [TrueClass, FalseClass], default: true
   property :rights, Hash
 end
 

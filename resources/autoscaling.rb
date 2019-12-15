@@ -1,5 +1,5 @@
 property :return_info, [String, Array]
-property :should_decrement_desired_capacity, [true, false], default: true
+property :should_decrement_desired_capacity, [TrueClass, FalseClass], default: true
 property :asg_name, String
 property :status_code, String
 property :max_size, Integer, default: 4

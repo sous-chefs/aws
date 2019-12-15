@@ -12,10 +12,10 @@ property :geo_location_continent,      String
 property :geo_location_subdivision,    String
 property :zone_id,                     String
 property :zone_name,                   String
-property :overwrite,                   [true, false], default: true
+property :overwrite,                   [TrueClass, FalseClass], default: true
 property :alias_target,                Hash
-property :mock,                        [true, false], default: false
-property :fail_on_error,               [true, false], default: false
+property :mock,                        [TrueClass, FalseClass], default: false
+property :fail_on_error,               [TrueClass, FalseClass], default: false
 
 # authentication
 property :aws_access_key,        String

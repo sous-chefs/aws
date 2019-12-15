@@ -1,5 +1,5 @@
 property :description, String
-property :private, [true, false], default: false
+property :private, [TrueClass, FalseClass], default: false
 property :vpc_id, String
 
 # authentication

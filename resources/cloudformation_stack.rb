@@ -2,9 +2,9 @@ property :stack_name, String, name_property: true
 # location of the template body, located in the "files" cookbook dir
 property :template_source, String, required: true
 property :parameters, Array, default: []
-property :disable_rollback, [true, false], default: false
-property :iam_capability, [true, false], default: false
-property :named_iam_capability, [true, false], default: false
+property :disable_rollback, [TrueClass, FalseClass], default: false
+property :iam_capability, [TrueClass, FalseClass], default: false
+property :named_iam_capability, [TrueClass, FalseClass], default: false
 property :stack_policy_body, String
 property :region, String, default: lazy { fallback_region }
 
