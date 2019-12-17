@@ -1,6 +1,6 @@
 property :region, String, default: lazy { fallback_region }
-property :delete_all_objects, [TrueClass, FalseClass], default: false
-property :versioning, [TrueClass, FalseClass], default: false, desired_state: false
+property :delete_all_objects, [true, false], default: false
+property :versioning, [true, false], default: false, desired_state: false
 
 # authentication
 property :aws_access_key

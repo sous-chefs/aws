@@ -1,7 +1,7 @@
 property :region,                String, default: lazy { fallback_region }
 property :size,                  Integer
 property :snapshot_id,           String
-property :most_recent_snapshot,  [TrueClass, FalseClass], default: false
+property :most_recent_snapshot,  [true, false], default: false
 property :availability_zone,     String
 property :device,                String
 property :volume_id,             String
@@ -10,9 +10,9 @@ property :timeout,               default: 3 * 60 # 3 mins, nil or 0 for no timeo
 property :snapshots_to_keep,     default: 2
 property :volume_type,           String
 property :piops,                 Integer, default: 0
-property :encrypted,             [TrueClass, FalseClass], default: false
+property :encrypted,             [true, false], default: false
 property :kms_key_id,            String
-property :delete_on_termination, [TrueClass, FalseClass], default: false
+property :delete_on_termination, [true, false], default: false
 property :tags,                  Hash, default: {}
 
 # authentication
