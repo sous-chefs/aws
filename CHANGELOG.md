@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.2.0 (2020-02-11)
+
+- Add documentation for return_key - [@mbaitelman](https://github.com/mbaitelman)
+- Ignore tags with prefix aws: instead of aws - [@tamimkh](https://github.com/tamimkh)
+- Remove unnecessary Foodcritic comments - [@tas50](https://github.com/tas50)
+- Require Chef 12.15+ - [@tas50](https://github.com/tas50)
+
 ## 8.1.1 (2019-11-10)
 
 - bump aws-partitions for aws-sdk-core fix - [@scalp42](https://github.com/scalp42)
