@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## Unreleased
+
+- resolved cookstyle error: resources/resource_tag.rb:48:21 convention: `Style/HashEachMethods`
+- resolved cookstyle error: resources/resource_tag.rb:62:21 convention: `Style/HashEachMethods`
+
 ## 8.2.0 (2020-02-11)
 
 - Add documentation for return_key - [@mbaitelman](https://github.com/mbaitelman)
