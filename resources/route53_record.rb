@@ -1,3 +1,4 @@
+resource_name :aws_route53_record
 provides :aws_route53_record
 provides :route53_record # for compatibility with the old cookbook
 

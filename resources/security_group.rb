@@ -8,8 +8,10 @@
 # Mostly because describing a security group returns the entire object
 # which we can use to compare against our object
 
-resource_name :security_group
+resource_name :aws_security_group
 provides :aws_security_group
+
+provides :security_group # legacy name
 
 # => Define the Resource Properties
 property :security_group_name, String, name_property: true
