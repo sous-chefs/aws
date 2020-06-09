@@ -9,6 +9,7 @@
 # which we can use to compare against our object
 
 resource_name :security_group
+provides :security_group
 provides :aws_security_group
 
 # => Define the Resource Properties

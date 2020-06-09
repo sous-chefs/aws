@@ -4,6 +4,7 @@
 #
 
 resource_name :ssm_parameter_store
+provides :ssm_parameter_store
 provides :aws_ssm_parameter_store
 
 # => Define the Resource Properties
