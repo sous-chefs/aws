@@ -829,6 +829,7 @@ end
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `name` Required. String. - name of the domain or subdomain.
+- `record_name` Optional. String. - name of the domain or subdomain overrides the `name`. Useful property to use when the resource was called with the same `name` and different values, like in [Split view DNS](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zone-private-considerations.html#hosted-zone-private-considerations-split-view-dns) structure.   
 - `value` String Array - value appropriate to the `type`.. for type 'A' value would be an IP address in IPv4 format for example.
 - `type` Required. String [DNS record type](http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html)
 - `ttl` Integer default: 3600 - time to live, the amount of time in seconds to cache information about the record
