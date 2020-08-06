@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.3.0 (2020-08-06)
+
+- Cookstyle 6.2.9 Fixes - [@xorimabot](https://github.com/xorimabot)
+- Ensure we have resource_name in addition to provides in resources - [@tas50](https://github.com/tas50)
+- Avoid resource overloading for aws_route53_record - [@chakri-pd](https://github.com/chakri-pd)
+- Avoid assigning a value only to return it - [@tas50](https://github.com/tas50)
+
 ## Unreleased
 
 - resolved cookstyle error: resources/resource_tag.rb:48:21 convention: `Style/HashEachMethods`
