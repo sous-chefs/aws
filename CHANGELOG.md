@@ -4,6 +4,9 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+- resolved cookstyle error: test/shared/rspec_helper.rb:20:5 convention: `Style/RedundantAssignment`
+- resolved cookstyle error: test/shared/rspec_helper.rb:21:1 convention: `Layout/EmptyLinesAroundMethodBody`
+- resolved cookstyle error: test/shared/rspec_helper.rb:21:1 convention: `Layout/TrailingWhitespace`
 - resolved cookstyle error: resources/security_group.rb:11:1 warning: `ChefDeprecations/ResourceUsesOnlyResourceName`
 - resolved cookstyle error: resources/ssm_parameter_store.rb:6:1 warning: `ChefDeprecations/ResourceUsesOnlyResourceName`
 - resolved cookstyle error: resources/resource_tag.rb:48:21 convention: `Style/HashEachMethods`

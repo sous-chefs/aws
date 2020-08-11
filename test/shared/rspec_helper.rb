@@ -17,7 +17,6 @@ class ChefAwsDDBTest
       '/latest/meta-data/placement/availability-zone/',
       proxy: nil, &:gets
     )
-    region = availability_zone.chop
-    region
+    availability_zone.chop
   end
 end
