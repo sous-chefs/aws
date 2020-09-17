@@ -1,5 +1,3 @@
-# Encoding: UTF-8
-
 aws_ssm_parameter_store 'testkitchen' do
   description 'testkitchen'
   value 'testkitchen'
