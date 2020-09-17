@@ -248,7 +248,7 @@ action_class do
       response = ec2.describe_security_groups(options)
     rescue Aws::EC2::Errors::InvalidGroupNotFound
       # This is OK - we'll create it if it doesn't exist
-      return nil
+      return
     end
 
     # We only expect one security group to be returned
