@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## 8.3.1 (2020-12-04)
+
+- Resolve cookstyle warnings - [@cookstyle](https://github.com/cookstyle)
+- Update AWS S3 gem dependency - [@arothian](https://github.com/arothian)
+
 ## 8.3.0 (2020-08-06)
 
 - Cookstyle 6.2.9 Fixes - [@xorimabot](https://github.com/xorimabot)
