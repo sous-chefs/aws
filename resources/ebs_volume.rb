@@ -10,6 +10,7 @@ property :timeout,               default: 3 * 60 # 3 mins, nil or 0 for no timeo
 property :snapshots_to_keep,     default: 2
 property :volume_type,           String
 property :piops,                 Integer, default: 0
+property :throughput,            Integer, default: 0
 property :encrypted,             [true, false], default: false
 property :kms_key_id,            String
 property :delete_on_termination, [true, false], default: false
@@ -61,6 +62,7 @@ action :create do
                              new_resource.timeout,
                              new_resource.volume_type,
                              new_resource.piops,
+                             new_resource.throughput,
                              new_resource.encrypted,
                              new_resource.kms_key_id)
         add_tags(nvid)
@@ -191,24 +193,39 @@ action_class do
   end
 
   # Creates a volume according to specifications and blocks until done (or times out)
-  def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, piops, encrypted, kms_key_id)
+  def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, piops, throughput, encrypted, kms_key_id)
     availability_zone ||= node['ec2']['placement_availability_zone']
 
     # Sanity checks so we don't shoot ourselves.
-    raise "Invalid volume type: #{volume_type}" if volume_type && !%w(standard io1 gp2 sc1 st1).include?(volume_type)
+    raise "Invalid volume type: #{volume_type}" if volume_type && !%w(standard io1 io2 gp2 gp3 sc1 st1).include?(volume_type)
 
     params = { availability_zone: availability_zone, encrypted: encrypted, kms_key_id: kms_key_id }
     params['volume_type'] = volume_type if volume_type
 
     # PIOPs requested. Must specify an iops param and probably won't be "low".
-    if volume_type == 'io1'
+    if volume_type?('io1', 'io2')
       raise 'IOPS value not specified.' unless piops >= 100
+      params[:iops] = piops
+    end
+
+    if volume_type == 'gp3' && piops > 0
+      raise 'IOPS value invalid.' unless piops >= 3000 && piops <= 16000
       params[:iops] = piops
     end
 
     # Shouldn't see non-zero piops param without appropriate type.
     if piops > 0
-      raise 'IOPS param without piops volume type.' unless volume_type == 'io1'
+      raise 'IOPS param without piops volume type.' unless volume_type?('io1', 'io2', 'gp3')
+    end
+
+    if volume_type?('gp3') && throughput > 0
+      raise 'Throughput value incorrect.' unless throughput >= 125 && throughput <= 1000
+      params[:throughput] = throughput
+    end
+
+    # Shouldn't see non-zero throughput param without appropriate type.
+    if throughput > 0
+      raise 'Throughput param without throughput-adjustable volume type.' unless volume_type == 'gp3'
     end
 
     params[:snapshot_id] = snapshot_id if snapshot_id

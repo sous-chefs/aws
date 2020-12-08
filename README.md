@@ -422,8 +422,9 @@ The resource only handles manipulating the EBS volume, additional resources need
 - `timeout` - connection timeout for EC2 API.
 - `snapshots_to_keep` - used with action `:prune` for number of snapshots to maintain.
 - `description` - used to set the description of an EBS snapshot
-- `volume_type` - "standard", "io1", or "gp2" ("standard" is magnetic, "io1" is provisioned SSD, "gp2" is general purpose SSD)
-- `piops` - number of Provisioned IOPS to provision, must be >= 100
+- `volume_type` - "standard", "io1", "io2", "gp2" or "gp3" ("standard" is magnetic, "io1" and "io2" are provisioned SSD, "gp2" and "gp3" are general purpose SSD)
+- `piops` - number of Provisioned IOPS to provision, must be >= 100, or between 3000 and 16000 for the "gp3" volume type
+- `throughput` - amount of throughput in MB/s for "gp3" volume types, must be between 125 and 1000 if specified
 - `existing_raid` - whether or not to assume the raid was previously assembled on existing volumes (default no)
 - `encrypted` - specify if the EBS should be encrypted
 - `kms_key_id` - the full ARN of the AWS Key Management Service (AWS KMS) master key to use when creating the encrypted volume (defaults to master key if not specified)
