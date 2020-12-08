@@ -203,7 +203,7 @@ action_class do
     params['volume_type'] = volume_type if volume_type
 
     # PIOPs requested. Must specify an iops param and probably won't be "low".
-    if volume_type?('io1', 'io2')
+    if %w(io1 io2).include?(volume_type)
       raise 'IOPS value not specified.' unless piops >= 100
       params[:iops] = piops
     end
@@ -215,10 +215,10 @@ action_class do
 
     # Shouldn't see non-zero piops param without appropriate type.
     if piops > 0
-      raise 'IOPS param without piops volume type.' unless volume_type?('io1', 'io2', 'gp3')
+      raise 'IOPS param without piops volume type.' unless %w(io1 io2 gp3).include?(volume_type)
     end
 
-    if volume_type?('gp3') && throughput > 0
+    if volume_type == 'gp3' && throughput > 0
       raise 'Throughput value incorrect.' unless throughput >= 125 && throughput <= 1000
       params[:throughput] = throughput
     end
