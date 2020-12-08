@@ -30,6 +30,19 @@ aws_ebs_volume 'standard_ebs_vol_with_tags' do
   action [:create, :attach]
 end
 
+aws_ebs_volume 'ssd_ebs_gp3_volume' do
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  aws_session_token node['aws_test']['session_token']
+  size 1
+  throughput 150
+  piops 3000
+  device '/dev/sdl'
+  delete_on_termination true
+  action [:create, :attach]
+  volume_type 'gp3' # test that specifying type works
+end
+
 aws_ebs_volume 'ssd_ebs_volume' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
@@ -58,6 +71,14 @@ aws_ebs_volume 'standard_ebs_vol' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
   aws_session_token node['aws_test']['session_token']
-  device '/dev/sdi'
+  device '/dev/sdk'
   action [:delete]
+end
+
+aws_ebs_volume 'ssd_ebs_gp3_volume' do
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  aws_session_token node['aws_test']['session_token']
+  device '/dev/sdl'
+  action [:detach]
 end
