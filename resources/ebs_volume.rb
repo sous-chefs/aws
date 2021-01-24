@@ -6,8 +6,8 @@ property :availability_zone,     String
 property :device,                String
 property :volume_id,             String
 property :description,           String
-property :timeout,               default: 3 * 60 # 3 mins, nil or 0 for no timeout
-property :snapshots_to_keep,     default: 2
+property :timeout,               Integer, default: 3 * 60 # 3 mins, nil or 0 for no timeout
+property :snapshots_to_keep,     Integer, default: 2
 property :volume_type,           String
 property :piops,                 Integer, default: 0
 property :throughput,            Integer, default: 0

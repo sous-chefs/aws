@@ -1,8 +1,16 @@
 # aws Cookbook
 
-[![Build Status](https://travis-ci.org/chef-cookbooks/aws.svg?branch=master)](https://travis-ci.org/chef-cookbooks/aws) [![Cookbook Version](https://img.shields.io/cookbook/v/aws.svg)](https://supermarket.chef.io/cookbooks/aws)
+[![Cookbook Version](https://img.shields.io/cookbook/v/aws.svg)](https://supermarket.chef.io/cookbooks/aws)
+[![CI State](https://github.com/sous-chefs/aws/workflows/ci/badge.svg)](https://github.com/sous-chefs/aws/actions?query=workflow%3Aci)
+[![OpenCollective](https://opencollective.com/sous-chefs/backers/badge.svg)](#backers)
+[![OpenCollective](https://opencollective.com/sous-chefs/sponsors/badge.svg)](#sponsors)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
-This cookbook provides resources for configuring and managing nodes running in Amazon Web Services as well as several AWS service offerings. Included resources:
+## Overview
+
+This cookbook provides resources for configuring and managing nodes running in Amazon Web Services as well as several AWS service offerings.
+
+Included resources:
 
 - CloudFormation Stack Management (`cloudformation_stack`)
 - CloudWatch (`cloudwatch`)
@@ -29,22 +37,29 @@ Unsupported AWS resources that have other cookbooks include but are not limited 
 
 - [aws_security](https://supermarket.chef.io/cookbooks/aws_security)
 
-## Important - Security Implications
+### Important - Security Implications
 
-Please review any and all security implications of using any of these resources.  
-This cookbook presents resources which could easily be poorly implemented, abused or exploited.
+Please review any and all security implications of using any of these resources. This cookbook presents resources which could easily be poorly implemented, abused or exploited.
+
 - They have the ability to perform destructive actions (ex. `delete *`)
 - They manage sensitive resources (ex. `IAM/SSM`)
 - They require IAM keys which could be compromised
 
-You will want to understand any and all security implications and architect your implementation accordingly before proceeding.  
+You will want to understand any and all security implications and architect your implementation accordingly before proceeding.
 
 Some recommendations are below:
+
 - Do not use IAM credentials of the node - pass a separate set of credentials to these resources
 - Use IAM to restrict credentials to only the actions required, implementing conditions whenever necessary (follow least privileged principles.)
+
 See [iam_restrictions_and_conditions](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_actions-resources-contextkeys.html)
+
 - Follow any and all aws best practices for managing credentials and security
 - Review your cookbook implementation as `cloudformation` or alternative tooling may be a better fit for managing aws infrastructure as code.
+
+## Maintainers
+
+This cookbook is maintained by the Sous Chefs. The Sous Chefs are a community of Chef cookbook maintainers working together to maintain important cookbooks. If you’d like to know more please visit [sous-chefs.org](https://sous-chefs.org/) or come chat with us on the Chef Community Slack in [#sous-chefs](https://chefcommunity.slack.com/messages/C2V7B88SF).
 
 ## Requirements
 
@@ -65,8 +80,8 @@ See [iam_restrictions_and_conditions](https://docs.aws.amazon.com/IAM/latest/Use
 In order to manage AWS components, authentication credentials need to be available to the node. There are 3 ways to handle this:
 
 1. Explicitly set the credentials when using the resources
-2. Use the credentials in the `~/.aws/credentials` file
-3. Let the resource pick up credentials from the IAM role assigned to the instance
+1. Use the credentials in the `~/.aws/credentials` file
+1. Let the resource pick up credentials from the IAM role assigned to the instance
 
 **Also new** resources can now assume an STS role, with support for MFA as well. Instructions are below in the relevant section.
 
@@ -231,12 +246,12 @@ end
 
 Manage CloudFormation stacks.
 
-#### Actions:
+#### Actions
 
 - `create`: Creates the stack, or updates it if it already exists.
 - `delete`: Begins the deletion process for the stack.
 
-#### Properties:
+#### Properties
 
 - `template_source`: Required - the location of the CloudFormation template file. The file should be stored in the `files` directory in the cookbook.
 - `parameters`: An array of `parameter_key` and `parameter_value` pairs for parameters in the template. Follow the syntax in the example above.
@@ -245,7 +260,7 @@ Manage CloudFormation stacks.
 - `iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources. This is the equivalent of setting `CAPABILITY_IAM` When using the SDK or CLI. Default: `false`
 - `named_iam_capability`: Set to `true` to allow the CloudFormation template to create IAM resources with custom names. This is the equivalent of setting `CAPABILITY_NAMED_IAM` When using the SDK or CLI. Default: `false`
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_cloudformation_stack 'example-stack' do
@@ -268,14 +283,14 @@ end
 
 Use this resource to manage CloudWatch alarms.
 
-#### Actions:
+#### Actions
 
 - `create` - Create or update CloudWatch alarms.
 - `delete` - Delete CloudWatch alarms.
 - `disable_action` - Disable action of the CloudWatch alarms.
 - `enable_action` - Enable action of the CloudWatch alarms.
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `alarm_name` - the alarm name. If none is given on assignment, will take the resource name.
@@ -297,7 +312,7 @@ Use this resource to manage CloudWatch alarms.
 
 For more information about parameters, see [CloudWatch Identifiers](http://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CW_Support_For_AWS.html) in the Using CloudWatch guide.
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_cloudwatch "kitchen_test_alarm" do
@@ -317,7 +332,7 @@ end
 
 Use this resource to create and delete DynamoDB tables. This includes the ability to add global secondary indexes to existing tables.
 
-#### Actions:
+#### Actions
 
 - `create`: Creates the table. Will update the following if the table exists:
 - `global_secondary_indexes`: Will remove non-existent indexes, add new ones, and update throughput for existing ones. All attributes need to be present in `attribute_definitions`. No effect if the resource is omitted.
@@ -325,7 +340,7 @@ Use this resource to create and delete DynamoDB tables. This includes the abilit
 - `provisioned_throughput`: Will update as shown.
 - `delete`: Deletes the index.
 
-#### Properties:
+#### Properties
 
 - `attribute_definitions`: Required. Attributes to create for the table. Mainly this is used to specify attributes that are used in keys, as otherwise one can add any attribute they want to a DynamoDB table.
 - `key_schema`: Required. Used to create the primary key for the table. Attributes need to be present in `attribute_definitions`.
@@ -337,7 +352,7 @@ Use this resource to create and delete DynamoDB tables. This includes the abilit
 
 Several of the attributes shown here take parameters as shown in the [AWS Ruby SDK Documentation](http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Client.html#create_table-instance_method). Also, the [AWS DynamoDB Documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html) may be of further help as well.
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_dynamodb_table 'example-table' do
@@ -401,7 +416,7 @@ end
 
 The resource only handles manipulating the EBS volume, additional resources need to be created in the recipe to manage the attached volume as a filesystem or logical volume.
 
-#### Actions:
+#### Actions
 
 - `create` - create a new volume.
 - `attach` - attach the specified volume.
@@ -410,7 +425,7 @@ The resource only handles manipulating the EBS volume, additional resources need
 - `snapshot` - create a snapshot of the volume.
 - `prune` - prune snapshots.
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `size` - size of the volume in gigabytes.
@@ -431,7 +446,7 @@ The resource only handles manipulating the EBS volume, additional resources need
 - `delete_on_termination` - Boolean value to control whether or not the volume should be deleted when the instance it's attached to is terminated (defaults to nil). Only applies to `:attach` action.
 - `tags` - Hash value to tag the new volumes or snapshots. Only applies to `:create` and `:snapshot` actions.
 
-#### Examples:
+#### Examples
 
 Create a 50G volume, attach it to the instance as `/dev/sdi`:
 
@@ -458,18 +473,18 @@ end
 
 The `elastic_ip` resource provider does not support allocating new IPs. This must be done before running a recipe that uses the resource. After allocating a new Elastic IP, we recommend storing it in a databag and loading the item in the recipe.
 
-#### Actions:
+#### Actions
 
 - `associate` - Associate an allocated IP to the node
 - `disassociate` - Disassociate an allocated IP from the node
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `ip`: String. The IP address to associate or disassociate.
 - `timeout`: Integer. Default: 180\. Time in seconds to wait. 0 for unlimited.
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_elastic_ip '34.15.30.10' do
@@ -486,14 +501,14 @@ end
 
 `elastic_lb` handles registering and removing nodes from ELBs. The resource also adds basic support for creating and deleting ELBs. Note that currently this resource is not fully idempotent so it will not update the existing configuration of an ELB.
 
-#### Actions:
+#### Actions
 
 - `register` - Add a node to the ELB
 - `deregister` - Remove a node from the ELB
 - `create` - Create a new ELB
 - `delete` - Delete an existing ELB
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `name` - the name of the ELB, required.
@@ -538,7 +553,7 @@ end
 
 Use this resource to manage IAM users.
 
-#### Actions:
+#### Actions
 
 - `create`: Creates the user. No effect if the user already exists.
 - `delete`: Gracefully deletes the user (detaches from all attached entities, and deletes the user).
@@ -547,7 +562,7 @@ Use this resource to manage IAM users.
 
 The IAM user takes the name of the resource. A `path` can be specified as well. For more information about paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_iam_user 'example-user' do
@@ -560,12 +575,12 @@ end
 
 Use this resource to manage IAM groups. The group takes the name of the resource.
 
-#### Actions:
+#### Actions
 
 - `create`: Creates the group, and updates members and attached policies if the group already exists.
 - `delete`: Gracefully deletes the group (detaches from all attached entities, and deletes the group).
 
-#### Properties:
+#### Properties
 
 - `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
 - `members`: An array of IAM users that are a member of this group.
@@ -573,7 +588,7 @@ Use this resource to manage IAM groups. The group takes the name of the resource
 - `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
 - `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_iam_group 'example-group' do
@@ -594,18 +609,18 @@ end
 
 Use this resource to create an IAM policy. The policy takes the name of the resource.
 
-#### Actions:
+#### Actions
 
 - `create`: Creates or updates the policy.
 - `delete`: Gracefully deletes the policy (detaches from all attached entities, deletes all non-default policy versions, then deletes the policy).
 
-#### Properties:
+#### Properties
 
 - `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
 - `policy_document`: The JSON document for the policy.
 - `account_id`: The AWS account ID that the policy is going in. Required if using non-user credentials (ie: IAM role through STS or instance role).
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_iam_policy 'example-policy' do
@@ -636,19 +651,19 @@ end
 
 Use this resource to create an IAM role. The policy takes the name of the resource.
 
-#### Actions:
+#### Actions
 
 - `create`: Creates the role if it does not exist. If the role exists, updates attached policies and the `assume_role_policy_document`.
 - `delete`: Gracefully deletes the role (detaches from all attached entities, and deletes the role).
 
-#### Properties:
+#### Properties
 
 - `path`: A path can be supplied for the group. For information on paths, see [IAM Identifiers](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html) in the Using IAM guide.
 - `policy_members`: An array of ARNs of IAM managed policies to attach to this resource. Accepts both user-defined and AWS-defined policy ARNs.
 - `remove_policy_members`: Set to `false` to ensure that policies are not detached from the group when they are not present in the defined resource. Default: `true`
 - `assume_role_policy_document`: The JSON policy document to apply to this role for trust relationships. Dictates what entities can assume this role.
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_iam_role 'example-role' do
@@ -680,17 +695,17 @@ end
 
 Allows detailed CloudWatch monitoring to be enabled for the current instance.
 
-#### Actions:
+#### Actions
 
 - `enable` - Enable detailed CloudWatch monitoring for this instance (Default).
 - `disable` - Disable detailed CloudWatch monitoring for this instance.
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `region` - The AWS region containing the instance. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_instance_monitoring "enable detailed monitoring"
@@ -700,11 +715,11 @@ aws_instance_monitoring "enable detailed monitoring"
 
 Used to associate an IAM role (by way of an IAM instance profile) with an instance. Replaces the instance's current role association if one already exists.
 
-#### Actions:
+#### Actions
 
 - `associate` - Associate role with the instance (Default).
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `region` - The AWS region containing the instance. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
@@ -714,15 +729,16 @@ Used to associate an IAM role (by way of an IAM instance profile) with an instan
 #### Requirements
 
 IAM permisions:
- * `ec2:DescribeIamInstanceProfileAssociations`
- * `ec2:AssociateIamInstanceProfile`
-   * Only needed if the instance is not already associated with an IAM role
- * `ec2:ReplaceIamInstanceProfileAssociation`
-   * Only needed if the instance is already associated with an IAM role
- * `iam:PassRole`
-   * This can be restricted to the resource of the IAM role being associated
 
-#### Examples:
+- `ec2:DescribeIamInstanceProfileAssociations`
+- `ec2:AssociateIamInstanceProfile`
+  - Only needed if the instance is not already associated with an IAM role
+- `ec2:ReplaceIamInstanceProfileAssociation`
+  - Only needed if the instance is already associated with an IAM role
+- `iam:PassRole`
+  - This can be restricted to the resource of the IAM role being associated
+
+#### Examples
 
 ```ruby
 aws_instance_role "change to example role" do
@@ -734,18 +750,18 @@ end
 
 Allows termination protection (AKA `DisableApiTermination`) to be enabled for an instance.
 
-#### Actions:
+#### Actions
 
 - `enable` - Enable termination protection for this instance (Default).
 - `disable` - Disable termination protection for this instance.
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `region` - The AWS region containing the instance. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
 - `instance_id` - The id of the instance to modify. Default: The current instance.
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_instance_term_protection "enable termination protection"
@@ -755,16 +771,16 @@ aws_instance_term_protection "enable termination protection"
 
 Use this resource to create and delete Kinesis streams. Note that this resource cannot be used to modify the shard count as shard splitting is a somewhat complex operation (for example, even CloudFormation replaces streams upon update).
 
-#### Actions:
+#### Actions
 
 - `create`: Creates the stream. No effect if the stream already exists.
 - `delete`: Deletes the stream.
 
-#### Properties:
+#### Properties
 
 - `starting_shard_count`: The number of shards the stream starts with
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_kinesis_stream 'example-stream' do
@@ -777,20 +793,20 @@ end
 
 `resource_tag` can be used to manipulate the tags assigned to one or more AWS resources, i.e. ec2 instances, EBS volumes or EBS volume snapshots.
 
-#### Actions:
+#### Actions
 
 - `add` - Add tags to a resource.
 - `update` - Add or modify existing tags on a resource -- this is the default action.
 - `remove` - Remove tags from a resource, but only if the specified values match the existing ones.
 - `force_remove` - Remove tags from a resource, regardless of their values.
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `tags` - a hash of key value pairs to be used as resource tags, (e.g. `{ "Name" => "foo", "Environment" => node.chef_environment }`,) required.
 - `resource_id` - resources whose tags will be modified. The value may be a single ID as a string or multiple IDs in an array. If no `resource_id` is specified the name attribute will be used.
 
-#### Examples:
+#### Examples
 
 Assigning tags to a node to reflect its role and environment:
 
@@ -821,16 +837,16 @@ end
 
 ### aws_route53_record
 
-#### Actions:
+#### Actions
 
 - `create` - Create a Route53 record
 - `delete` - Remove a Route53 record
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `name` Required. String. - name of the domain or subdomain.
-- `record_name` Optional. String. - name of the domain or subdomain overrides the `name`. Useful property to use when the resource was called with the same `name` and different values, like in [Split view DNS](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zone-private-considerations.html#hosted-zone-private-considerations-split-view-dns) structure.   
+- `record_name` Optional. String. - name of the domain or subdomain overrides the `name`. Useful property to use when the resource was called with the same `name` and different values, like in [Split view DNS](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zone-private-considerations.html#hosted-zone-private-considerations-split-view-dns) structure.
 - `value` String Array - value appropriate to the `type`.. for type 'A' value would be an IP address in IPv4 format for example.
 - `type` Required. String [DNS record type](http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html)
 - `ttl` Integer default: 3600 - time to live, the amount of time in seconds to cache information about the record
@@ -847,7 +863,7 @@ end
 - `mock` [true, false] default: false
 - `fail_on_error` [true, false] default: false
 
-#### Examples:
+#### Examples
 
 Create a simple record
 
@@ -879,12 +895,12 @@ end
 
 ### aws_route53_zone
 
-#### Actions:
+#### Actions
 
 - `create` - Create a Route53 zone
 - `delete` - Remove a Route53 zone
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `name` Required. String. - name of the zone.
@@ -892,7 +908,7 @@ end
 - `private` [true, false]. default: false - Should this be a private zone for use in your VPCs or a Public zone
 - `vpc_id` String. If creating a Private zone this is the VPC to associate the zone with.
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_route53_zone 'testkitchen.dmz' do
@@ -905,12 +921,12 @@ end
 
 This feature is available only to instances within VPCs. It allows you to assign multiple private IP addresses to a network interface.
 
-#### Actions:
+#### Actions
 
 - `assign` - Assign a private IP to the instance.
 - `unassign` - Unassign a private IP from the instance.
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `ip` - the private IP address. - required.
@@ -921,20 +937,20 @@ This feature is available only to instances within VPCs. It allows you to assign
 
 `s3_file` can be used to download a file from s3 that requires aws authorization. This is a wrapper around the core chef `remote_file` resource and supports the same resource attributes as `remote_file`. See [remote_file Chef Docs] (<https://docs.chef.io/resource_remote_file.html>) for a complete list of available attributes.
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `region` - The AWS region containing the file. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
-- `virtual_host` - set to true will use bucket name as a virtual host (defaults to false). See https://docs.aws.amazon.com/AmazonS3/latest/dev/VirtualHosting.html.
+- `virtual_host` - set to true will use bucket name as a virtual host (defaults to false). [See](https://docs.aws.amazon.com/AmazonS3/latest/dev/VirtualHosting.html).
 
-#### Actions:
+#### Actions
 
 - `create`: Downloads a file from s3
 - `create_if_missing`: Downloads a file from S3 only if it doesn't exist locally
 - `delete`: Deletes a local file
 - `touch`: Touches a local file
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_s3_file '/tmp/foo' do
@@ -957,19 +973,19 @@ end
 
 `s3_bucket` can be used to create or delete S3 buckets. Note that buckets can only be deleted if they are empty unless you specify `delete_all_objects` true, which will delete EVERYTHING in your bucket first.
 
-#### Actions:
+#### Actions
 
 - `create`: Creates the bucket
 - `delete`: Deletes the bucket
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `region` - The AWS region containing the bucket. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
 - `versioning` - Enable or disable S3 bucket versioning. Default: false
 - `delete_all_objects` - Used with the `:delete` action to delete all objects before deleting a bucket. Use with EXTREME CAUTION. default: false (for a reason)
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_s3_bucket 'some-unique-name' do
@@ -994,7 +1010,7 @@ end
 
 The `secondary_ip` resource provider allows one to assign/un-assign multiple private secondary IPs on an instance within a VPC. The number of secondary IP addresses that you can assign to an instance varies by instance type. If no ip address is provided on assign, a random one from within the subnet will be assigned. If no interface is provided, the default interface as determined by Ohai will be used.
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_secondary_ip 'assign_additional_ip' do
@@ -1010,11 +1026,11 @@ end
 
 `security_group` can be used to create or update security groups and associated rules.
 
-#### Actions:
+#### Actions
 
 - `create`: Creates the security group
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `region` - The AWS region containing the group. Default: The current region of the node when running in AWS or us-east-1 if the node is not in AWS.
@@ -1023,14 +1039,17 @@ end
 - `vpc_id` - The vpc_id where the security group should be created
 
 # Tags
+
 - `tags` - Security Group tags.  Default: []
 
 # Ingress/Egress rules
+
 Note - this manages ALL rules on the security group.  Any exist rules not included in these definitions will be removed.
+
 - `ip_permissions` - Ingress rules.  Default: []
 - `ip_permissions_egress` - Egress rules.  Default []
 
-#### Examples:
+## Examples
 
 ```ruby
 aws_security_group 'some-unique-name' do
@@ -1046,6 +1065,7 @@ end
 ```
 
 Manages tags
+
 ```ruby
 aws_security_group 'some-unique-name' do
   aws_access_key aws['aws_access_key_id']
@@ -1060,6 +1080,7 @@ end
 ```
 
 Manages ingress/egress rules
+
 ```ruby
 aws_security_group 'some-unique-name' do
   aws_access_key aws['aws_access_key_id']
@@ -1093,6 +1114,7 @@ end
 ```
 
 Alternatively you can use the class definitions for a more strongly typed object
+
 ```ruby
 aws_security_group 'some-unique-name' do
   aws_access_key aws['aws_access_key_id']
@@ -1108,6 +1130,7 @@ end
 ### aws_ssm_parameter_store
 
 The `ssm_parameter_store` resource provider allows one to get, create and delete keys and values in the AWS Systems Manager Parameter Store.  Values can be stored as plain text or as an encrypted string.  In order to use the paramater store resource your ec2 instance role must have the proper policy.  This sample policy allows get, creating and deleting parameters. You can adjust the policy to your needs.  It is recommended that you have one role with the ability to create secrets and another that can only read the secrets.  **It is important to set _sensitive true_ in the resources where the secrets are used so that secrets are not exposed in log files.**
+
 ```ruby
 {
     "Version": "2012-10-17",
@@ -1140,7 +1163,8 @@ The `ssm_parameter_store` resource provider allows one to get, create and delete
     ]
 }
 ```
-#### Actions:
+
+#### Actions
 
 - `get` - Retrieve a key/value from the AWS Systems Manager Parameter Store.
 - `get_parameters` - Retrieve multiple key/values by name from the AWS Systems Manager Parameter Store.  Values are stored in a hash indexed by the corresponding path value.
@@ -1148,7 +1172,7 @@ The `ssm_parameter_store` resource provider allows one to get, create and delete
 - `create` - Create a key/value in the AWS Systems Manager Parameter Store.
 - `delete` - Remove the key/value from the AWS Systems Manager Parameter Store.
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `path` - Specify the target parameter (String) or parameters (Array - `:get_parameters`). (required)
@@ -1160,10 +1184,12 @@ The `ssm_parameter_store` resource provider allows one to get, create and delete
 - `overwrite` - Indicates if create should overwrite an existing parameters with a new value.  AWS Systems Manager Parameter Store versions new values (create, optional defaults to true)
 - `with_decryption` - Indicates if AWS Systems Manager Parameter Store should decrypt the value.  Note that it must have access to the encryption key for this to succeed (get, optional, defaults to false)
 - `allowed_pattern` - A regular expression used to validate the parameter value (create, optional)
-- `return_key` - The key name to set the returned value into. This can then be used by calling `node.run_state['returnkeyname']` in other resources (get, optional) 
+- `return_key` - The key name to set the returned value into. This can then be used by calling `node.run_state['returnkeyname']` in other resources (get, optional)
 
 #### Examples
+
 ##### Create String Parameter
+
 ```ruby
 aws_ssm_parameter_store 'create testkitchen record' do
   path 'testkitchen'
@@ -1177,6 +1203,7 @@ end
 ```
 
 ##### Create Encrypted String Parameter with Custom KMS Key
+
 ```ruby
 aws_ssm_parameter_store "create encrypted test kitchen record" do
   path '/testkitchen/EncryptedStringCustomKey'
@@ -1189,7 +1216,9 @@ aws_ssm_parameter_store "create encrypted test kitchen record" do
   aws_secret_access_key node['aws_test']['access_key']
  end
 ```
+
 ##### Delete Parameter
+
 ```ruby
 aws_ssm_parameter_store 'delete testkitchen record' do
   path 'testkitchen'
@@ -1198,7 +1227,9 @@ aws_ssm_parameter_store 'delete testkitchen record' do
   action :delete
 end
 ```
+
 ##### Get Parameters and Populate Template
+
 ```ruby
 aws_ssm_parameter_store 'get clear_value' do
   path '/testkitchen/ClearTextString'
@@ -1246,6 +1277,7 @@ end
 ```
 
 ##### Get bucket name and retrieve file
+
 ```ruby
 aws_ssm_parameter_store 'get bucketname' do
   path 'bucketname'
@@ -1263,24 +1295,25 @@ aws_s3_file "/tmp/test.txt" do
   aws_secret_access_key node[:custom_secret_key]
 end
 ```
+
 ### aws_autoscale
 
 `autoscale` can be used to attach and detach EC2 instances to/from an AutoScaling Group (ASG).  Once the instance is attached autoscale allows one to move the instance into and out of standby mode.  Standby mode temporarily takes the instance out of rotation so that maintenance can be performed.
 
-#### Properties:
+#### Properties
 
 - `aws_secret_access_key`, `aws_access_key` and optionally `aws_session_token` - required, unless using IAM roles for authentication.
 - `asg_name` - The instance will be attached to this AutoScaling Group.  The name is case sensitive. (attach_instance, required)
 - 'should_decrement_desired_capacity' - Indicates whether the Auto Scaling group decrements the desired capacity value by the number of instances moved to standby or detached. (enter_standby and detach_instance, optional, defaults to true)
 
-#### Actions:
+#### Actions
 
 - `attach_instance`: Attach an instance to an ASG.  If the instance is already attached it will generate an error.
 - `detach_instance`: Detach an instance from an ASG.  If the instance is not already attached and in service it will generate an error.
 - `enter_standby`: Put ths instance into standby mode.  Will generate an error if already in standby mode
 - `exit_standby`: Remove the instance from standby mode.  Will generate an error if not in standby mode
 
-#### Examples:
+#### Examples
 
 ```ruby
 aws_autoscaling 'attach_instance' do
@@ -1309,24 +1342,27 @@ aws_autoscaling 'detach_instance' do
 end
 ```
 
-## License and Authors
+## Contributors
 
-- Author:: Chris Walters ([cw@chef.io](mailto:cw@chef.io))
-- Author:: AJ Christensen ([aj@chef.io](mailto:aj@chef.io))
-- Author:: Justin Huff ([jjhuff@mspin.net](mailto:jjhuff@mspin.net))
+This project exists thanks to all the people who [contribute.](https://opencollective.com/sous-chefs/contributors.svg?width=890&button=false)
 
-Copyright 2009-2016, Chef Software, Inc.
+### Backers
 
-```
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Thank you to all our backers!
 
-    http://www.apache.org/licenses/LICENSE-2.0
+![https://opencollective.com/sous-chefs#backers](https://opencollective.com/sous-chefs/backers.svg?width=600&avatarHeight=40)
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+### Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website.
+
+![https://opencollective.com/sous-chefs/sponsor/0/website](https://opencollective.com/sous-chefs/sponsor/0/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/1/website](https://opencollective.com/sous-chefs/sponsor/1/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/2/website](https://opencollective.com/sous-chefs/sponsor/2/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/3/website](https://opencollective.com/sous-chefs/sponsor/3/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/4/website](https://opencollective.com/sous-chefs/sponsor/4/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/5/website](https://opencollective.com/sous-chefs/sponsor/5/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/6/website](https://opencollective.com/sous-chefs/sponsor/6/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/7/website](https://opencollective.com/sous-chefs/sponsor/7/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/8/website](https://opencollective.com/sous-chefs/sponsor/8/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/9/website](https://opencollective.com/sous-chefs/sponsor/9/avatar.svg?avatarHeight=100)

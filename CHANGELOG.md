@@ -2,6 +2,15 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## Unreleased
+
+- Sous Chefs Adoption
+- Standardise files with files in sous-chefs/repo-management
+- Cookstyle fixes
+- feat(volume-type): add gp3 and io2 volume types to allowed types
+- fix(ebs): update the ec2 gem and correct array membership test
+- Update aws-sdk-kms to latest
+
 ## 8.3.1 (2020-12-04)
 
 - Resolve cookstyle warnings - [@cookstyle](https://github.com/cookstyle)
@@ -13,11 +22,6 @@ This file is used to list changes made in each version of the aws cookbook.
 - Ensure we have resource_name in addition to provides in resources - [@tas50](https://github.com/tas50)
 - Avoid resource overloading for aws_route53_record - [@chakri-pd](https://github.com/chakri-pd)
 - Avoid assigning a value only to return it - [@tas50](https://github.com/tas50)
-
-## Unreleased
-
-- resolved cookstyle error: resources/resource_tag.rb:48:21 convention: `Style/HashEachMethods`
-- resolved cookstyle error: resources/resource_tag.rb:62:21 convention: `Style/HashEachMethods`
 
 ## 8.2.0 (2020-02-11)
 
@@ -74,7 +78,6 @@ This file is used to list changes made in each version of the aws cookbook.
 - ssm_parameter_store: Fix namespacing issues and clean up the ssm_parameter_store resource parameters. This is a `BREAKING CHANGE` as it removes the parameters path from the key returned to the run_state. If you had a path such as `/creds-path/`, a credential called `some_token`, and a `return_keys` of `some-app`: `node.run_state['some-app']` will contain `{"some_token"=>"token_value"}` where previously it returned `{"/creds-path/some_token"=>"token_value"}`. As such you will need to update all refrences that use this. - [@bdwyertech](https://github.com/bdwyertech)
 - ssm_parameter_store: add proper handling of pagination for path-based queries - [@bdwyertech](https://github.com/bdwyertech)
 - Lock aws gems to their latest minor version to prevent installing every updated gem Amazon releases - [@majormoses](https://github.com/majormoses)
-
 
 ## 7.5.0 (2018-07-18)
 
@@ -280,7 +283,7 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## v3.0.0 (2016-03-20)
 
-### Breaking changes:
+### Breaking changes
 
 - Removed the ability to use databags for credentials with the ebs_raid provider. You must now pass the credentials in via the resource, [@tas50]
 - [#218] Remove support for Chef < 11.6.0, [@tas50]
