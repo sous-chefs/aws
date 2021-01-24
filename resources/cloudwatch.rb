@@ -6,14 +6,14 @@ property :alarm_actions, Array, default: []
 property :insufficient_data_actions, Array, default: []
 property :metric_name, String
 property :namespace, String
-property :statistic, equal_to: %w(SampleCount Average Sum Minimum Maximum)
+property :statistic, String, equal_to: %w(SampleCount Average Sum Minimum Maximum)
 property :extended_statistic, String
 property :dimensions, Array, default: []
 property :period, Integer
 property :unit, String
 property :evaluation_periods, Integer
 property :threshold, [Float, Integer]
-property :comparison_operator, equal_to: %w(GreaterThanOrEqualToThreshold GreaterThanThreshold LessThanThreshold LessThanOrEqualToThreshold)
+property :comparison_operator, String, equal_to: %w(GreaterThanOrEqualToThreshold GreaterThanThreshold LessThanThreshold LessThanOrEqualToThreshold)
 
 # authentication
 property :region, String, default: lazy { fallback_region }

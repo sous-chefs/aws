@@ -1,0 +1,42 @@
+---
+name: ci
+
+"on":
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@master
+      - name: Run Chef Delivery
+        uses: actionshub/chef-delivery@master
+        env:
+          CHEF_LICENSE: accept-no-persist
+
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@master
+      - name: Run yaml Lint
+        uses: actionshub/yamllint@master
+
+  mdl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@master
+      - name: Run Markdown Lint
+        uses: actionshub/markdownlint@master
+
+  final:
+    needs: [delivery, yamllint, mdl]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@master
