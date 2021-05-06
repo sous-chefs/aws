@@ -35,12 +35,10 @@ action :delete do
         end
       else
         converge_by "delete S3 bucket #{new_resource.name}" do
-          begin
-            s3_bucket.delete
-            s3_bucket.wait_until_not_exists
-          rescue Aws::S3::Errors::BucketNotEmpty
-            raise "S3 bucket #{new_resource.name} is not empty. If you are ABSOLUTELY SURE you want to delete the bucket and everything in it set delete_all_objects to true"
-          end
+          s3_bucket.delete
+          s3_bucket.wait_until_not_exists
+        rescue Aws::S3::Errors::BucketNotEmpty
+          raise "S3 bucket #{new_resource.name} is not empty. If you are ABSOLUTELY SURE you want to delete the bucket and everything in it set delete_all_objects to true"
         end
       end
     rescue Aws::S3::Errors::PermanentRedirect

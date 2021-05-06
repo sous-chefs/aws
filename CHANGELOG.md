@@ -4,6 +4,13 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+- resolved cookstyle error: resources/s3_bucket.rb:38:1 convention: `Layout/EmptyLinesAroundBlockBody`
+- resolved cookstyle error: resources/s3_bucket.rb:38:1 convention: `Layout/TrailingWhitespace`
+- resolved cookstyle error: resources/s3_bucket.rb:38:11 convention: `Style/RedundantBegin`
+- resolved cookstyle error: resources/s3_bucket.rb:39:9 convention: `Layout/IndentationWidth`
+- resolved cookstyle error: resources/s3_bucket.rb:41:11 convention: `Layout/RescueEnsureAlignment`
+- resolved cookstyle error: resources/s3_bucket.rb:43:1 convention: `Layout/EmptyLinesAroundBlockBody`
+- resolved cookstyle error: resources/s3_bucket.rb:43:1 convention: `Layout/TrailingWhitespace`
 ## 8.4.0 - *2021-01-24*
 
 - Sous Chefs Adoption
