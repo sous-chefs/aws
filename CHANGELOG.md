@@ -4,6 +4,9 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+- resolved cookstyle error: resources/route53_record.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
+- resolved cookstyle error: resources/security_group.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
+- resolved cookstyle error: resources/ssm_parameter_store.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
 ## 8.4.0 - *2021-01-24*
 
 - Sous Chefs Adoption
