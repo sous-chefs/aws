@@ -8,7 +8,7 @@ property :ttl,                         Integer, default: 3600
 property :weight,                      String
 property :record_name,                 String
 property :set_identifier,              String
-property :geo_location,                String
+property :geo_location,                Hash
 property :geo_location_country,        String
 property :geo_location_continent,      String
 property :geo_location_subdivision,    String
