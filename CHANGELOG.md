@@ -4,6 +4,9 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+- Route53 record: `geo_location_subdivision` attribute no longer ignored.
+- Route53 record: `geo_location` attribute type changed to `Hash`.
+
 ## 8.4.0 - *2021-01-24*
 
 - Sous Chefs Adoption
