@@ -1,5 +1,6 @@
 resource_name :aws_route53_record
 provides :aws_route53_record
+unified_mode true
 provides :route53_record # for compatibility with the old cookbook
 
 property :value,                       [String, Array]
