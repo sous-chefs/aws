@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## Unreleased
+
 ## 8.4.1 - *2021-08-26*
 
 ## 8.4.0 - *2021-01-24*
