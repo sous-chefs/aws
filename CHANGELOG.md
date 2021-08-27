@@ -4,6 +4,36 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+- resolved cookstyle error: libraries/ec2.rb:29:7 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: libraries/ec2.rb:58:41 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: libraries/ec2.rb:59:9 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:26:24 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:32:44 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:42:24 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:47:43 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:57:24 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:61:42 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:71:24 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:75:42 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:86:26 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:90:26 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:109:18 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:157:22 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:161:41 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:167:22 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:172:49 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/autoscaling.rb:181:63 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/ebs_volume.rb:197:27 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/instance_monitoring.rb:13:44 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/instance_monitoring.rb:21:46 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/instance_monitoring.rb:30:62 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/instance_role.rb:7:48 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/instance_term_protection.rb:7:48 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/secondary_ip.rb:113:11 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: resources/secondary_ip.rb:122:14 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: test/fixtures/cookbooks/aws_test/recipes/resource_tag.rb:1:18 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: test/fixtures/cookbooks/aws_test/recipes/resource_tag.rb:11:15 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
+- resolved cookstyle error: test/fixtures/cookbooks/aws_test/recipes/resource_tag.rb:20:15 refactor: `Chef/Modernize/UseChefLanguageCloudHelpers`
 - resolved cookstyle error: test/fixtures/cookbooks/aws_test/recipes/ssm_parameter_store.rb:93:7 convention: `Layout/LeadingCommentSpace`
 - resolved cookstyle error: resources/route53_record.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
 - resolved cookstyle error: resources/security_group.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`

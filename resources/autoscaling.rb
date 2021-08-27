@@ -23,13 +23,13 @@ action :enter_standby do
     converge_by('Entering Standby') do
       request = {
         auto_scaling_group_name: read_asg_name,
-        instance_ids: [node['ec2']['instance_id']],
+        instance_ids: [ec2?['instance_id']],
         should_decrement_desired_capacity: should_decrement_desired_capacity,
       }
       resp = autoscaling_client.enter_standby(request)
       node.run_state[new_resource.status_code] = resp.activities[0].status_code
       wait_for_lifecyclestate_change('Standby')
-      Chef::Log.debug "Enter Standby for #{node['ec2']['instance_id']}"
+      Chef::Log.debug "Enter Standby for #{ec2?['instance_id']}"
     end
   end
 end
@@ -39,12 +39,12 @@ action :exit_standby do
     converge_by('Exiting Standby') do
       request = {
         auto_scaling_group_name: read_asg_name,
-        instance_ids: [node['ec2']['instance_id']],
+        instance_ids: [ec2?['instance_id']],
       }
       resp = autoscaling_client.exit_standby(request)
       node.run_state[new_resource.status_code] = resp.activities[0].status_code
       wait_for_lifecyclestate_change('InService')
-      Chef::Log.debug "Exit Standby for #{node['ec2']['instance_id']}"
+      Chef::Log.debug "Exit Standby for #{ec2?['instance_id']}"
     end
   end
 end
@@ -54,11 +54,11 @@ action :attach_instance do
     converge_by('Attaching Instance') do
       request = {
         auto_scaling_group_name: asg_name,
-        instance_ids: [node['ec2']['instance_id']],
+        instance_ids: [ec2?['instance_id']],
       }
       autoscaling_client.attach_instances(request)
       wait_for_lifecyclestate_change('InService')
-      Chef::Log.debug "Attach Instance #{node['ec2']['instance_id']} to #{asg_name}"
+      Chef::Log.debug "Attach Instance #{ec2?['instance_id']} to #{asg_name}"
     end
   end
 end
@@ -68,11 +68,11 @@ action :detach_instance do
     converge_by('Detaching Instance') do
       request = {
         auto_scaling_group_name: read_asg_name,
-        instance_ids: [node['ec2']['instance_id']],
+        instance_ids: [ec2?['instance_id']],
         should_decrement_desired_capacity: should_decrement_desired_capacity,
       }
       autoscaling_client.detach_instances(request)
-      Chef::Log.debug "Detach Instance #{node['ec2']['instance_id']} from #{asg_name}"
+      Chef::Log.debug "Detach Instance #{ec2?['instance_id']} from #{asg_name}"
     end
   end
 end
@@ -83,11 +83,11 @@ action :create_asg do
   request = {
     auto_scaling_group_name: 'AWS_ASG_Test',
     launch_configuration_name: 'AWS_ASG_LC',
-    availability_zones: [node['ec2']['availability_zone']],
+    availability_zones: [ec2?['availability_zone']],
     max_size: 4,
     min_size: 0,
     desired_capacity: 0,
-    vpc_zone_identifier: node['ec2']['subnet_id'],
+    vpc_zone_identifier: ec2?['subnet_id'],
   }
   autoscaling_client.create_auto_scaling_group(request)
   Chef::Log.debug 'Create ASG'
@@ -106,7 +106,7 @@ end
 action :create_launch_config do
   request = {
     launch_configuration_name: 'AWS_ASG_LC',
-    instance_id: node['ec2']['instance_id'],
+    instance_id: ec2?['instance_id'],
     associate_public_ip_address: false,
   }
   autoscaling_client.create_launch_configuration(request)
@@ -154,22 +154,22 @@ action_class do
 
   def read_asg_name
     request = {
-      instance_ids: [node['ec2']['instance_id']],
+      instance_ids: [ec2?['instance_id']],
     }
     response = autoscaling_client.describe_auto_scaling_instances(request)
     asg_name = response.auto_scaling_instances[0].auto_scaling_group_name
-    Chef::Log.debug "Get ASG Name for #{node['ec2']['instance_id']}, ASG Name = #{asg_name}"
+    Chef::Log.debug "Get ASG Name for #{ec2?['instance_id']}, ASG Name = #{asg_name}"
     response.auto_scaling_instances[0].auto_scaling_group_name
   end
 
   def lifecyclestate
     request = {
-      instance_ids: [node['ec2']['instance_id']],
+      instance_ids: [ec2?['instance_id']],
     }
     lcstate = nil
     response = autoscaling_client.describe_auto_scaling_instances(request)
     lcstate = response.auto_scaling_instances[0].lifecycle_state unless response.auto_scaling_instances[0].nil?
-    Chef::Log.debug "Get Life Cycle State for #{node['ec2']['instance_id']}, State = #{lcstate}"
+    Chef::Log.debug "Get Life Cycle State for #{ec2?['instance_id']}, State = #{lcstate}"
     lcstate
   end
 
@@ -178,7 +178,7 @@ action_class do
     while lcstate != state
       sleep(1)
       lcstate = lifecyclestate
-      Chef::Log.debug "Wait for Life Cycle State Change for #{node['ec2']['instance_id']}, Status = #{lcstate}, State = #{state}"
+      Chef::Log.debug "Wait for Life Cycle State Change for #{ec2?['instance_id']}, Status = #{lcstate}, State = #{state}"
     end
   end
 

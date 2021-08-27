@@ -194,7 +194,7 @@ action_class do
 
   # Creates a volume according to specifications and blocks until done (or times out)
   def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, piops, throughput, encrypted, kms_key_id)
-    availability_zone ||= node['ec2']['placement_availability_zone']
+    availability_zone ||= ec2?['placement_availability_zone']
 
     # Sanity checks so we don't shoot ourselves.
     raise "Invalid volume type: #{volume_type}" if volume_type && !%w(standard io1 io2 gp2 gp3 sc1 st1).include?(volume_type)

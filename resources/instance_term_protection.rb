@@ -4,7 +4,7 @@ property :aws_session_token, String, sensitive: true
 property :aws_assume_role_arn, String
 property :aws_role_session_name, String
 property :region, String, default: lazy { fallback_region }
-property :instance_id, String, default: lazy { node['ec2']['instance_id'] }
+property :instance_id, String, default: lazy { ec2?['instance_id'] }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 

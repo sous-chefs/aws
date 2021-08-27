@@ -110,7 +110,7 @@ action_class do
   # return an array of all private IPs on an interface
   def interface_private_ips(interface)
     mac = interface_mac_address(interface)
-    ips = node['ec2']['network_interfaces_macs'][mac]['local_ipv4s']
+    ips = ec2?['network_interfaces_macs'][mac]['local_ipv4s']
     ips = ips.split("\n") if ips.is_a? String # ohai 14 will return an array
     Chef::Log.debug("#{interface} assigned local ipv4s addresses is/are #{ips.join(',')}")
     ips
@@ -119,7 +119,7 @@ action_class do
   # return the interface ID given an interface
   def interface_eni_id(interface)
     mac = interface_mac_address(interface)
-    eni_id = node['ec2']['network_interfaces_macs'][mac]['interface_id']
+    eni_id = ec2?['network_interfaces_macs'][mac]['interface_id']
     Chef::Log.debug("#{interface} eni id is #{eni_id}")
     eni_id
   end
