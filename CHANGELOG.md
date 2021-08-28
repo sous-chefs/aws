@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+- resolved cookstyle error: resources/route53_record.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
+- resolved cookstyle error: resources/security_group.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
+- resolved cookstyle error: resources/ssm_parameter_store.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
+- resolved cookstyle error: test/fixtures/cookbooks/aws_test/recipes/ssm_parameter_store.rb:93:7 convention: `Layout/LeadingCommentSpace`
 ## 8.4.1 - *2021-08-26*
 
 ## 8.4.0 - *2021-01-24*

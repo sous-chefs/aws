@@ -10,6 +10,7 @@
 
 resource_name :aws_security_group
 provides :aws_security_group
+unified_mode true
 
 provides :security_group # legacy name
 

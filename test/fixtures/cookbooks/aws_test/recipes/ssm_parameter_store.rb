@@ -90,7 +90,7 @@ file '/tmp/ssm_parameters.json' do
   content lazy {
     Chef::JSONCompat.to_json_pretty(
       clear_value: node.run_state['clear_value'],
-      #:decrypted_custom_value => node.run_state['decrypted_custom_value'],
+      # :decrypted_custom_value => node.run_state['decrypted_custom_value'],
       decrypted_value: node.run_state['decrypted_value'],
       path_values: node.run_state['path_values'],
       parameter_values: node.run_state['parameter_values'],
