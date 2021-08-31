@@ -8,6 +8,9 @@ This file is used to list changes made in each version of the aws cookbook.
 - resolved cookstyle error: resources/security_group.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
 - resolved cookstyle error: resources/ssm_parameter_store.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
 - resolved cookstyle error: test/fixtures/cookbooks/aws_test/recipes/ssm_parameter_store.rb:93:7 convention: `Layout/LeadingCommentSpace`
+- Require Chef 15.3+ for unified mode
+- Require unified_mode for Chef 17+ support
+
 ## 8.4.1 - *2021-08-26*
 
 ## 8.4.0 - *2021-01-24*
