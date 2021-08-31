@@ -1,3 +1,5 @@
+unified_mode true
+
 property :region,                String, default: lazy { fallback_region }
 property :size,                  Integer
 property :snapshot_id,           String

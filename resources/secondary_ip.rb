@@ -1,3 +1,4 @@
+unified_mode true
 property :ip,                    String, required: true
 property :interface,             String, default: lazy { node['network']['default_interface'] }
 property :timeout,               [Integer, nil], default: 3 * 60 # 3 mins, nil or 0 for no timeout

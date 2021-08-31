@@ -1,3 +1,5 @@
+unified_mode true
+
 property :stack_name, String, name_property: true
 # location of the template body, located in the "files" cookbook dir
 property :template_source, String, required: true

@@ -1,3 +1,4 @@
+unified_mode true
 property :stream_name, String, name_property: true
 property :starting_shard_count, Integer, required: true
 property :region, String, default: lazy { fallback_region }

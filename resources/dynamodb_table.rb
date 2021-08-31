@@ -1,4 +1,5 @@
 default_action :create
+unified_mode true
 
 attribute :table_name, kind_of: String, name_attribute: true
 attribute :attribute_definitions, kind_of: Array, required: true

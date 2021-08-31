@@ -1,3 +1,4 @@
+unified_mode true
 property :resource_id,           [String, Array], regex: /(i|snap|vol)-[a-fA-F0-9]{8}/, name_property: true
 property :tags,                  Hash, required: true
 
