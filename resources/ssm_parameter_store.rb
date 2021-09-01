@@ -5,6 +5,7 @@
 
 resource_name :aws_ssm_parameter_store
 provides :ssm_parameter_store
+unified_mode true
 provides :aws_ssm_parameter_store
 
 # => Define the Resource Properties

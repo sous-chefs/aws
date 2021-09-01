@@ -1,3 +1,5 @@
+unified_mode true
+
 property :alarm_name, String, name_property: true
 property :alarm_description, String
 property :actions_enabled, true

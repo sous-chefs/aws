@@ -1,3 +1,4 @@
+unified_mode true
 property :user_name, String, name_property: true
 property :path, String, default: '/'
 property :region, String, default: lazy { fallback_region }

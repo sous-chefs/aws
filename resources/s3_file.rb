@@ -1,3 +1,4 @@
+unified_mode true
 property :path, String, name_property: true
 property :remote_path, String
 property :region, String, default: lazy { fallback_region }

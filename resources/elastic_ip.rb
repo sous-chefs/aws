@@ -1,3 +1,5 @@
+unified_mode true
+
 property :ip,                    String, name_property: true
 property :timeout,               [Integer, nil], default: 3 * 60 # 3 mins, nil or 0 for no timeout
 

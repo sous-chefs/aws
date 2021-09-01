@@ -1,3 +1,5 @@
+unified_mode true
+
 property :return_info, [String, Array]
 property :should_decrement_desired_capacity, [true, false], default: true
 property :asg_name, String

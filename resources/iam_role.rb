@@ -1,3 +1,4 @@
+unified_mode true
 property :role_name, String, name_property: true
 property :path, String, default: '/'
 property :assume_role_policy_document, String, required: true

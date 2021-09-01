@@ -1,3 +1,4 @@
+unified_mode true
 property :policy_name, String, name_property: true
 property :path, String, default: '/'
 property :policy_document, String, required: true
