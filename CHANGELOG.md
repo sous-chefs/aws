@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
-## Unreleased
+## 9.0.0 - *2021-09-01*
 
 - resolved cookstyle error: resources/route53_record.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
 - resolved cookstyle error: resources/security_group.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
