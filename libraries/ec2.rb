@@ -56,7 +56,11 @@ module AwsCookbook
       # facilitate support for region in resource name
       if node.attribute?('ec2')
         Chef::Log.debug("Using region #{node['ec2']['placement_availability_zone'].chop} from Ohai attributes")
-        node['ec2']['placement_availability_zone'].chop
+        if node['ec2']['placement_availability_zone'].split('-') > 3
+          node['ec2']['placement_availability_zone'].split('-')[0..2].join('-')
+        else
+          node['ec2']['placement_availability_zone'].chop
+        end
       else
         Chef::Log.debug('Falling back to region us-east-1 as Ohai data and resource defined region not present')
         'us-east-1'

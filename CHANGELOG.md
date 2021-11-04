@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+- Fixed a logic bug when relying on ec2 `fallback_region` from a local zone. Local zones have weird AZ names.
+
 ## 9.0.0 - *2021-09-01*
 
 - resolved cookstyle error: resources/route53_record.rb:1:1 refactor: `Chef/Deprecations/ResourceWithoutUnifiedTrue`
