@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## Unreleased
+
 ## 9.0.1 - *2021-11-04*
 
 - Fixed a logic bug when relying on ec2 `fallback_region` from a local zone. Local zones have weird AZ names.
