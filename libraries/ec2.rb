@@ -56,7 +56,7 @@ module AwsCookbook
       # facilitate support for region in resource name
       if node.attribute?('ec2')
         Chef::Log.debug("Using region #{node['ec2']['placement_availability_zone'].chop} from Ohai attributes")
-        if node['ec2']['placement_availability_zone'].split('-') > 3
+        if node['ec2']['placement_availability_zone'].split('-').count > 3
           node['ec2']['placement_availability_zone'].split('-')[0..2].join('-')
         else
           node['ec2']['placement_availability_zone'].chop
