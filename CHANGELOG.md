@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+- Remove delivery folder
+
 ## 9.0.2 - *2021-11-06*
 
 - Fixed array length comparison in ec2 `fallback_region` function
