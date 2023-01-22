@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+Update checkout to v3 in ci.yml
+
 ## 9.0.3 - *2022-12-08*
 
 Standardise files with files in sous-chefs/repo-management
