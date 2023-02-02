@@ -732,11 +732,14 @@ IAM permisions:
 
 - `ec2:DescribeIamInstanceProfileAssociations`
 - `ec2:AssociateIamInstanceProfile`
-  - Only needed if the instance is not already associated with an IAM role
+
+   - Only needed if the instance is not already associated with an IAM role
 - `ec2:ReplaceIamInstanceProfileAssociation`
-  - Only needed if the instance is already associated with an IAM role
+
+   - Only needed if the instance is already associated with an IAM role
 - `iam:PassRole`
-  - This can be restricted to the resource of the IAM role being associated
+
+   - This can be restricted to the resource of the IAM role being associated
 
 #### Examples
 
