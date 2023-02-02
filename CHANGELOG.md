@@ -174,12 +174,13 @@ Standardise files with files in sous-chefs/repo-management
 ## 7.1.0 (2017-06-16)
 
 - Refactor and fix the secondary_ip resource
-  - Fix failures that occured when assigning IPs via the resource (aka make it actually work)
-  - Move all helpers out of the EC2 libary and into the resource itself
-  - Instead of using open-uri to query the metadata endpoint use EC2 data from Ohai
-  - Make IP a required property since we need that to run
-  - Refactor the wait loop that broke notification when the resources updated
-  - Reload Ohai data in the resource so downstream recipes will know about the new IP
+
+   - Fix failures that occured when assigning IPs via the resource (aka make it actually work)
+   - Move all helpers out of the EC2 libary and into the resource itself
+   - Instead of using open-uri to query the metadata endpoint use EC2 data from Ohai
+   - Make IP a required property since we need that to run
+   - Refactor the wait loop that broke notification when the resources updated
+   - Reload Ohai data in the resource so downstream recipes will know about the new IP
 
 ## 7.0.0 (2017-06-15)
 
