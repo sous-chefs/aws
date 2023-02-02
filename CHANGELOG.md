@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
-## Unreleased
+## 9.0.4 - *2023-02-02*
 
 Update checkout to v3 in ci.yml
 
