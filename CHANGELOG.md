@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
-## Unreleased
+## 9.0.8 - *2023-02-18*
 
 Standardise files with files in sous-chefs/repo-management
 
