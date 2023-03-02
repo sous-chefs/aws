@@ -4,19 +4,25 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+## 9.0.9 - *2023-03-01*
+
+Update workflows
+
 ## 9.0.8 - *2023-02-18*
 
 Standardise files with files in sous-chefs/repo-management
 
 ## 9.0.7 - *2023-02-16*
 
+Standardise files with files in sous-chefs/repo-management
+
 ## 9.0.6 - *2023-02-15*
 
 Standardise files with files in sous-chefs/repo-management
 
-Standardise files with files in sous-chefs/repo-management
-
 ## 9.0.5 - *2023-02-14*
+
+Standardise files with files in sous-chefs/repo-management
 
 ## 9.0.4 - *2023-02-02*
 
@@ -24,12 +30,7 @@ Update checkout to v3 in ci.yml
 
 ## 9.0.3 - *2022-12-08*
 
-Standardise files with files in sous-chefs/repo-management
-
-Standardise files with files in sous-chefs/repo-management
-
-Standardise files with files in sous-chefs/repo-management
-
+- Standardise files with files in sous-chefs/repo-management
 - Remove delivery folder
 
 ## 9.0.2 - *2021-11-06*
