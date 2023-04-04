@@ -23,11 +23,6 @@ source_url 'https://github.com/sous-chefs/aws'
 issues_url 'https://github.com/sous-chefs/aws/issues'
 chef_version '>= 15.3'
 
-# Pin the aws sdk to the minor version to only pull
-# in new patches by default. For some of these
-# gems AWS typically releases a new minor version
-# daily so this should reduce the number of gem
-# versions that someone has installed.
 gem 'aws-sdk-cloudformation', '~> 1.21.0'
 gem 'aws-sdk-cloudwatch', '~> 1.22.0'
 gem 'aws-sdk-core', '~> 3.109.0'
