@@ -1,16 +1,26 @@
-name 'aws'
-maintainer 'Chef Software, Inc.'
-maintainer_email 'cookbooks@chef.io'
-license 'Apache-2.0'
-description 'Provides resources for managing AWS resources'
-version '9.0.13'
+name             'aws'
+maintainer       'Sous Chefs'
+maintainer_email 'help@sous-chefs.org'
+license          'Apache-2.0'
+description      'Provides resources for managing AWS resources'
+version          '9.0.13'
 
-%w(ubuntu debian centos redhat amazon scientific fedora oracle freebsd windows suse opensuse opensuseleap).each do |os|
-  supports os
-end
+supports 'ubuntu'
+supports 'debian'
+supports 'centos'
+supports 'redhat'
+supports 'amazon'
+supports 'scientific'
+supports 'fedora'
+supports 'oracle'
+supports 'freebsd'
+supports 'windows'
+supports 'suse'
+supports 'opensuse'
+supports 'opensuseleap'
 
-source_url 'https://github.com/chef-cookbooks/aws'
-issues_url 'https://github.com/chef-cookbooks/aws/issues'
+source_url 'https://github.com/sous-chefs/aws'
+issues_url 'https://github.com/sous-chefs/aws/issues'
 chef_version '>= 15.3'
 
 # Pin the aws sdk to the minor version to only pull
