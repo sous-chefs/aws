@@ -123,7 +123,7 @@ We'll look at specific usage below.
 
 If credentials are not supplied via parameters, resources will look for the credentials in the `~/.aws/credentials` file:
 
-```
+```toml
 [default]
 aws_access_key_id = ACCESS_KEY_ID
 aws_secret_access_key = ACCESS_KEY
@@ -224,7 +224,7 @@ end
 
 When running the cookbook, ensure that an attribute JSON is passed that supplies the MFA code. Example using chef-zero:
 
-```
+```shell
 echo '{ "aws": { "mfa_code": "123456" } }' > mfa.json && chef-client -z -o 'recipe[aws_test]' -j mfa.json
 ```
 
@@ -1041,11 +1041,11 @@ end
 - `description` - The security group description
 - `vpc_id` - The vpc_id where the security group should be created
 
-# Tags
+## Tags
 
 - `tags` - Security Group tags.  Default: []
 
-# Ingress/Egress rules
+## Ingress/Egress rules
 
 Note - this manages ALL rules on the security group.  Any exist rules not included in these definitions will be removed.
 

@@ -4,17 +4,24 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+- Standardise files with files in sous-chefs/repo-management
+- Update workflows
+
 ## 9.0.13 - *2023-04-01*
 
+Standardise files with files in sous-chefs/repo-management
+
 ## 9.0.12 - *2023-04-01*
+
+Standardise files with files in sous-chefs/repo-management
 
 ## 9.0.11 - *2023-04-01*
 
 Standardise files with files in sous-chefs/repo-management
 
-Standardise files with files in sous-chefs/repo-management
-
 ## 9.0.10 - *2023-03-02*
+
+Standardise files with files in sous-chefs/repo-management
 
 ## 9.0.9 - *2023-03-01*
 
@@ -487,7 +494,7 @@ Update checkout to v3 in ci.yml
 
 ### Improvement
 
-- **[COOK-4008](https://tickets.opscode.com/browse/COOK-4008)** - Add name property for aws_elastic_ip LWRP
+- [COOK-4008] - Add name property for aws_elastic_ip LWRP
 
 ## v2.0.0 (2014-02-19)
 
@@ -510,18 +517,18 @@ Update checkout to v3 in ci.yml
 
 ### Bug
 
-- **[COOK-3475](https://tickets.opscode.com/browse/COOK-3475)** - Fix an issue where invoking action detach in the `ebs_volume` provider when the volume is already detached resulted in a failure
+- [COOK-3475] - Fix an issue where invoking action detach in the `ebs_volume` provider when the volume is already detached resulted in a failure
 
 ## v0.101.4
 
 ### Improvement
 
-- **[COOK-3345](https://tickets.opscode.com/browse/COOK-3345)** - Add `aws_s3_file` LWRP
-- **[COOK-3264](https://tickets.opscode.com/browse/COOK-3264)** - Allow specifying of file ownership for `ebs_raid` resource `mount_point`
+- [COOK-3345] - Add `aws_s3_file` LWRP
+- [COOK-3264] - Allow specifying of file ownership for `ebs_raid` resource `mount_point`
 
 ### Bug
 
-- **[COOK-3308](https://tickets.opscode.com/browse/COOK-3308)** - Ensure mdadm properly allocates the device number
+- [COOK-3308] - Ensure mdadm properly allocates the device number
 
 ## v0.101.2
 
