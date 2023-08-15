@@ -4,7 +4,7 @@ property :remote_path, String
 property :region, String, default: lazy { fallback_region }
 property :bucket, String
 property :requester_pays, [true, false], default: false
-property :owner, String, regex: Chef::Config[:user_valid_regex]
+property :owner, [String, Integer], regex: Chef::Config[:user_valid_regex]
 property :group, [String, Integer], regex: Chef::Config[:group_valid_regex]
 property :mode, [String, nil]
 property :checksum, [String, nil]
