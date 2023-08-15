@@ -90,7 +90,7 @@ Update checkout to v3 in ci.yml
 
 ## 8.3.1 (2020-12-04)
 
-- Resolve cookstyle warnings - [@cookstyle](https://github.com/cookstyle)
+- Resolve cookstyle warnings - [@cookstyle](https://github.com/chef/cookstyle)
 - Update AWS S3 gem dependency - [@arothian](https://github.com/arothian)
 
 ## 8.3.0 (2020-08-06)
