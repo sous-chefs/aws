@@ -50,3 +50,29 @@ aws_s3_file '/tmp/a_file_2' do
   aws_session_token node['aws_test']['session_token']
   region 'us-west-2'
 end
+
+# create group to test if group property works
+group 'testgroup' do
+  gid 4711
+  action :create
+end
+
+# create a s3_file with a group specified by its name
+aws_s3_file '/tmp/file_with_group_by_name' do
+  bucket node['aws_test']['bucket']
+  remote_path node['aws_test']['s3key']
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  aws_session_token node['aws_test']['session_token']
+  group 'testgroup'
+end
+
+# create a s3_file with a group specified by its gid
+aws_s3_file '/tmp/file_with_group_by_gid' do
+  bucket node['aws_test']['bucket']
+  remote_path node['aws_test']['s3key']
+  aws_access_key node['aws_test']['key_id']
+  aws_secret_access_key node['aws_test']['access_key']
+  aws_session_token node['aws_test']['session_token']
+  group 4712
+end

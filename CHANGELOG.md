@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+Allow group attribute of s3_file to be String or Integer
+
 ## 9.0.16 - *2023-07-10*
 
 ## 9.0.15 - *2023-05-17*
