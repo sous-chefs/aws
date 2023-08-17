@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## Unreleased
+
 ## 9.1.0 - *2023-08-17*
 
 Allow attributes group and owner of s3_file to be String or Integer
