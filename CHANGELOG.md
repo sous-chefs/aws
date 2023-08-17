@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
+Allow attributes group and owner of s3_file to be String or Integer
+
 ## 9.0.16 - *2023-07-10*
 
 ## 9.0.15 - *2023-05-17*
@@ -88,7 +90,7 @@ Update checkout to v3 in ci.yml
 
 ## 8.3.1 (2020-12-04)
 
-- Resolve cookstyle warnings - [@cookstyle](https://github.com/cookstyle)
+- Resolve cookstyle warnings - [@cookstyle](https://github.com/chef/cookstyle)
 - Update AWS S3 gem dependency - [@arothian](https://github.com/arothian)
 
 ## 8.3.0 (2020-08-06)
