@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## Unreleased
+
 ## 9.1.3 - *2023-10-31*
 
 ## 9.1.2 - *2023-09-28*
