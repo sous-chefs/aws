@@ -61,7 +61,7 @@ action_class do
     require 'aws-sdk-s3'
 
     Chef::Log.debug('Initializing the S3 Client')
-    @s3 ||= create_aws_interface(::Aws::S3::Client, region: new_resource.region, use_fips_endpoint: use_fips_endpoint)
+    @s3 ||= create_aws_interface(::Aws::S3::Client, region: new_resource.region, use_fips_endpoint: new_resource.use_fips_endpoint)
   end
 
   def s3_obj
