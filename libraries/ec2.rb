@@ -69,10 +69,7 @@ module AwsCookbook
 
     # setup AWS instance using passed creds, iam profile, or assumed role
     def create_aws_interface(aws_interface, **opts)
-      use_fips_endpoint = false
-      if opts.key?(:use_fips_endpoint)
-        use_fips_endpoint = opts[:use_fips_endpoint]
-      end
+      use_fips_endpoint = opts.key?(:use_fips_endpoint) ? opts[:use_fips_endpoint] : false
       aws_interface_opts = { region: opts[:region],
                              http_proxy: ENV['http_proxy'],
                              use_fips_endpoint: use_fips_endpoint }
