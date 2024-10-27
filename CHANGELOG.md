@@ -4,9 +4,7 @@ This file is used to list changes made in each version of the aws cookbook.
 
 ## Unreleased
 
-## 9.1.8 - *2024-10-11*
-
-Enable the use of the FIPS endpoint for the S3_file resource and update the create_aws_interface method to support this functionality
+- Enable the use of the FIPS endpoint for the `S3_file` resource and update the `create_aws_interface` method to support this functionality
 
 ## 9.1.7 - *2024-07-10*
 
@@ -651,7 +649,6 @@ Update checkout to v3 in ci.yml
 [@bazbremner]: https://github.com/bazbremner
 [@dhui]: https://github.com/dhui
 [@drmerlin]: https://github.com/DrMerlin
-[@drywheat]: https://github.com/drywheat
 [@knorby]: https://github.com/knorby
 [@miketheman]: https://github.com/miketheman
 [@mkantor]: https://github.com/mkantor
