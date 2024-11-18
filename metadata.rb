@@ -3,7 +3,7 @@ maintainer       'Sous Chefs'
 maintainer_email 'help@sous-chefs.org'
 license          'Apache-2.0'
 description      'Provides resources for managing AWS resources'
-version          '9.2.0'
+version          '9.2.1'
 
 supports 'ubuntu'
 supports 'debian'
