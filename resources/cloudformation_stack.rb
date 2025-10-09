@@ -94,7 +94,7 @@ action_class do
   # cfn_params_chagned - see if parameters have updated
   def cfn_params_chagned?
     resp = cfn.describe_stacks(stack_name: new_resource.stack_name)
-    resp.stacks[0].parameters.each do |existing_param|
+    resp.stacks.first.parameters.each do |existing_param|
       new_params = new_resource.parameters
       index = new_params.index { |x| x[:parameter_key] == existing_param[:parameter_key] }
       next if index.nil?

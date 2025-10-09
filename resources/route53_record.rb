@@ -77,12 +77,12 @@ action_class do
 
   # convert the passed name to the trailing period format
   def name
-    @name ||= new_resource.name[-1] == '.' ? new_resource.name : "#{new_resource.name}."
+    @name ||= new_resource.name.last == '.' ? new_resource.name : "#{new_resource.name}."
   end
 
   def record_name
     if new_resource.record_name
-      @record_name ||= new_resource.record_name[-1] == '.' ? new_resource.record_name : "#{new_resource.record_name}."
+      @record_name ||= new_resource.record_name.last == '.' ? new_resource.record_name : "#{new_resource.record_name}."
     end
   end
 

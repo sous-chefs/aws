@@ -46,7 +46,7 @@ action :create do
     if new_resource.device && (attached_volume = currently_attached_volume(instance_id, new_resource.device)) # rubocop: disable Style/IfInsideElse
       Chef::Log.debug("There is already a volume attached at device #{new_resource.device}")
       compatible = volume_compatible_with_resource_definition?(attached_volume)
-      raise "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments[0].device} but does not conform to this resource's specifications" unless compatible
+      raise "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments.first.device} but does not conform to this resource's specifications" unless compatible
       Chef::Log.debug("The volume matches the resource's definition, so the volume is assumed to be already created")
       converge_by("update the node data with volume id: #{attached_volume.volume_id}") do
         node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume.volume_id
@@ -174,7 +174,7 @@ action_class do
 
   # Retrieves information for a volume
   def volume_by_id(volume_id)
-    ec2.describe_volumes(volume_ids: [volume_id]).volumes[0]
+    ec2.describe_volumes(volume_ids: [volume_id]).volumes.first
   end
 
   # Returns the volume that's attached to the instance at the given device or nil if none matches
@@ -184,7 +184,7 @@ action_class do
         { name: 'attachment.device', values: [device] },
         { name: 'attachment.instance-id', values: [instance_id] },
       ]
-    ).volumes[0]
+    ).volumes.first
   end
 
   # Returns true if the given volume meets the resource's attributes
@@ -211,7 +211,7 @@ action_class do
     end
 
     if volume_type == 'gp3' && piops > 0
-      raise 'IOPS value invalid.' unless piops >= 3000 && piops <= 16000
+      raise 'IOPS value invalid.' unless piops.between?(3000, 16000)
       params[:iops] = piops
     end
 
@@ -221,7 +221,7 @@ action_class do
     end
 
     if volume_type == 'gp3' && throughput > 0
-      raise 'Throughput value incorrect.' unless throughput >= 125 && throughput <= 1000
+      raise 'Throughput value incorrect.' unless throughput.between?(125, 1000)
       params[:throughput] = throughput
     end
 

@@ -18,8 +18,6 @@ action :delete do
   do_delete_table if @table_exists
 end
 
-private
-
 # loads the existing DynamoDB table and ensures that some surrounding logic is
 # instantiated.
 def load_current_resource
@@ -56,8 +54,6 @@ rescue ::Aws::DynamoDB::Errors::ResourceNotFoundException
   @table_exists = false
 end
 
-private
-
 # waits for table to become ready (and throws exception if it times out)
 def wait_for_table
   res = ::Aws::DynamoDB::Resource.new(client: dynamodb)
@@ -71,8 +67,6 @@ def wait_for_table
   ) { |waiter| waiter.table_status == 'ACTIVE' }
 end
 
-private
-
 # throughput change logic (comparison for both table and GSI values)
 # API spec (value from describe_table) needs to come first
 def throughput_changed?(api_throughput, res_throughput)
@@ -83,8 +77,6 @@ def throughput_changed?(api_throughput, res_throughput)
     false
   end
 end
-
-private
 
 # check to see if table stream spec has changed (API spec first)
 def stream_changed?(api_spec, res_spec)
@@ -97,8 +89,6 @@ def stream_changed?(api_spec, res_spec)
   end
 end
 
-private
-
 # assembles list of new tables for the global secondary indexes, crafted
 # as updates that can be sent to AWS::DynamoDB::Client.update_table
 # API (from describe_table) values need to come first
@@ -109,8 +99,6 @@ def load_gsi_creates(api_indexes, res_indexes)
   end
   creates
 end
-
-private
 
 # assembles list of tables to update for the global secondary indexes, crafted
 # as updates that can be sent to AWS::DynamoDB::Client.update_table
@@ -134,8 +122,6 @@ def load_gsi_updates(api_indexes, res_indexes)
   updates
 end
 
-private
-
 # assembles list of tables to delete for the global secondary indexes, crafted
 # as updates that can be sent to AWS::DynamoDB::Client.update_table
 # API (from describe_table) values need to come first
@@ -147,16 +133,12 @@ def load_gsi_deletes(api_indexes, res_indexes)
   deletes
 end
 
-private
-
 # performs the delete action on the table.
 def do_delete_table
   converge_by("delete DynamoDB table #{new_resource.table_name}") do
     dynamodb.delete_table(table_name: new_resource.table_name)
   end
 end
-
-private
 
 # creates the table
 def do_create_table
@@ -173,8 +155,6 @@ def do_create_table
   end
 end
 
-private
-
 # updates general throughput for the table
 def do_update_throughput
   converge_by("change throughput on DynamoDB table #{new_resource.table_name}") do
@@ -187,8 +167,6 @@ def do_update_throughput
   end
 end
 
-private
-
 # updates the stream specification for a table
 def do_update_streamspec
   converge_by("change stream spec on DynamoDB table #{new_resource.table_name}") do
@@ -200,8 +178,6 @@ def do_update_streamspec
     )
   end
 end
-
-private
 
 # performs specific change operations
 def do_change_gsi(op)

@@ -256,7 +256,7 @@ action_class do
     if response.security_groups.empty?
       nil
     else
-      response.security_groups[0]
+      response.security_groups.first
     end
   end
 end

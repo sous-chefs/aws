@@ -49,7 +49,7 @@ action_class do
     if current_associations.empty?
       nil
     else
-      current_associations[0]
+      current_associations.first
     end
   end
 

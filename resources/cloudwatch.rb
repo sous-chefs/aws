@@ -145,7 +145,7 @@ action_class do
           end
         end
       elsif type == 'alarm_action'
-        return true unless resp.metric_alarms[0].actions_enabled.to_s == p.join
+        return true unless resp.metric_alarms.first.actions_enabled.to_s == p.join
       end
       false
     else
