@@ -1,0 +1,19 @@
+---
+name: release-please
+
+"on":
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+  attestations: write
+  id-token: write
+
+jobs:
+  release-cookbook:
+    uses: sous-chefs/.github/.github/workflows/release-cookbook.yml@4.1.0
+    secrets: inherit

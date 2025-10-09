@@ -1,0 +1,13 @@
+---
+name: 'Prevent file change'
+
+"on":
+  pull_request_target:
+    branches: [main]
+
+jobs:
+  prevent-file-change:
+    uses: sous-chefs/.github/.github/workflows/prevent-file-change.yml@4.1.0
+    permissions:
+      pull-requests: write
+    secrets: inherit
