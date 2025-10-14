@@ -16,6 +16,7 @@ property :unit, String
 property :evaluation_periods, Integer
 property :threshold, [Float, Integer]
 property :comparison_operator, String, equal_to: %w(GreaterThanOrEqualToThreshold GreaterThanThreshold LessThanThreshold LessThanOrEqualToThreshold)
+property :treat_missing_data, String, default: 'missing', equal_to: %w(breaching notBreaching ignore missing)
 
 # authentication
 property :region, String, default: lazy { fallback_region }
@@ -106,6 +107,7 @@ action_class do
     options[:dimensions] = new_resource.dimensions if new_resource.dimensions
     options[:extended_statistic] = new_resource.extended_statistic if new_resource.extended_statistic
     options[:unit] = new_resource.unit if new_resource.unit
+    options[:treat_missing_data] = new_resource.treat_missing_data if new_resource.treat_missing_data
     options
   end
 
