@@ -7,7 +7,8 @@ name: 'Prevent file change'
 
 jobs:
   prevent-file-change:
-    uses: sous-chefs/.github/.github/workflows/prevent-file-change.yml@4.1.0
+    uses: sous-chefs/.github/.github/workflows/prevent-file-change.yml@5.0.3
     permissions:
       pull-requests: write
-    secrets: inherit
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
