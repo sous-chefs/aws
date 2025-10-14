@@ -8,6 +8,13 @@ Standardise files with files in sous-chefs/repo-management
 
 Standardise files with files in sous-chefs/repo-management
 
+## [9.2.3](https://github.com/sous-chefs/aws/compare/9.2.2...v9.2.3) (2025-10-14)
+
+
+### Bug Fixes
+
+* **ci:** Update workflows to use release pipeline ([#513](https://github.com/sous-chefs/aws/issues/513)) ([45a6485](https://github.com/sous-chefs/aws/commit/45a6485c6cb7cee7e7abba34fd51729f4577fab3))
+
 ## 9.2.2 - *2025-09-04*
 
 ## 9.2.1 - *2024-11-18*
