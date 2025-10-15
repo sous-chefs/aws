@@ -25,7 +25,7 @@ chef_version '>= 15.3'
 
 gem 'aws-sdk-cloudformation', '~> 1.21.0'
 gem 'aws-sdk-cloudwatch', '~> 1.22.0'
-gem 'aws-sdk-core', '~> 3.109.0'
+gem 'aws-sdk-core', '~> 3.126.2'
 gem 'aws-sdk-dynamodb', '~> 1.28.0'
 gem 'aws-sdk-ec2', '~> 1.214.0'
 gem 'aws-sdk-elasticloadbalancing', '~> 1.14.0'
