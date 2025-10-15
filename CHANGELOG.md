@@ -9,8 +9,6 @@ This file is used to list changes made in each version of the aws cookbook.
 
 * **ci:** Update workflows to use release pipeline ([#513](https://github.com/sous-chefs/aws/issues/513)) ([45a6485](https://github.com/sous-chefs/aws/commit/45a6485c6cb7cee7e7abba34fd51729f4577fab3))
 
-## 9.2.2 - *2025-09-04*
-
 ## 9.2.1 - *2024-11-18*
 
 Standardise files with files in sous-chefs/repo-management
@@ -27,25 +25,9 @@ Standardise files with files in sous-chefs/repo-management
 
 Standardise files with files in sous-chefs/repo-management
 
-## 9.1.6 - *2024-05-02*
-
-## 9.1.5 - *2024-05-02*
-
-## 9.1.4 - *2023-12-27*
-
-## 9.1.3 - *2023-10-31*
-
-## 9.1.2 - *2023-09-28*
-
-## 9.1.1 - *2023-09-28*
-
 ## 9.1.0 - *2023-08-17*
 
 Allow attributes group and owner of s3_file to be String or Integer
-
-## 9.0.16 - *2023-07-10*
-
-## 9.0.15 - *2023-05-17*
 
 ## 9.0.14 - *2023-04-07*
 
