@@ -55,12 +55,11 @@ module AwsCookbook
     def fallback_region
       # facilitate support for region in resource name
       if node.attribute?('ec2')
-        Chef::Log.debug("Using region #{node['ec2']['placement_availability_zone'].chop} from Ohai attributes")
-        if node['ec2']['placement_availability_zone'].split('-').count > 3
-          node['ec2']['placement_availability_zone'].split('-')[0..2].join('-')
-        else
-          node['ec2']['placement_availability_zone'].chop
-        end
+        az = node['ec2']['placement_availability_zone']
+        region = node['ec2']['region']
+        Chef::Log.debug("Using region #{region} from Ohai attributes (AZ: #{az})")
+        Chef::Log.debug("Old logic would have used: #{az.split('-').count > 3 ? az.split('-')[0..2].join('-') : az.chop}")
+        region
       else
         Chef::Log.debug('Falling back to region us-east-1 as Ohai data and resource defined region not present')
         'us-east-1'
