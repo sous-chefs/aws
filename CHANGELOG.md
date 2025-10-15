@@ -2,6 +2,18 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## [9.3.0](https://github.com/sous-chefs/aws/compare/v9.2.3...v9.3.0) (2025-10-15)
+
+
+### Features
+
+* **cloudwatch:** Add treat_missing_data property to cloudwatch alarms ([#515](https://github.com/sous-chefs/aws/issues/515)) ([304af1e](https://github.com/sous-chefs/aws/commit/304af1eca67cf71efe693472aa09e94fbc516c94))
+
+
+### Bug Fixes
+
+* **ci:** Update CHANGELOG list formatting ([#519](https://github.com/sous-chefs/aws/issues/519)) ([7e8c191](https://github.com/sous-chefs/aws/commit/7e8c19181ef0c3f9a8122f4234a799d4fa58695d))
+
 ## [9.2.3](https://github.com/sous-chefs/aws/compare/9.2.2...v9.2.3) (2025-10-14)
 
 
