@@ -7,7 +7,7 @@ name: 'Validate PR'
 
 jobs:
   conventional-commits:
-    uses: sous-chefs/.github/.github/workflows/conventional-commits.yml@5.0.3
+    uses: sous-chefs/.github/.github/workflows/conventional-commits.yml@5.0.4
     permissions:
       pull-requests: read
     secrets: inherit
