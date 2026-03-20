@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Cookbook:: aws
 # Resource:: ssm_parameter_store
@@ -7,6 +9,8 @@ resource_name :aws_ssm_parameter_store
 provides :ssm_parameter_store
 unified_mode true
 provides :aws_ssm_parameter_store
+
+use '_partial/_aws_common'
 
 # => Define the Resource Properties
 property :path, [String, Array], name_property: true
@@ -27,12 +31,6 @@ property :overwrite,       [false, true], default: true
 property :allowed_pattern, String
 
 # => AWS Config
-property :aws_access_key, String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token, String, sensitive: true
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
-property :region, String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 include Chef::Mixin::DeepMerge

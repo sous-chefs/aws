@@ -1,18 +1,15 @@
+# frozen_string_literal: true
+
+provides :aws_autoscaling
 unified_mode true
+
+use '_partial/_aws_common'
 
 property :return_info, [String, Array]
 property :should_decrement_desired_capacity, [true, false], default: true
 property :asg_name, String
 property :status_code, String
 property :max_size, Integer, default: 4
-
-# authentication
-property :aws_access_key, String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token, String, sensitive: true
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
-property :region, String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for fallback_region helper
 
@@ -29,7 +26,7 @@ action :enter_standby do
         should_decrement_desired_capacity: should_decrement_desired_capacity,
       }
       resp = autoscaling_client.enter_standby(request)
-      node.run_state[new_resource.status_code] = resp.activities[0].status_code
+      node.run_state[new_resource.status_code] = resp.activities.first.status_code
       wait_for_lifecyclestate_change('Standby')
       Chef::Log.debug "Enter Standby for #{node['ec2']['instance_id']}"
     end
@@ -44,7 +41,7 @@ action :exit_standby do
         instance_ids: [node['ec2']['instance_id']],
       }
       resp = autoscaling_client.exit_standby(request)
-      node.run_state[new_resource.status_code] = resp.activities[0].status_code
+      node.run_state[new_resource.status_code] = resp.activities.first.status_code
       wait_for_lifecyclestate_change('InService')
       Chef::Log.debug "Exit Standby for #{node['ec2']['instance_id']}"
     end
@@ -159,18 +156,17 @@ action_class do
       instance_ids: [node['ec2']['instance_id']],
     }
     response = autoscaling_client.describe_auto_scaling_instances(request)
-    asg_name = response.auto_scaling_instances[0].auto_scaling_group_name
+    asg_name = response.auto_scaling_instances.first.auto_scaling_group_name
     Chef::Log.debug "Get ASG Name for #{node['ec2']['instance_id']}, ASG Name = #{asg_name}"
-    response.auto_scaling_instances[0].auto_scaling_group_name
+    response.auto_scaling_instances.first.auto_scaling_group_name
   end
 
   def lifecyclestate
     request = {
       instance_ids: [node['ec2']['instance_id']],
     }
-    lcstate = nil
     response = autoscaling_client.describe_auto_scaling_instances(request)
-    lcstate = response.auto_scaling_instances[0].lifecycle_state unless response.auto_scaling_instances[0].nil?
+    lcstate = response.auto_scaling_instances.first&.lifecycle_state
     Chef::Log.debug "Get Life Cycle State for #{node['ec2']['instance_id']}, State = #{lcstate}"
     lcstate
   end

@@ -1,14 +1,12 @@
+# frozen_string_literal: true
+
+provides :aws_resource_tag
 unified_mode true
+
+use '_partial/_aws_common'
+
 property :resource_id,           [String, Array], regex: /(i|snap|vol)-[a-fA-F0-9]{8}/, name_property: true
 property :tags,                  Hash, required: true
-
-# authentication
-property :aws_access_key,        String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token,     String, sensitive: true
-property :aws_assume_role_arn,   String
-property :aws_role_session_name, String
-property :region,                String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 

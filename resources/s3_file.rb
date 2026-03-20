@@ -1,7 +1,12 @@
+# frozen_string_literal: true
+
+provides :aws_s3_file
 unified_mode true
+
+use '_partial/_aws_common'
+
 property :path, String, name_property: true
 property :remote_path, String
-property :region, String, default: lazy { fallback_region }
 property :bucket, String
 property :requester_pays, [true, false], default: false
 property :owner, [String, Integer], regex: Chef::Config[:user_valid_regex]
@@ -25,13 +30,6 @@ if node['platform_family'] == 'windows' # rubocop:disable ChefStyle/UsePlatformH
   property :inherits, [true, false], default: true
   property :rights, Hash
 end
-
-# authentication
-property :aws_access_key, String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token, String, sensitive: true
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 

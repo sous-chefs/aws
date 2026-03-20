@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Cookbook:: aws
 # Resource:: security_group
@@ -13,6 +15,8 @@ provides :aws_security_group
 unified_mode true
 
 provides :security_group # legacy name
+
+use '_partial/_aws_common'
 
 # => Define the Resource Properties
 property :security_group_name, String, name_property: true
@@ -31,12 +35,6 @@ property :ip_permissions_egress, Array, default: []
 property :tags, Array, default: []
 
 # => AWS Config
-property :aws_access_key, String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token, String, sensitive: true
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
-property :region, String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 include AwsCookbook::SecurityGroup # ip_permissions helpers
@@ -256,7 +254,7 @@ action_class do
     if response.security_groups.empty?
       nil
     else
-      response.security_groups[0]
+      response.security_groups.first
     end
   end
 end

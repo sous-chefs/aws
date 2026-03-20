@@ -1,15 +1,13 @@
+# frozen_string_literal: true
+
+provides :aws_route53_zone
 unified_mode true
+
+use '_partial/_aws_common'
+
 property :description, String
 property :private, [true, false], default: false
 property :vpc_id, String
-
-# authentication
-property :aws_access_key,        String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token,     String, sensitive: true
-property :aws_assume_role_arn,   String
-property :aws_role_session_name, String
-property :region,                String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 
@@ -39,7 +37,7 @@ action_class do
 
   # convert the passed name to the trailing period format
   def zone_name
-    @name ||= new_resource.name[-1] == '.' ? new_resource.name : "#{new_resource.name}."
+    @name ||= new_resource.name.end_with?('.') ? new_resource.name : "#{new_resource.name}."
   end
 
   # find the zone ID by zone name
@@ -52,7 +50,7 @@ action_class do
   # a small response from AWS, but if the name isn't found AWS returns
   # everything so we have to find it ourselves
   def zone_exists?(name)
-    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.select { |r| r.name == name }.any?
+    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.any? { |r| r.name == name }
   end
 
   def create_data_structure

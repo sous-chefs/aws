@@ -8,11 +8,20 @@ name: ci
 
 jobs:
   lint-unit:
-    uses: sous-chefs/.github/.github/workflows/lint-unit.yml@5.0.3
-    permissions:
-      actions: write
-      checks: write
-      pull-requests: write
-      statuses: write
-      issues: write
-    secrets: inherit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chef/chef-workstation-action@v1
+      - name: Cookstyle
+        run: cookstyle
+      - name: RSpec
+        run: chef exec rspec --format documentation
+
+  kitchen:
+    runs-on: ubuntu-24.04
+    needs: lint-unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chef/chef-workstation-action@v1
+      - name: Kitchen default suite
+        run: KITCHEN_LOCAL_YAML=kitchen.dokken.yml kitchen test default-ubuntu-2404 --destroy=always

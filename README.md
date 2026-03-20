@@ -8,30 +8,32 @@
 
 ## Overview
 
-This cookbook provides resources for configuring and managing nodes running in Amazon Web Services as well as several AWS service offerings.
+This cookbook provides custom resources for configuring and managing AWS service offerings from Chef Infra.
+
+This is a resource-only cookbook. The legacy top-level recipes `aws::default` and `aws::ec2_hints` have been removed. Use the public `aws_*` resources directly from your own cookbooks or roles.
 
 Included resources:
 
-- CloudFormation Stack Management (`cloudformation_stack`)
-- CloudWatch (`cloudwatch`)
-- CloudWatch Instance Monitoring (`instance_monitoring`)
-- DynamoDB (`dynamodb_table`)
-- EBS Volumes (`ebs_volume`)
-- EC2 Instance Role (`instance_role`)
-- EC2 Instance Termination Protection (`instance_term_protection`)
-- Elastic IPs (`elastic_ip`)
-- Elastic Load Balancer (`elastic_lb`)
-- IAM User, Group, Policy, and Role Management: (`iam_user`, `iam_group`, `iam_policy`, `iam_role`)
-- Kinesis Stream Management (`kinesis_stream`)
-- Resource Tags (`resource_tag`)
-- Route53 DNS Records (`route53_record`)
-- Route53 DNS Zones (`route53_zone`)
-- S3 Files (`s3_file`)
-- S3 Buckets (`s3_bucket`)
-- Secondary IPs (`secondary_ip`)
-- Security Groups (`security_group`)
-- AWS SSM Parameter Store (`ssm_parameter_store`)
-- Autoscaling (`autoscaling`)
+- CloudFormation Stack Management (`aws_cloudformation_stack`)
+- CloudWatch (`aws_cloudwatch`)
+- CloudWatch Instance Monitoring (`aws_instance_monitoring`)
+- DynamoDB (`aws_dynamodb_table`)
+- EBS Volumes (`aws_ebs_volume`)
+- EC2 Instance Role (`aws_instance_role`)
+- EC2 Instance Termination Protection (`aws_instance_term_protection`)
+- Elastic IPs (`aws_elastic_ip`)
+- Elastic Load Balancer (`aws_elastic_lb`)
+- IAM User, Group, Policy, and Role Management: (`aws_iam_user`, `aws_iam_group`, `aws_iam_policy`, `aws_iam_role`)
+- Kinesis Stream Management (`aws_kinesis_stream`)
+- Resource Tags (`aws_resource_tag`)
+- Route53 DNS Records (`aws_route53_record`)
+- Route53 DNS Zones (`aws_route53_zone`)
+- S3 Files (`aws_s3_file`)
+- S3 Buckets (`aws_s3_bucket`)
+- Secondary IPs (`aws_secondary_ip`)
+- Security Groups (`aws_security_group`)
+- AWS SSM Parameter Store (`aws_ssm_parameter_store`)
+- Autoscaling (`aws_autoscaling`)
 
 Unsupported AWS resources that have other cookbooks include but are not limited to:
 
@@ -65,7 +67,7 @@ This cookbook is maintained by the Sous Chefs. The Sous Chefs are a community of
 
 ### Platforms
 
-- Any platform supported by Chef and the AWS-SDK
+- Tested and supported in CI on Ubuntu 24.04
 
 ### Chef
 
@@ -74,6 +76,11 @@ This cookbook is maintained by the Sous Chefs. The Sous Chefs are a community of
 ### Cookbooks
 
 - None
+
+### Testing
+
+- Standard CI runs `cookstyle`, `chef exec rspec --format documentation`, and the local Dokken-backed `default` suite.
+- Live AWS acceptance coverage is split into grouped suites in `kitchen.live.yml` and a manually triggered GitHub workflow backed by repository secrets.
 
 ## Credentials
 

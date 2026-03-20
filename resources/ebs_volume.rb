@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
+provides :aws_ebs_volume
 unified_mode true
 
-property :region,                String, default: lazy { fallback_region }
+use '_partial/_aws_common'
+
 property :size,                  Integer
 property :snapshot_id,           String
 property :most_recent_snapshot,  [true, false], default: false
@@ -18,26 +22,18 @@ property :kms_key_id,            String
 property :delete_on_termination, [true, false], default: false
 property :tags,                  Hash, default: {}
 
-# authentication
-property :aws_access_key,        String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token,     String, sensitive: true
-property :aws_assume_role_arn,   String
-property :aws_role_session_name, String
-
 include AwsCookbook::Ec2 # needed for aws_region helper
 
 action :create do
   raise 'Cannot create a volume with a specific volume_id as AWS chooses volume ids. The volume_id property can only be used with the :attach action.' if new_resource.volume_id
 
-  # fetch volume data from node
-  nvid = volume_id_in_node_data
+  nvid = remembered_volume_id
   if nvid
     # volume id is registered in the node data, so check that the volume in fact exists in EC2
     vol = volume_by_id(nvid)
     exists = vol && vol[:state] != 'deleting'
     # TODO: determine whether this should be an error or just cause a new volume to be created. Currently erring on the side of failing loudly
-    raise "Volume with id #{nvid} is registered with the node but does not exist in EC2. To clear this error, remove the ['aws']['ebs_volume']['#{new_resource.name}']['volume_id'] entry from this node's data." unless exists
+    raise "Volume with id #{nvid} was remembered for #{new_resource.name} but no longer exists in EC2." unless exists
   else
     # Determine if there is a volume that meets the resource's specifications and is attached to the current
     # instance in case a previous [:create, :attach] run created and attached a volume but for some reason was
@@ -46,17 +42,16 @@ action :create do
     if new_resource.device && (attached_volume = currently_attached_volume(instance_id, new_resource.device)) # rubocop: disable Style/IfInsideElse
       Chef::Log.debug("There is already a volume attached at device #{new_resource.device}")
       compatible = volume_compatible_with_resource_definition?(attached_volume)
-      raise "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments[0].device} but does not conform to this resource's specifications" unless compatible
+      raise "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments.first.device} but does not conform to this resource's specifications" unless compatible
       Chef::Log.debug("The volume matches the resource's definition, so the volume is assumed to be already created")
-      converge_by("update the node data with volume id: #{attached_volume.volume_id}") do
-        node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = attached_volume.volume_id
-        node.save
+      converge_by("remember volume id #{attached_volume.volume_id} for #{new_resource.name}") do
+        remember_volume_id(attached_volume.volume_id)
       end
     else
-      # If not, create volume and register its id in the node data
+      # If not, create volume and remember its id for later actions in the run
       converge_message = "create a #{new_resource.size}GB volume in #{new_resource.region} "
       converge_message += "using snapshot #{true_snapshot_id} " if true_snapshot_id
-      converge_message += "and update the node data with created volume's id"
+      converge_message += 'and remember the created volume id'
       converge_by(converge_message) do
         nvid = create_volume(true_snapshot_id,
                              new_resource.size,
@@ -68,8 +63,7 @@ action :create do
                              new_resource.encrypted,
                              new_resource.kms_key_id)
         add_tags(nvid)
-        node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = nvid
-        node.save
+        remember_volume_id(nvid)
       end
     end
   end
@@ -90,13 +84,10 @@ action :attach do
       end
     end
   else
-    converge_by("attach the volume #{vol[:volume_id]} to instance #{instance_id} as #{new_resource.device} and update the node data with created volume's id") do
-      # attach the volume and register its id in the node data
+    converge_by("attach the volume #{vol[:volume_id]} to instance #{instance_id} as #{new_resource.device}") do
       attach_volume(vol[:volume_id], instance_id, new_resource.device, new_resource.timeout)
       mark_delete_on_termination(new_resource.device, vol[:volume_id], instance_id) if new_resource.delete_on_termination
-      # always use a symbol here, it is a Hash
-      node.normal['aws']['ebs_volume'][new_resource.name]['volume_id'] = vol[:volume_id]
-      node.save
+      remember_volume_id(vol[:volume_id])
     end
   end
 end
@@ -112,6 +103,7 @@ action :delete do
   vol = determine_volume
   converge_by("delete volume with id: #{vol[:volume_id]}") do
     delete_volume(vol[:volume_id], new_resource.timeout)
+    forget_volume_id
   end
 end
 
@@ -151,19 +143,32 @@ end
 action_class do
   include AwsCookbook::Ec2
 
-  def volume_id_in_node_data
-    node['aws']['ebs_volume'][new_resource.name]['volume_id']
+  def remembered_volume_id
+    node.run_state.dig('aws_cookbook', 'ebs_volume_ids', new_resource.name)
+  end
+
+  def remember_volume_id(volume_id)
+    node.run_state['aws_cookbook'] ||= {}
+    node.run_state['aws_cookbook']['ebs_volume_ids'] ||= {}
+    node.run_state['aws_cookbook']['ebs_volume_ids'][new_resource.name] = volume_id
+  end
+
+  def forget_volume_id
+    node.run_state['aws_cookbook'] ||= {}
+    node.run_state['aws_cookbook']['ebs_volume_ids'] ||= {}
+    node.run_state['aws_cookbook']['ebs_volume_ids'].delete(new_resource.name)
   rescue NoMethodError
     nil
   end
 
-  # Pulls the volume id from the volume_id attribute or the node data and verifies that the volume actually exists
+  # Pulls the volume id from the volume_id attribute, current run state, or the
+  # currently attached device and verifies that the volume actually exists.
   def determine_volume
     raise "Cannot proceed unless the 'device' property is defined in the ebs_volume resource!" unless new_resource.device
 
     vol = currently_attached_volume(instance_id, new_resource.device)
-    vol_id = new_resource.volume_id || volume_id_in_node_data || (vol ? vol[:volume_id] : nil)
-    raise 'volume_id attribute not set and no volume id is set in the node data for this resource (which is populated by action :create) and no volume is attached at the device' unless vol_id
+    vol_id = new_resource.volume_id || remembered_volume_id || (vol ? vol[:volume_id] : nil)
+    raise 'volume_id attribute not set, no volume was remembered for this Chef run, and no volume is attached at the configured device' unless vol_id
 
     # check that volume exists
     vol = volume_by_id(vol_id)
@@ -174,7 +179,7 @@ action_class do
 
   # Retrieves information for a volume
   def volume_by_id(volume_id)
-    ec2.describe_volumes(volume_ids: [volume_id]).volumes[0]
+    ec2.describe_volumes(volume_ids: [volume_id]).volumes.first
   end
 
   # Returns the volume that's attached to the instance at the given device or nil if none matches
@@ -184,7 +189,7 @@ action_class do
         { name: 'attachment.device', values: [device] },
         { name: 'attachment.instance-id', values: [instance_id] },
       ]
-    ).volumes[0]
+    ).volumes.first
   end
 
   # Returns true if the given volume meets the resource's attributes
@@ -211,7 +216,7 @@ action_class do
     end
 
     if volume_type == 'gp3' && piops > 0
-      raise 'IOPS value invalid.' unless piops >= 3000 && piops <= 16000
+      raise 'IOPS value invalid.' unless piops.between?(3000, 16_000)
       params[:iops] = piops
     end
 
@@ -221,7 +226,7 @@ action_class do
     end
 
     if volume_type == 'gp3' && throughput > 0
-      raise 'Throughput value incorrect.' unless throughput >= 125 && throughput <= 1000
+      raise 'Throughput value incorrect.' unless throughput.between?(125, 1000)
       params[:throughput] = throughput
     end
 
@@ -346,7 +351,6 @@ action_class do
           vol = volume_by_id(volume_id)
           if vol[:state] == 'deleting' || vol[:state] == 'deleted'
             Chef::Log.debug("Volume #{volume_id} entered #{vol[:state]} state")
-            node.normal['aws']['ebs_volume'][new_resource.name] = {}
             break
           end
           sleep 3
