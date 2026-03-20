@@ -55,6 +55,11 @@ module AwsCookbook
       ENV['AWS_COOKBOOK_STUB_RESPONSES'] == 'true'
     end
 
+    def configured_stub_responses(aws_interface)
+      service_name = aws_interface.name.split('::')[-2].downcase.to_sym
+      Aws.config.dig(service_name, :stub_responses)
+    end
+
     # setup AWS instance using passed creds, iam profile, or assumed role
     def create_aws_interface(aws_interface, **opts)
       use_fips_endpoint = opts.key?(:use_fips_endpoint) ? opts[:use_fips_endpoint] : false
@@ -63,7 +68,7 @@ module AwsCookbook
                              use_fips_endpoint: use_fips_endpoint }
 
       if opts[:mock] || stub_aws_responses? # return a mocked interface
-        aws_interface_opts[:stub_responses] = true
+        aws_interface_opts[:stub_responses] = configured_stub_responses(aws_interface) || true
       else # return a real interface with credentials setup
         if !new_resource.aws_access_key.to_s.empty? && !new_resource.aws_secret_access_key.to_s.empty?
           Chef::Log.debug('Using resource-defined credentials')

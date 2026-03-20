@@ -23,18 +23,23 @@ platforms:
 
 x-verifiers:
   storage: &storage_verifier
+    name: inspec
     inspec_tests:
       - path: test/integration/storage
   identity: &identity_verifier
+    name: inspec
     inspec_tests:
       - path: test/integration/identity
   network: &network_verifier
+    name: inspec
     inspec_tests:
       - path: test/integration/network
   compute: &compute_verifier
+    name: inspec
     inspec_tests:
       - path: test/integration/compute
   orchestration: &orchestration_verifier
+    name: inspec
     inspec_tests:
       - path: test/integration/orchestration
 

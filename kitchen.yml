@@ -18,6 +18,7 @@ x-run_lists:
 
 x-verifiers:
   default: &default_verifier
+    name: inspec
     inspec_tests:
       - path: test/integration/default
 
