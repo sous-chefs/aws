@@ -24,6 +24,8 @@ jobs:
       EC2_SSH_KEY_PATH: ${{ secrets.EC2_SSH_KEY_PATH }}
     steps:
       - uses: actions/checkout@v4
-      - uses: chef/chef-workstation-action@v1
+      - uses: actionshub/chef-install@6.0.0
       - name: Kitchen live suite
         run: KITCHEN_LOCAL_YAML=kitchen.live.yml kitchen test ${{ matrix.suite }}-ubuntu-2404 --destroy=always
+        env:
+          CHEF_LICENSE: accept-no-persist

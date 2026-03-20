@@ -11,17 +11,23 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: chef/chef-workstation-action@v1
+      - uses: actionshub/chef-install@6.0.0
       - name: Cookstyle
-        run: cookstyle
+        run: chef exec cookstyle
+        env:
+          CHEF_LICENSE: accept-no-persist
       - name: RSpec
         run: chef exec rspec --format documentation
+        env:
+          CHEF_LICENSE: accept-no-persist
 
   kitchen:
     runs-on: ubuntu-24.04
     needs: lint-unit
     steps:
       - uses: actions/checkout@v4
-      - uses: chef/chef-workstation-action@v1
+      - uses: actionshub/chef-install@6.0.0
       - name: Kitchen default suite
         run: KITCHEN_LOCAL_YAML=kitchen.dokken.yml kitchen test default-ubuntu-2404 --destroy=always
+        env:
+          CHEF_LICENSE: accept-no-persist
