@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## [9.3.1](https://github.com/sous-chefs/aws/compare/v9.3.0...v9.3.1) (2026-04-14)
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-core to ~&gt; 3.126.2 to support imdsv2 ([#517](https://github.com/sous-chefs/aws/issues/517)) ([858894a](https://github.com/sous-chefs/aws/commit/858894a767bff182529f2df3ffa817e124085e0a))
+
 ## [9.3.0](https://github.com/sous-chefs/aws/compare/v9.2.3...v9.3.0) (2025-10-15)
 
 
