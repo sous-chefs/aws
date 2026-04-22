@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 name             'aws'
 maintainer       'Sous Chefs'
 maintainer_email 'help@sous-chefs.org'
@@ -5,19 +7,7 @@ license          'Apache-2.0'
 description      'Provides resources for managing AWS resources'
 version          '9.3.2'
 
-supports 'ubuntu'
-supports 'debian'
-supports 'centos'
-supports 'redhat'
-supports 'amazon'
-supports 'scientific'
-supports 'fedora'
-supports 'oracle'
-supports 'freebsd'
-supports 'windows'
-supports 'suse'
-supports 'opensuse'
-supports 'opensuseleap'
+supports 'ubuntu', '>= 24.04'
 
 source_url 'https://github.com/sous-chefs/aws'
 issues_url 'https://github.com/sous-chefs/aws/issues'

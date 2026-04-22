@@ -1,7 +1,11 @@
+# frozen_string_literal: true
+
 resource_name :aws_route53_record
 provides :aws_route53_record
 unified_mode true
 provides :route53_record # for compatibility with the old cookbook
+
+use '_partial/_aws_common'
 
 property :value,                       [String, Array]
 property :type,                        String, required: true
@@ -19,14 +23,6 @@ property :overwrite,                   [true, false], default: true
 property :alias_target,                Hash
 property :mock,                        [true, false], default: false
 property :fail_on_error,               [true, false], default: false
-
-# authentication
-property :aws_access_key,        String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token,     String, sensitive: true
-property :aws_assume_role_arn,   String
-property :aws_role_session_name, String
-property :region,                String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 
@@ -77,12 +73,12 @@ action_class do
 
   # convert the passed name to the trailing period format
   def name
-    @name ||= new_resource.name[-1] == '.' ? new_resource.name : "#{new_resource.name}."
+    @name ||= new_resource.name.end_with?('.') ? new_resource.name : "#{new_resource.name}."
   end
 
   def record_name
     if new_resource.record_name
-      @record_name ||= new_resource.record_name[-1] == '.' ? new_resource.record_name : "#{new_resource.record_name}."
+      @record_name ||= new_resource.record_name.end_with?('.') ? new_resource.record_name : "#{new_resource.record_name}."
     end
   end
 

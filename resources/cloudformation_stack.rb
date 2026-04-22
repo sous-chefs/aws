@@ -1,4 +1,9 @@
+# frozen_string_literal: true
+
+provides :aws_cloudformation_stack
 unified_mode true
+
+use '_partial/_aws_common'
 
 property :stack_name, String, name_property: true
 # location of the template body, located in the "files" cookbook dir
@@ -8,14 +13,6 @@ property :disable_rollback, [true, false], default: false
 property :iam_capability, [true, false], default: false
 property :named_iam_capability, [true, false], default: false
 property :stack_policy_body, String
-property :region, String, default: lazy { fallback_region }
-
-# authentication
-property :aws_access_key, String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token, String, sensitive: true
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 
@@ -94,7 +91,7 @@ action_class do
   # cfn_params_chagned - see if parameters have updated
   def cfn_params_chagned?
     resp = cfn.describe_stacks(stack_name: new_resource.stack_name)
-    resp.stacks[0].parameters.each do |existing_param|
+    resp.stacks.first.parameters.each do |existing_param|
       new_params = new_resource.parameters
       index = new_params.index { |x| x[:parameter_key] == existing_param[:parameter_key] }
       next if index.nil?

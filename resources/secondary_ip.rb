@@ -1,15 +1,13 @@
+# frozen_string_literal: true
+
+provides :aws_secondary_ip
 unified_mode true
+
+use '_partial/_aws_common'
+
 property :ip,                    String, required: true
 property :interface,             String, default: lazy { node['network']['default_interface'] }
 property :timeout,               [Integer, nil], default: 3 * 60 # 3 mins, nil or 0 for no timeout
-
-# authentication
-property :aws_access_key,        String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token,     String, sensitive: true
-property :aws_assume_role_arn,   String
-property :aws_role_session_name, String
-property :region,                String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 

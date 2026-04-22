@@ -1,5 +1,5 @@
 ---
-name: 'Copilot Setup Steps'
+name: "Copilot Setup Steps"
 
 "on":
   workflow_dispatch:
@@ -19,6 +19,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v5
       - name: Install Chef
-        uses: actionshub/chef-install@main
+        uses: sous-chefs/.github/.github/actions/install-workstation@main
       - name: Install cookbooks
         run: berks install

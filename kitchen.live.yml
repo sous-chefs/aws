@@ -1,0 +1,66 @@
+---
+driver:
+  name: ec2
+  instance_type: t3.micro
+
+transport:
+  ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+
+platforms:
+  - name: ubuntu-24.04
+    transport:
+      username: ubuntu
+    attributes:
+      aws_test:
+        key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+        access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+        session_token: <%= ENV['AWS_SESSION_TOKEN'] %>
+        bucket: <%= ENV['AWS_S3_BUCKET'] %>
+        bucket_west: <%= ENV['AWS_S3_BUCKET_WEST'] %>
+        s3key: <%= ENV['AWS_S3_KEY'] || 'a_file' %>
+        elastic_ip: <%= ENV['AWS_ELASTIC_IP'] %>
+        vpc_id: <%= ENV['AWS_VPC_ID'] %>
+
+x-verifiers:
+  storage: &storage_verifier
+    name: inspec
+    inspec_tests:
+      - path: test/integration/storage
+  identity: &identity_verifier
+    name: inspec
+    inspec_tests:
+      - path: test/integration/identity
+  network: &network_verifier
+    name: inspec
+    inspec_tests:
+      - path: test/integration/network
+  compute: &compute_verifier
+    name: inspec
+    inspec_tests:
+      - path: test/integration/compute
+  orchestration: &orchestration_verifier
+    name: inspec
+    inspec_tests:
+      - path: test/integration/orchestration
+
+suites:
+  - name: storage
+    run_list:
+      - recipe[test::storage]
+    verifier: *storage_verifier
+  - name: identity
+    run_list:
+      - recipe[test::identity]
+    verifier: *identity_verifier
+  - name: network
+    run_list:
+      - recipe[test::network]
+    verifier: *network_verifier
+  - name: compute
+    run_list:
+      - recipe[test::compute]
+    verifier: *compute_verifier
+  - name: orchestration
+    run_list:
+      - recipe[test::orchestration]
+    verifier: *orchestration_verifier

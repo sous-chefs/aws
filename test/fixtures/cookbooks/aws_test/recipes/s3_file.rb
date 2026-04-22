@@ -1,21 +1,18 @@
-aws_s3_bucket 'create test bucket' do
-  name 'this-better-be-unique-chef-aws'
+aws_s3_bucket 'this-better-be-unique-chef-aws' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
   aws_session_token node['aws_test']['session_token']
   region 'us-west-2'
 end
 
-aws_s3_bucket 'turn on versioning' do
-  name 'this-better-be-unique-chef-aws'
+aws_s3_bucket 'this-better-be-unique-chef-aws' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
   aws_session_token node['aws_test']['session_token']
   versioning true
 end
 
-aws_s3_bucket 'delete test bucket' do
-  name 'this-better-be-unique-chef-aws'
+aws_s3_bucket 'this-better-be-unique-chef-aws' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
   aws_session_token node['aws_test']['session_token']
