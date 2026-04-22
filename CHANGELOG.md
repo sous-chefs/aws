@@ -2,6 +2,20 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## [9.3.2](https://github.com/sous-chefs/aws/compare/v9.3.1...v9.3.2) (2026-04-21)
+
+
+### Bug Fixes
+
+* **deps:** resolve dependency issues by updating aws-parti tions to ~&gt; 1.525.0 ([#535](https://github.com/sous-chefs/aws/issues/535)) ([0afee60](https://github.com/sous-chefs/aws/commit/0afee60b3ee78350bbe04dd15652eb2742c83826))
+
+## [9.3.1](https://github.com/sous-chefs/aws/compare/v9.3.0...v9.3.1) (2026-04-14)
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-core to ~&gt; 3.126.2 to support imdsv2 ([#517](https://github.com/sous-chefs/aws/issues/517)) ([858894a](https://github.com/sous-chefs/aws/commit/858894a767bff182529f2df3ffa817e124085e0a))
+
 ## [9.3.0](https://github.com/sous-chefs/aws/compare/v9.2.3...v9.3.0) (2025-10-15)
 
 

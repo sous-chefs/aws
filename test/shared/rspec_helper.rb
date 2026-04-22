@@ -1,5 +1,5 @@
+require 'aws-sdk-core'
 require 'aws-sdk-dynamodb'
-require 'open-uri'
 
 class ChefAwsDDBTest
   attr_reader :dynamodb
@@ -12,11 +12,6 @@ class ChefAwsDDBTest
   end
 
   def instance_region
-    availability_zone = open(
-      'http://169.254.169.254' \
-      '/latest/meta-data/placement/availability-zone/',
-      proxy: nil, &:gets
-    )
-    availability_zone.chop
+    ::Aws::EC2Metadata.new.get('/latest/meta-data/placement/region')
   end
 end
