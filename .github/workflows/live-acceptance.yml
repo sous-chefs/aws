@@ -6,12 +6,12 @@ name: live-acceptance
 
 jobs:
   kitchen-live:
-    if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' }}
+    if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != ''}}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        suite: [storage, identity, network, compute, orchestration]
+        suite: [ storage, identity, network, compute, orchestration ]
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -24,8 +24,9 @@ jobs:
       EC2_SSH_KEY_PATH: ${{ secrets.EC2_SSH_KEY_PATH }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actionshub/chef-install@6.0.0
+      - uses: sous-chefs/.github/.github/actions/install-workstation@main
       - name: Kitchen live suite
-        run: KITCHEN_LOCAL_YAML=kitchen.live.yml kitchen test ${{ matrix.suite }}-ubuntu-2404 --destroy=always
+        run: |
+          KITCHEN_LOCAL_YAML=kitchen.live.yml kitchen test ${{ matrix.suite }}-ubuntu-2404 --destroy=always
         env:
           CHEF_LICENSE: accept-no-persist

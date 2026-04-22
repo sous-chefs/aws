@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actionshub/chef-install@6.0.0
+      - uses: sous-chefs/.github/.github/actions/install-workstation@main
       - name: Cookstyle
         run: chef exec cookstyle
         env:
@@ -26,7 +26,7 @@ jobs:
     needs: lint-unit
     steps:
       - uses: actions/checkout@v4
-      - uses: actionshub/chef-install@6.0.0
+      - uses: sous-chefs/.github/.github/actions/install-workstation@main
       - name: Kitchen default suite
         run: KITCHEN_LOCAL_YAML=kitchen.dokken.yml kitchen test default-ubuntu-2404 --destroy=always
         env:
