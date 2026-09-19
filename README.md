@@ -242,6 +242,10 @@ end
 
 ## Resources
 
+### Host agents
+
+- [aws_cloudwatch_agent](documentation/aws_cloudwatch_agent.md): install verified Linux packages, translate configuration and manage the unified CloudWatch Agent with systemd.
+
 ### aws_cloudformation_stack
 
 Manage CloudFormation stacks.

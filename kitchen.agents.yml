@@ -1,0 +1,39 @@
+---
+driver:
+  name: dokken
+  chef_image: aws-agents-workstation
+  chef_version: local
+  pull_chef_image: false
+  pull_platform_image: false
+  privileged: true
+  pid_one_command: /bin/systemd
+  network_mode: aws-agents-offline
+  volumes:
+    - <%= ENV.fetch('AWS_AGENT_PACKAGE_DIR') %>:/opt/agent-packages:ro
+
+transport:
+  name: dokken
+
+provisioner:
+  name: dokken
+  product_name: cinc
+  chef_binary: /opt/cinc-workstation/bin/cinc-client
+  policyfile: Policyfile.rb
+  enforce_idempotency: true
+  multiple_converge: 2
+  deprecations_as_errors: true
+  client_rb:
+    skip_gem_metadata_installation: true
+
+verifier:
+  name: inspec
+  inspec_tests:
+    - test/integration/default
+
+platforms:
+  - name: ubuntu-24.04
+    driver:
+      image: dokken/ubuntu-24.04
+
+suites:
+  - name: default
