@@ -67,6 +67,45 @@ describe 'aws_ssm_agent' do
     end
   end
 
+  context 'logging configuration' do
+    recipe do
+      aws_ssm_agent 'default' do
+        logging_configuration '<seelog minlevel="info"><outputs><console /></outputs></seelog>'
+        action :configure_logging
+      end
+    end
+
+    it 'writes private XML and restarts only an active service when changed' do
+      expect(chef_run).to create_file('/etc/amazon/ssm/seelog.xml')
+        .with(content: '<seelog minlevel="info"><outputs><console /></outputs></seelog>', owner: 'root', mode: '0600', sensitive: true)
+      expect(chef_run.file('/etc/amazon/ssm/seelog.xml'))
+        .to notify('systemd_unit[amazon-ssm-agent.service]').to(:try_restart).immediately
+      expect(chef_run).not_to create_file('/etc/amazon/ssm/amazon-ssm-agent.json')
+    end
+  end
+
+  context 'logging without automatic restart' do
+    recipe do
+      aws_ssm_agent 'default' do
+        logging_configuration '<seelog minlevel="info"><outputs><console /></outputs></seelog>'
+        restart_on_change false
+        action :configure_logging
+      end
+    end
+
+    it 'leaves service state to the caller' do
+      expect(chef_run.file('/etc/amazon/ssm/seelog.xml')).not_to notify('systemd_unit[amazon-ssm-agent.service]')
+    end
+  end
+
+  context 'missing logging configuration' do
+    recipe { aws_ssm_agent('default') { action :configure_logging } }
+
+    it 'fails clearly' do
+      expect { chef_run }.to raise_error(ArgumentError, /logging_configuration is required/)
+    end
+  end
+
   context 'missing configuration' do
     recipe { aws_ssm_agent('default') { action :configure } }
 
