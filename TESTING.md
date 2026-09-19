@@ -43,11 +43,13 @@ For removal testing, retain the default instance and switch to the removal run l
 kitchen converge default-ubuntu-2404
 kitchen verify default-ubuntu-2404
 AWS_AGENT_RUN_LIST=remove kitchen converge default-ubuntu-2404
-AWS_AGENT_RUN_LIST=remove kitchen verify default-ubuntu-2404
+AWS_AGENT_RUN_LIST=remove kitchen verify default-ubuntu-2404 --test-base-path=test/integration/remove
 kitchen destroy default-ubuntu-2404
 ```
 
 The removal converge also runs twice and requires zero updates on the second.
+The verifier base-path override prevents Kitchen from also loading the default
+installation assertions against the now-uninstalled agents.
 SSM uses the vendor's custom-identity support with a synthetic instance ID and
 dummy credentials in the isolated fixture. Live registration and AWS communication
 are outside this suite.

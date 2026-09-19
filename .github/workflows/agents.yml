@@ -29,7 +29,7 @@ jobs:
         run: |
           export AWS_AGENT_RUN_LIST=remove
           kitchen converge default-ubuntu-2404
-          kitchen verify default-ubuntu-2404
+          kitchen verify default-ubuntu-2404 --test-base-path=test/integration/remove
       - name: Destroy test container
         if: always()
         run: kitchen destroy default-ubuntu-2404
