@@ -14,6 +14,8 @@ cookstyle libraries/agent_packages.rb resources/*_agent.rb spec/resources/*_agen
 CI also runs `bundle exec rspec` and `bundle exec cookstyle` on Ruby 3.2. Install
 the test dependencies with `bundle install`; the Gemfile selects a compatible Chef
 runtime independently of the legacy runtime SDK constraints in `metadata.rb`.
+The host-agent workflow additionally runs the full unit suite with Cinc
+Workstation's bundled runtime.
 
 The agent Kitchen suite installs real pinned AWS packages on Ubuntu 24.04 with
 systemd, translates configuration and verifies service state. Downloads happen

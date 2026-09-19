@@ -21,6 +21,8 @@ jobs:
       - uses: actions/checkout@v7
       - name: Install Cinc Workstation
         uses: sous-chefs/.github/.github/actions/install-workstation@9.0.1
+      - name: Unit tests with Cinc Workstation
+        run: chef exec rspec
       - name: Prepare verified packages and isolated network
         run: sh test/prepare-agents.sh
       - name: Converge twice and verify agents

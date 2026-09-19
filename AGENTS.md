@@ -20,6 +20,10 @@ the legacy EC2 Kitchen suites remain supported independently of host agents.
   profile even for file input. The isolated fixture uses dummy credentials.
 * SSM uninstall retains `/var/lib/amazon/ssm` deliberately: registration/session
   state belongs to the managed node's decommissioning procedure.
+* The Gemfile selects a compatible Chef 18 test runtime independently of legacy
+  metadata SDK constraints. Run `bundle exec rspec` and `bundle exec cookstyle`
+  on Ruby 3.2, plus the Cinc Workstation agent integration suite.
+  Updating the runtime API-resource SDK pins remains separate work.
 
 Vendor references:
 
