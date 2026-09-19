@@ -47,7 +47,7 @@ describe 'aws_cloudwatch_agent' do
     recipe { aws_cloudwatch_agent('default') { action :remove } }
 
     it 'removes the package, generated configuration and download' do
-      expect(chef_run).to remove_dpkg_package('amazon-cloudwatch-agent')
+      expect(chef_run).to purge_dpkg_package('amazon-cloudwatch-agent')
       expect(chef_run).to delete_directory('/opt/aws/amazon-cloudwatch-agent')
       expect(chef_run).to delete_file("#{Chef::Config[:file_cache_path]}/amazon-cloudwatch-agent.deb")
     end
