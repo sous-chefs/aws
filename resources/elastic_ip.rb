@@ -55,7 +55,7 @@ action_class do
   include AwsCookbook::Ec2
 
   def eip_info(ip)
-    ec2.describe_addresses(public_ips: [ip]).addresses[0]
+    ec2.describe_addresses(public_ips: [ip]).addresses.first
   end
 
   def attach(ip, timeout)

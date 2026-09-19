@@ -49,13 +49,13 @@ aws_dynamodb_table 'test-dynamodb-table-create' do
     },
   ]
   provisioned_throughput({
-    read_capacity_units: 2,
-    write_capacity_units: 2,
-  })
+                           read_capacity_units: 2,
+                           write_capacity_units: 2,
+                         })
   stream_specification({
-    stream_enabled: true,
-    stream_view_type: 'KEYS_ONLY',
-  })
+                         stream_enabled: true,
+                         stream_view_type: 'KEYS_ONLY',
+                       })
 end
 
 aws_dynamodb_table 'test-dynamodb-table-update' do
@@ -111,10 +111,10 @@ aws_dynamodb_table 'test-dynamodb-table-update' do
     },
   ]
   provisioned_throughput({
-    read_capacity_units: 3,
-    write_capacity_units: 3,
-  })
+                           read_capacity_units: 3,
+                           write_capacity_units: 3,
+                         })
   stream_specification({
-    stream_enabled: false,
-  })
+                         stream_enabled: false,
+                       })
 end

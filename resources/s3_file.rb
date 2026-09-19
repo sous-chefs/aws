@@ -21,7 +21,7 @@ property :use_fips_endpoint, [true, false], default: false
 # Intentionally not using platform_family?('windows') due to a bug/issue
 # where this method is not abvailable in the context of gating properties
 # TODO: update when this is fixed
-if node['platform_family'] == 'windows' # rubocop:disable ChefStyle/UsePlatformHelpers
+if platform_family?('windows')
   property :inherits, [true, false], default: true
   property :rights, Hash
 end

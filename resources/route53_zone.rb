@@ -39,7 +39,7 @@ action_class do
 
   # convert the passed name to the trailing period format
   def zone_name
-    @name ||= new_resource.name[-1] == '.' ? new_resource.name : "#{new_resource.name}."
+    @name ||= new_resource.name.last == '.' ? new_resource.name : "#{new_resource.name}."
   end
 
   # find the zone ID by zone name
@@ -52,7 +52,7 @@ action_class do
   # a small response from AWS, but if the name isn't found AWS returns
   # everything so we have to find it ourselves
   def zone_exists?(name)
-    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.select { |r| r.name == name }.any?
+    route53_client.list_hosted_zones_by_name(dns_name: name).hosted_zones.any? { |r| r.name == name }
   end
 
   def create_data_structure
