@@ -45,4 +45,17 @@ describe AwsCookbook::AgentPackages do
     expect(helper.agent_download_url('ssm', '3.3.5390.0', 'redhat', 'rhel', 'amd64'))
       .to eq('https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/3.3.5390.0/linux_amd64/amazon-ssm-agent.rpm')
   end
+
+  { 'debian' => [:dpkg_package, :purge], 'rhel' => [:rpm_package, :remove] }.each do |family, (type, package_action)|
+    it "cleans package-owned configuration on #{family}" do
+      allow(helper).to receive(:node).and_return('platform_family' => family)
+      allow(helper).to receive(:file)
+      expect(helper).to receive(:declare_resource).with(type, 'amazon-ssm-agent') do |*, &block|
+        resource = double('package')
+        expect(resource).to receive(:action).with(package_action)
+        resource.instance_eval(&block)
+      end
+      helper.remove_agent_package('ssm')
+    end
+  end
 end

@@ -57,8 +57,9 @@ module AwsCookbook
     end
 
     def remove_agent_package(agent)
-      declare_resource(agent_package_type(node['platform_family']), "amazon-#{agent}-agent") do
-        action :remove
+      type = agent_package_type(node['platform_family'])
+      declare_resource(type, "amazon-#{agent}-agent") do
+        action(type == :dpkg_package ? :purge : :remove)
       end
 
       %w(deb rpm).each do |extension|
