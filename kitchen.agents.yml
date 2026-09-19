@@ -19,6 +19,7 @@ provisioner:
   product_name: cinc
   chef_binary: /opt/cinc-workstation/bin/cinc-client
   policyfile: Policyfile.rb
+  named_run_list: <%= ENV['AWS_AGENT_RUN_LIST'] %>
   enforce_idempotency: true
   multiple_converge: 2
   deprecations_as_errors: true
@@ -28,7 +29,7 @@ provisioner:
 verifier:
   name: inspec
   inspec_tests:
-    - test/integration/default
+    - test/integration/<%= ENV.fetch('AWS_AGENT_RUN_LIST', 'default') %>
 
 platforms:
   - name: ubuntu-24.04

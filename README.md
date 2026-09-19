@@ -245,6 +245,7 @@ end
 ### Host agents
 
 - [aws_cloudwatch_agent](documentation/aws_cloudwatch_agent.md): install verified Linux packages, translate configuration and manage the unified CloudWatch Agent with systemd.
+- [aws_ssm_agent](documentation/aws_ssm_agent.md): install verified Linux packages, configure and manage the Systems Manager Agent, with protection against duplicate Snap installations.
 
 ### aws_cloudformation_stack
 
