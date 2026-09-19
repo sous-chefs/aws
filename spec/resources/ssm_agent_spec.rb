@@ -79,7 +79,7 @@ describe 'aws_ssm_agent' do
     recipe { aws_ssm_agent('default') { action :remove } }
 
     it 'removes the package and owned configuration while retaining registration state' do
-      expect(chef_run).to remove_dpkg_package('amazon-ssm-agent')
+      expect(chef_run).to purge_dpkg_package('amazon-ssm-agent')
       expect(chef_run).to delete_directory('/etc/amazon/ssm')
       expect(chef_run).to delete_file("#{Chef::Config[:file_cache_path]}/amazon-ssm-agent.deb")
       expect(chef_run).not_to delete_directory('/var/lib/amazon/ssm')

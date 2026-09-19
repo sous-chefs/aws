@@ -29,7 +29,7 @@ provisioner:
 verifier:
   name: inspec
   inspec_tests:
-    - test/integration/default
+    - test/integration/<%= ENV.fetch('AWS_AGENT_RUN_LIST', 'default') %>
 
 platforms:
   - name: ubuntu-24.04

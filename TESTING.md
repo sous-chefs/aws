@@ -43,6 +43,7 @@ For removal testing, retain the default instance and switch to the removal run l
 kitchen converge default-ubuntu-2404
 kitchen verify default-ubuntu-2404
 AWS_AGENT_RUN_LIST=remove kitchen converge default-ubuntu-2404
+AWS_AGENT_RUN_LIST=remove kitchen verify default-ubuntu-2404
 kitchen destroy default-ubuntu-2404
 ```
 
