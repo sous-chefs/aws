@@ -8,7 +8,7 @@ Unit tests use local cookbooks and no AWS credentials:
 
 ```sh
 chef exec rspec
-cookstyle libraries/agent_packages.rb resources/cloudwatch_agent.rb spec/resources/cloudwatch_agent_spec.rb spec/unit/agent_packages_spec.rb
+cookstyle libraries/agent_packages.rb resources/*_agent.rb spec/resources/*_agent_spec.rb spec/unit/agent_packages_spec.rb
 ```
 
 CI also runs `bundle exec rspec` and `bundle exec cookstyle` on Ruby 3.2. Install
@@ -37,7 +37,16 @@ checksums. These agent tests do not require the SDK gems declared for API resour
 the suite disables automatic installation of that separate pinned dependency set.
 The legacy `kitchen.yml` uses real EC2 instances; use `kitchen.agents.yml` explicitly.
 
-For removal testing, retain the default instance with `kitchen converge` and
-`kitchen verify`, then run the `remove` named run list twice inside the container.
-The second removal must report zero updated resources. Check the package, cached
-download and owned agent directory are absent before `kitchen destroy`.
+For removal testing, retain the default instance and switch to the removal run list:
+
+```sh
+kitchen converge default-ubuntu-2404
+kitchen verify default-ubuntu-2404
+AWS_AGENT_RUN_LIST=remove kitchen converge default-ubuntu-2404
+kitchen destroy default-ubuntu-2404
+```
+
+The removal converge also runs twice and requires zero updates on the second.
+SSM uses the vendor's custom-identity support with a synthetic instance ID and
+dummy credentials in the isolated fixture. Live registration and AWS communication
+are outside this suite.

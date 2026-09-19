@@ -1,0 +1,30 @@
+---
+name: host-agents
+
+"on":
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ubuntu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      AWS_AGENT_PACKAGE_DIR: /tmp/aws-agent-packages
+      KITCHEN_YAML: kitchen.agents.yml
+      KITCHEN_LOCAL_YAML: kitchen.agents.yml
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Cinc Workstation
+        uses: sous-chefs/.github/.github/actions/install-workstation@9.0.1
+      - name: Prepare verified packages and isolated network
+        run: sh test/prepare-agents.sh
+      - name: Converge twice and verify agents
+        run: kitchen test default-ubuntu-2404 --destroy=always
+      - name: Clean up test network
+        if: always()
+        run: docker network rm aws-agents-offline
