@@ -1,3 +1,5 @@
+require 'uri'
+
 unified_mode true
 property :policy_name, String, name_property: true
 property :path, String, default: '/'
@@ -112,6 +114,6 @@ action_class do
       policy_arn: make_policy_arn(new_resource.policy_name),
       version_id: version
     )
-    !(URI.unescape(resp.policy_version.document) == new_resource.policy_document)
+    !(URI::DEFAULT_PARSER.unescape(resp.policy_version.document) == new_resource.policy_document)
   end
 end
