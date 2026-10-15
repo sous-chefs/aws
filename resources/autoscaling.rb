@@ -1,18 +1,15 @@
+# frozen_string_literal: true
+
+provides :aws_autoscaling
 unified_mode true
+
+use '_partial/_aws_common'
 
 property :return_info, [String, Array]
 property :should_decrement_desired_capacity, [true, false], default: true
 property :asg_name, String
 property :status_code, String
 property :max_size, Integer, default: 4
-
-# authentication
-property :aws_access_key, String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token, String, sensitive: true
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
-property :region, String, default: lazy { fallback_region }
 
 include AwsCookbook::Ec2 # needed for fallback_region helper
 
@@ -168,9 +165,8 @@ action_class do
     request = {
       instance_ids: [node['ec2']['instance_id']],
     }
-    lcstate = nil
     response = autoscaling_client.describe_auto_scaling_instances(request)
-    lcstate = response.auto_scaling_instances.first.lifecycle_state unless response.auto_scaling_instances.first.nil?
+    lcstate = response.auto_scaling_instances.first&.lifecycle_state
     Chef::Log.debug "Get Life Cycle State for #{node['ec2']['instance_id']}, State = #{lcstate}"
     lcstate
   end

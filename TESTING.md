@@ -1,6 +1,30 @@
 # Testing
 
-Please refer to [the community cookbook documentation on testing](https://github.com/chef-cookbooks/community_cookbook_documentation/blob/main/TESTING.MD).
+## Local Validation
+
+Run the standard local validation stack with:
+
+```shell
+cookstyle
+chef exec rspec --format documentation
+KITCHEN_LOCAL_YAML=kitchen.dokken.yml kitchen test default-ubuntu-2404 --destroy=always
+```
+
+CI runs the `default` suite on every platform in `kitchen.dokken.yml`. The command above runs only Ubuntu 24.04 locally; omit the instance name to run the full matrix.
+
+The `default` suite uses SDK stub responses and does not require live AWS credentials.
+
+## Live AWS Validation
+
+Live suites are defined in `kitchen.live.yml` and grouped by capability:
+
+- `storage`
+- `identity`
+- `network`
+- `compute`
+- `orchestration`
+
+Run them manually when the required AWS environment variables and EC2 SSH key path are available.
 
 ## Host agents
 
@@ -37,7 +61,7 @@ Kitchen enforces two converges with zero updates on the second. The preparation
 script selects ARM64 or x86-64 packages to match Docker and verifies fixed SHA-256
 checksums. These agent tests do not require the SDK gems declared for API resources;
 the suite disables automatic installation of that separate pinned dependency set.
-The legacy `kitchen.yml` uses real EC2 instances; use `kitchen.agents.yml` explicitly.
+The default `kitchen.yml` runs API stubs. Use `kitchen.agents.yml` explicitly for host agents; live AWS suites remain in `kitchen.live.yml`.
 
 For removal testing, retain the default instance and switch to the removal run list:
 
