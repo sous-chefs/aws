@@ -1,3 +1,4 @@
+---
 driver:
   name: dokken
   privileged: true
@@ -36,6 +37,11 @@ platforms:
     driver:
       image: dokken/centos-stream-10
       pid_one_command: /usr/lib/systemd/systemd
+
+  - name: debian-11
+    driver:
+      image: dokken/debian-11
+      pid_one_command: /bin/systemd
 
   - name: debian-12
     driver:

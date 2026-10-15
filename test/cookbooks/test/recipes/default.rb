@@ -1,32 +1,47 @@
 # frozen_string_literal: true
 
-# Packages are downloaded before the network-isolated Kitchen run.
-cloudwatch_checksum = case node['kernel']['machine']
-                      when 'aarch64' then 'f84cbb6b193f80440f713ec3a2b2b6ed45a16f10d8f0fe38c01cbff9155cb3f9'
-                      when 'x86_64' then '05baeadca96c4bb8e43906ed09cf0bebd0f321ff6d41987bdc46ce681de0978d'
-                      end
+ENV['AWS_COOKBOOK_STUB_RESPONSES'] = 'true'
 
-# The vendor downloader requires a local credential profile even for file input
-# in onPremise mode. These deliberately invalid credentials never leave the
-# internal Docker network.
-directory '/root/.aws' do
-  mode '0700'
+require 'aws-sdk-dynamodb'
+
+marker_path = '/tmp/aws-default-suite-ran'
+table_exists = ::File.exist?(marker_path)
+
+Aws.config.update(
+  dynamodb: {
+    stub_responses: {
+      describe_table: if table_exists
+                        {
+                          table: {
+                            table_name: 'codex-default',
+                            provisioned_throughput: {
+                              read_capacity_units: 1,
+                              write_capacity_units: 1,
+                            },
+                            stream_specification: nil,
+                            global_secondary_indexes: [],
+                          },
+                        }
+                      else
+                        'ResourceNotFoundException'
+                      end,
+      create_table: {
+        table_description: {
+          table_name: 'codex-default',
+          table_status: 'ACTIVE',
+        },
+      },
+    },
+  }
+)
+
+aws_dynamodb_table 'codex-default' do
+  attribute_definitions([{ attribute_name: 'id', attribute_type: 'S' }])
+  key_schema([{ attribute_name: 'id', key_type: 'HASH' }])
+  provisioned_throughput(read_capacity_units: 1, write_capacity_units: 1)
 end
 
-file '/root/.aws/credentials' do
-  content "[AmazonCloudWatchAgent]\naws_access_key_id = offline-test\naws_secret_access_key = offline-test\nregion = eu-west-1\n"
-  mode '0600'
-  sensitive true
-end
-
-aws_cloudwatch_agent 'default' do
-  version '1.300072.0b1766'
-  source 'file:///opt/agent-packages/amazon-cloudwatch-agent.deb'
-  checksum cloudwatch_checksum
-  configuration(
-    'agent' => { 'region' => 'eu-west-1', 'omit_hostname' => true },
-    'metrics' => { 'metrics_collected' => { 'mem' => { 'measurement' => ['mem_used_percent'] } } }
-  )
-  mode 'onPremise'
-  action [:install, :configure, :enable]
+file marker_path do
+  content 'default suite converged'
+  mode '0644'
 end

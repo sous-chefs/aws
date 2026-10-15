@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Hash
   # Removes empty values from a hash
   def remove_empty

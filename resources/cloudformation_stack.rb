@@ -1,4 +1,9 @@
+# frozen_string_literal: true
+
+provides :aws_cloudformation_stack
 unified_mode true
+
+use '_partial/_aws_common'
 
 property :stack_name, String, name_property: true
 # location of the template body, located in the "files" cookbook dir
@@ -8,14 +13,6 @@ property :disable_rollback, [true, false], default: false
 property :iam_capability, [true, false], default: false
 property :named_iam_capability, [true, false], default: false
 property :stack_policy_body, String
-property :region, String, default: lazy { fallback_region }
-
-# authentication
-property :aws_access_key, String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token, String, sensitive: true
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 
@@ -23,7 +20,7 @@ action :create do
   load_template_path
   if stack_exists?(new_resource.stack_name)
     # only update if stack changed
-    if cfn_stack_changed? || cfn_params_chagned?
+    if cfn_stack_changed? || cfn_params_changed?
       converge_by("update stack #{new_resource.stack_name}") do
         options = build_cfn_options
         options.delete(:disable_rollback)
@@ -91,8 +88,8 @@ action_class do
     !(resp.template_body == ::IO.read(@template_path))
   end
 
-  # cfn_params_chagned - see if parameters have updated
-  def cfn_params_chagned?
+  # cfn_params_changed - see if parameters have updated
+  def cfn_params_changed?
     resp = cfn.describe_stacks(stack_name: new_resource.stack_name)
     resp.stacks.first.parameters.each do |existing_param|
       new_params = new_resource.parameters

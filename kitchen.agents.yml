@@ -28,7 +28,7 @@ provisioner:
 verifier:
   name: inspec
   inspec_tests:
-    - test/integration/default
+    - test/integration/agents
 
 platforms:
   - name: ubuntu-24.04
