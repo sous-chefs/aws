@@ -18,7 +18,7 @@ provisioner:
   name: dokken
   product_name: cinc
   chef_binary: /opt/cinc-workstation/bin/cinc-client
-  policyfile: Policyfile.rb
+  policyfile: Policyfile.agents.rb
   enforce_idempotency: true
   multiple_converge: 2
   deprecations_as_errors: true
