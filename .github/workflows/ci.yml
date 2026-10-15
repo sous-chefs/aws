@@ -11,9 +11,9 @@ permissions:
 
 jobs:
   lint-unit:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: sous-chefs/.github/.github/actions/install-workstation@main
       - name: Cookstyle
         run: chef exec cookstyle
@@ -25,7 +25,7 @@ jobs:
           CHEF_LICENSE: accept-no-persist
 
   kitchen:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: lint-unit
     strategy:
       fail-fast: false
@@ -51,7 +51,7 @@ jobs:
           - default-ubuntu-2204
           - default-ubuntu-2404
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: sous-chefs/.github/.github/actions/install-workstation@main
       - name: Kitchen default suite
         run: KITCHEN_LOCAL_YAML=kitchen.dokken.yml kitchen test ${{ matrix.instance }} --destroy=always
