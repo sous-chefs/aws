@@ -1,13 +1,11 @@
-aws_route53_zone 'Add testkitchen.dmz zone' do
-  name 'testkitchen.dmz'
+aws_route53_zone 'testkitchen.dmz' do
   description 'A test zone created by Test Kitchen. Delete anytime.'
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
   aws_session_token node['aws_test']['session_token']
 end
 
-aws_route53_record "Add our node's record" do
-  name 'chefnode.testkitchen.dmz'
+aws_route53_record 'chefnode.testkitchen.dmz' do
   value node['ipaddress']
   type 'A'
   ttl 3600
@@ -36,8 +34,7 @@ end
 #   aws_secret_access_key node['aws_test']['access_key']
 # end
 
-aws_route53_record "Delete our node's record" do
-  name 'chefnode.testkitchen.dmz'
+aws_route53_record 'chefnode.testkitchen.dmz' do
   zone_name 'testkitchen.dmz.'
   type 'A'
   value node['ipaddress']
@@ -47,8 +44,7 @@ aws_route53_record "Delete our node's record" do
   aws_session_token node['aws_test']['session_token']
 end
 
-aws_route53_zone 'Delete testkitchen.dmz zone' do
-  name 'testkitchen.dmz'
+aws_route53_zone 'testkitchen.dmz' do
   aws_access_key node['aws_test']['key_id']
   aws_secret_access_key node['aws_test']['access_key']
   aws_session_token node['aws_test']['session_token']

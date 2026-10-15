@@ -1,0 +1,32 @@
+---
+name: live-acceptance
+
+"on":
+  workflow_dispatch:
+
+jobs:
+  kitchen-live:
+    if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != ''}}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [ storage, identity, network, compute, orchestration ]
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_S3_BUCKET_WEST: ${{ secrets.AWS_S3_BUCKET_WEST }}
+      AWS_S3_KEY: ${{ secrets.AWS_S3_KEY }}
+      AWS_ELASTIC_IP: ${{ secrets.AWS_ELASTIC_IP }}
+      AWS_VPC_ID: ${{ secrets.AWS_VPC_ID }}
+      EC2_SSH_KEY_PATH: ${{ secrets.EC2_SSH_KEY_PATH }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sous-chefs/.github/.github/actions/install-workstation@main
+      - name: Kitchen live suite
+        run: |
+          KITCHEN_LOCAL_YAML=kitchen.live.yml kitchen test ${{ matrix.suite }}-ubuntu-2404 --destroy=always
+        env:
+          CHEF_LICENSE: accept-no-persist
