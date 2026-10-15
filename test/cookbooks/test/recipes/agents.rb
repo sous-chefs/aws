@@ -42,5 +42,13 @@ aws_ssm_agent 'default' do
       'CustomIdentities' => [{ 'InstanceID' => 'i-00000000000000000', 'Region' => 'eu-west-1', 'CredentialsProvider' => 'default' }],
     }
   )
-  action [:install, :configure, :enable, :start]
+  logging_configuration <<~XML
+    <seelog minlevel="info">
+      <outputs formatid="main">
+        <rollingfile type="size" filename="/var/log/amazon/ssm/chef-test.log" maxsize="1048576" maxrolls="2" />
+      </outputs>
+      <formats><format id="main" format="%Date %Time %LEVEL %Msg%n" /></formats>
+    </seelog>
+  XML
+  action [:install, :configure, :configure_logging, :enable, :start]
 end
