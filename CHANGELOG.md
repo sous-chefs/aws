@@ -2,6 +2,17 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## [10.0.0](https://github.com/sous-chefs/aws/compare/v9.3.2...v10.0.0) (2026-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* complete custom resource migration ([#528](https://github.com/sous-chefs/aws/issues/528))
+
+### Features
+
+* complete custom resource migration ([#528](https://github.com/sous-chefs/aws/issues/528)) ([0638904](https://github.com/sous-chefs/aws/commit/0638904dcb8286ea7e0122ab1c204c8f7f47e217))
+
 ## [9.3.2](https://github.com/sous-chefs/aws/compare/v9.3.1...v9.3.2) (2026-04-21)
 
 
