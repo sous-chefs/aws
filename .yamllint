@@ -13,3 +13,5 @@ rules:
     max-spaces-inside-empty: -1
   comments:
     min-spaces-from-content: 1
+  brackets:
+    max-spaces-inside: 1

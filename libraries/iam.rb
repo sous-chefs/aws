@@ -1,4 +1,6 @@
-require File.join(File.dirname(__FILE__), 'ec2')
+# frozen_string_literal: true
+
+require_relative 'ec2'
 
 module AwsCookbook
   module IAM
