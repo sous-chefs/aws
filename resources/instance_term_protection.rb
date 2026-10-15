@@ -1,10 +1,10 @@
+# frozen_string_literal: true
+
+provides :aws_instance_term_protection
 unified_mode true
-property :aws_access_key, String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token, String, sensitive: true
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
-property :region, String, default: lazy { fallback_region }
+
+use '_partial/_aws_common'
+
 property :instance_id, String, default: lazy { node['ec2']['instance_id'] }
 
 include AwsCookbook::Ec2 # needed for aws_region helper

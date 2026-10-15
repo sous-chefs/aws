@@ -1,4 +1,9 @@
+# frozen_string_literal: true
+
+provides :aws_cloudwatch
 unified_mode true
+
+use '_partial/_aws_common'
 
 property :alarm_name, String, name_property: true
 property :alarm_description, String
@@ -17,14 +22,6 @@ property :evaluation_periods, Integer
 property :threshold, [Float, Integer]
 property :comparison_operator, String, equal_to: %w(GreaterThanOrEqualToThreshold GreaterThanThreshold LessThanThreshold LessThanOrEqualToThreshold)
 property :treat_missing_data, String, default: 'missing', equal_to: %w(breaching notBreaching ignore missing)
-
-# authentication
-property :region, String, default: lazy { fallback_region }
-property :aws_access_key, String
-property :aws_secret_access_key, String, sensitive: true
-property :aws_session_token, String, sensitive: true
-property :aws_assume_role_arn, String
-property :aws_role_session_name, String
 
 include AwsCookbook::Ec2 # needed for aws_region helper
 
@@ -118,36 +115,37 @@ action_class do
   def cwh_if_changed(type, *p)
     options = { alarm_names: [new_resource.alarm_name], max_records: 1 }
     resp = cwh.describe_alarms(options)
+    alarm = resp.metric_alarms.first
     if !resp.metric_alarms.empty?
       if type == 'any'
         new_params = build_cwh_options
         new_params.each_key do |k|
-          if resp.metric_alarms[0][k].nil? || resp.metric_alarms[0][k].to_s.empty?
+          if alarm[k].nil? || alarm[k].to_s.empty?
             return true
-          elsif new_params[k].is_a?(Array) || resp.metric_alarms[0][k].is_a?(Array)
-            if new_params[k].length != resp.metric_alarms[0][k].length
+          elsif new_params[k].is_a?(Array) || alarm[k].is_a?(Array)
+            if new_params[k].length != alarm[k].length
               return true
             else
               new_params[k].each_index do |n|
-                if resp.metric_alarms[0][k][n].nil? || resp.metric_alarms[0][k][n].to_s.empty?
+                if alarm[k][n].nil? || alarm[k][n].to_s.empty?
                   return true
-                elsif new_params[k][n].is_a?(Hash) || resp.metric_alarms[0][k][n].is_a?(Hash)
-                  if new_params[k][n].length != resp.metric_alarms[0][k][n].length
+                elsif new_params[k][n].is_a?(Hash) || alarm[k][n].is_a?(Hash)
+                  if new_params[k][n].length != alarm[k][n].length
                     return true
                   else
-                    new_params[k][n].each_key { |m| return true unless resp.metric_alarms[0][k][n][m].nil? || resp.metric_alarms[0][k][n][m].to_s.empty? || new_params[k][n][m] == resp.metric_alarms[0][k][n][m] }
+                    new_params[k][n].each_key { |m| return true unless alarm[k][n][m].nil? || alarm[k][n][m].to_s.empty? || new_params[k][n][m] == alarm[k][n][m] }
                   end
                 else
-                  return true unless resp.metric_alarms[0][k][n].nil? || resp.metric_alarms[0][k][n].to_s.empty? || new_params[k][n] == resp.metric_alarms[0][k][n]
+                  return true unless alarm[k][n].nil? || alarm[k][n].to_s.empty? || new_params[k][n] == alarm[k][n]
                 end
               end
             end
           else
-            return true unless new_params[k] == resp.metric_alarms[0][k]
+            return true unless new_params[k] == alarm[k]
           end
         end
       elsif type == 'alarm_action'
-        return true unless resp.metric_alarms[0].actions_enabled.to_s == p.join
+        return true unless alarm.actions_enabled.to_s == p.join
       end
       false
     else
