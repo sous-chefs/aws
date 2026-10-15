@@ -52,7 +52,7 @@ export AWS_AGENT_PACKAGE_DIR="$(mktemp -d)"
 sh test/prepare-agents.sh
 export KITCHEN_YAML=kitchen.agents.yml
 export KITCHEN_LOCAL_YAML=kitchen.agents.yml
-chef install Policyfile.rb
+chef install Policyfile.agents.rb
 kitchen test default-ubuntu-2404 --destroy=always
 docker network rm aws-agents-offline
 ```

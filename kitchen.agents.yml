@@ -18,7 +18,7 @@ provisioner:
   name: dokken
   product_name: cinc
   chef_binary: /opt/cinc-workstation/bin/cinc-client
-  policyfile: Policyfile.rb
+  policyfile: Policyfile.agents.rb
   named_run_list: <%= ENV['AWS_AGENT_RUN_LIST'] %>
   enforce_idempotency: true
   multiple_converge: 2
