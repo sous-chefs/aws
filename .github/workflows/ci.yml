@@ -24,10 +24,33 @@ jobs:
   kitchen:
     runs-on: ubuntu-24.04
     needs: lint-unit
+    strategy:
+      fail-fast: false
+      matrix:
+        instance:
+          - default-almalinux-8
+          - default-almalinux-9
+          - default-almalinux-10
+          - default-amazonlinux-2023
+          - default-centos-stream-9
+          - default-centos-stream-10
+          - default-debian-11
+          - default-debian-12
+          - default-debian-13
+          - default-fedora-latest
+          - default-opensuse-leap-15
+          - default-oraclelinux-8
+          - default-oraclelinux-9
+          - default-rockylinux-8
+          - default-rockylinux-9
+          - default-rockylinux-10
+          - default-ubuntu-2004
+          - default-ubuntu-2204
+          - default-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
       - uses: sous-chefs/.github/.github/actions/install-workstation@main
       - name: Kitchen default suite
-        run: KITCHEN_LOCAL_YAML=kitchen.dokken.yml kitchen test default-ubuntu-2404 --destroy=always
+        run: KITCHEN_LOCAL_YAML=kitchen.dokken.yml kitchen test ${{ matrix.instance }} --destroy=always
         env:
           CHEF_LICENSE: accept-no-persist

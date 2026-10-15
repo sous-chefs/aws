@@ -4,7 +4,8 @@ This cookbook manages AWS APIs directly. It does not install vendor packages or 
 
 ## Supported Test Surface
 
-- Canonical tested platform: Ubuntu 24.04
+- The default Dokken suite and CI matrix retain the existing Linux platforms; cookbook metadata retains the previously advertised platform families
+- Live AWS acceptance uses Ubuntu 24.04; Windows and FreeBSD support remains advertised but is not covered by the Linux Dokken matrix
 - Standard CI uses local SDK stub responses and Dokken for fast validation
 - Live AWS validation is split into a manually triggered workflow backed by repository secrets
 
