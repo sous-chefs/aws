@@ -7,7 +7,7 @@ name: live-acceptance
 jobs:
   kitchen-live:
     if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != ''}}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -23,7 +23,7 @@ jobs:
       AWS_VPC_ID: ${{ secrets.AWS_VPC_ID }}
       EC2_SSH_KEY_PATH: ${{ secrets.EC2_SSH_KEY_PATH }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: sous-chefs/.github/.github/actions/install-workstation@main
       - name: Kitchen live suite
         run: |
