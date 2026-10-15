@@ -6,6 +6,9 @@ name: ci
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   lint-unit:
     runs-on: ubuntu-24.04
