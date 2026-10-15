@@ -20,7 +20,7 @@ action :create do
   load_template_path
   if stack_exists?(new_resource.stack_name)
     # only update if stack changed
-    if cfn_stack_changed? || cfn_params_chagned?
+    if cfn_stack_changed? || cfn_params_changed?
       converge_by("update stack #{new_resource.stack_name}") do
         options = build_cfn_options
         options.delete(:disable_rollback)
@@ -88,8 +88,8 @@ action_class do
     !(resp.template_body == ::IO.read(@template_path))
   end
 
-  # cfn_params_chagned - see if parameters have updated
-  def cfn_params_chagned?
+  # cfn_params_changed - see if parameters have updated
+  def cfn_params_changed?
     resp = cfn.describe_stacks(stack_name: new_resource.stack_name)
     resp.stacks.first.parameters.each do |existing_param|
       new_params = new_resource.parameters
