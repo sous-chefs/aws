@@ -20,12 +20,14 @@ end
 | `checksum` | String | none | SHA-256 of the package for the target OS and architecture. Required for install. |
 | `source` | String | vendor S3 URL | Optional mirror or `file://` package URL. |
 | `configuration` | Hash | none | JSON settings for `amazon-ssm-agent.json`. Required for configure; treated as sensitive. |
-| `restart_on_change` | Boolean | `true` | Restart an already-running agent when JSON changes. |
+| `logging_configuration` | String | none | Complete Seelog XML. Required for configure_logging; treated as sensitive. |
+| `restart_on_change` | Boolean | `true` | Restart an already-running agent when JSON or logging configuration changes. |
 
 ## Actions
 
 * `:install` (default): download, verify and install the selected DEB/RPM package.
 * `:configure`: write root-only `/etc/amazon/ssm/amazon-ssm-agent.json`. Install first.
+* `:configure_logging`: write root-only `/etc/amazon/ssm/seelog.xml`. Install first.
 * `:enable`, `:disable`, `:start`, `:stop`, `:restart`: control the vendor systemd unit.
 * `:remove`: stop/disable, uninstall, delete cached packages, `/etc/amazon/ssm` and `/var/log/amazon/ssm`.
 
@@ -49,3 +51,28 @@ installation explicitly first; AWS advises against running both package types.
 The caller supplies the instance profile or hybrid activation/registration and
 network access required by Systems Manager. This resource creates no IAM roles,
 performs no hybrid activation and sends no AWS registration API calls itself.
+
+## Logging
+
+Manage logging independently of the agent JSON settings:
+
+```ruby
+aws_ssm_agent 'logging' do
+  logging_configuration <<~XML
+    <seelog minlevel="info">
+      <outputs formatid="main">
+        <rollingfile type="size" filename="/var/log/amazon/ssm/amazon-ssm-agent.log" maxsize="30000000" maxrolls="5" />
+      </outputs>
+      <formats><format id="main" format="%Date %Time %LEVEL %Msg%n" /></formats>
+    </seelog>
+  XML
+  action :configure_logging
+end
+```
+
+Supply complete valid XML using the [vendor's logging configuration](https://docs.aws.amazon.com/systems-manager/latest/userguide/ssm-agent-logs.html).
+The content is written verbatim. This action does not rewrite `amazon-ssm-agent.json`.
+Omitting the action leaves existing logging settings unchanged. Set
+`restart_on_change false` to control restarts separately. Removal deletes this file
+and logs under `/var/log/amazon/ssm`; custom log destinations elsewhere remain the
+caller's responsibility.
