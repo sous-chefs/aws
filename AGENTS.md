@@ -14,6 +14,16 @@ the legacy EC2 Kitchen suites remain supported independently of host agents.
   JSON. Keep the cookbook's input at a separate path.
 * SSM Snap and DEB installations must never coexist. Reject Snap before mutation.
 * No test may enrol an SSM managed node or send metrics to a real AWS account.
+* The SSM download bucket can lag GitHub releases. CloudWatch download paths use
+  the full `CWAGENT_VERSION`, including the build suffix, not the Git tag.
+* `onPremise` CloudWatch translation requires the configured local credential
+  profile even for file input. The isolated fixture uses dummy credentials.
+* SSM uninstall retains `/var/lib/amazon/ssm` deliberately: registration/session
+  state belongs to the managed node's decommissioning procedure.
+* The Gemfile selects a compatible Chef 18 test runtime independently of legacy
+  metadata SDK constraints. Run `bundle exec rspec` and `bundle exec cookstyle`
+  on Ruby 3.2, plus the Cinc Workstation agent integration suite.
+  Updating the runtime API-resource SDK pins remains separate work.
 
 Vendor references:
 
