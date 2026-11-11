@@ -14,7 +14,7 @@ directory '/root/.aws' do
 end
 
 file '/root/.aws/credentials' do
-  content "[AmazonCloudWatchAgent]\naws_access_key_id = offline-test\naws_secret_access_key = offline-test\nregion = eu-west-1\n"
+  content "[AmazonCloudWatchAgent]\naws_access_key_id = offline-test\naws_secret_access_key = offline-test\nregion = eu-west-1\n[default]\naws_access_key_id = offline-test\naws_secret_access_key = offline-test\nregion = eu-west-1\n"
   mode '0600'
   sensitive true
 end
@@ -29,4 +29,18 @@ aws_cloudwatch_agent 'default' do
   )
   mode 'onPremise'
   action [:install, :configure, :enable]
+end
+
+aws_ssm_agent 'default' do
+  version '3.3.5226.0'
+  source 'file:///opt/agent-packages/amazon-ssm-agent.deb'
+  checksum node['kernel']['machine'] == 'aarch64' ? '2ed75ecacf633af8b48568f1d468a4849ad006ff901f63761ecb9b0daa8d90d2' : '777df4e0ac4bbc8d7d1b159db76cdb6614666bcc73141874414b8be68fb9cba3'
+  configuration(
+    'Ssm' => { 'Region' => 'eu-west-1' },
+    'Identity' => {
+      'ConsumptionOrder' => ['CustomIdentity'],
+      'CustomIdentities' => [{ 'InstanceID' => 'i-00000000000000000', 'Region' => 'eu-west-1', 'CredentialsProvider' => 'default' }],
+    }
+  )
+  action [:install, :configure, :enable, :start]
 end
