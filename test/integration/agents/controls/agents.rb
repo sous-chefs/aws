@@ -36,6 +36,17 @@ control 'ssm-agent' do
     its(%w(Ssm Region)) { should eq 'eu-west-1' }
   end
 
+  describe file('/etc/amazon/ssm/seelog.xml') do
+    its('owner') { should eq 'root' }
+    its('mode') { should cmp '0600' }
+    its('content') { should include 'maxrolls="2"' }
+  end
+
+  describe file('/var/log/amazon/ssm/chef-test.log') do
+    it { should exist }
+    its('size') { should be > 0 }
+  end
+
   describe systemd_service('amazon-ssm-agent') do
     it { should be_enabled }
     it { should be_running }

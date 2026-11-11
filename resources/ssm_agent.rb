@@ -9,6 +9,7 @@ property :version, String, regex: /\A[0-9][0-9a-zA-Z.-]*\z/
 property :checksum, String, regex: /\A[0-9a-fA-F]{64}\z/
 property :source, String
 property :configuration, Hash, sensitive: true
+property :logging_configuration, String, sensitive: true
 property :restart_on_change, [true, false], default: true
 
 default_action :install
@@ -28,6 +29,24 @@ action :configure do
 
   file '/etc/amazon/ssm/amazon-ssm-agent.json' do
     content JSON.pretty_generate(new_resource.configuration) + "\n"
+    owner 'root'
+    group 'root'
+    mode '0600'
+    sensitive true
+    notifies :try_restart, 'systemd_unit[amazon-ssm-agent.service]', :immediately if new_resource.restart_on_change
+  end
+end
+
+action :configure_logging do
+  reject_ssm_snap!
+  raise ArgumentError, 'logging_configuration is required for :configure_logging' unless new_resource.logging_configuration
+
+  systemd_unit 'amazon-ssm-agent.service' do
+    action :nothing
+  end
+
+  file '/etc/amazon/ssm/seelog.xml' do
+    content new_resource.logging_configuration
     owner 'root'
     group 'root'
     mode '0600'
