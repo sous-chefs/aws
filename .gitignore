@@ -42,7 +42,7 @@ kitchen.local.yml
 vendor/
 .coverage/
 .zero-knife.rb
-Policyfile.lock.json
+Policyfile*.lock.json
 
 # vagrant stuff
 .vagrant/
