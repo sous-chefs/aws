@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'uri'
 provides :aws_iam_policy
 unified_mode true
 
@@ -110,6 +111,6 @@ action_class do
       policy_arn: make_policy_arn(new_resource.policy_name),
       version_id: version
     )
-    !(URI.unescape(resp.policy_version.document) == new_resource.policy_document)
+    !(URI::DEFAULT_PARSER.unescape(resp.policy_version.document) == new_resource.policy_document)
   end
 end

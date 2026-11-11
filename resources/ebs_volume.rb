@@ -39,7 +39,7 @@ action :create do
     # instance in case a previous [:create, :attach] run created and attached a volume but for some reason was
     # not registered in the node data (e.g. an exception is thrown after the attach_volume request was accepted
     # by EC2, causing the node data to not be stored on the server)
-    if new_resource.device && (attached_volume = currently_attached_volume(instance_id, new_resource.device)) # rubocop: disable Style/IfInsideElse
+    if new_resource.device && (attached_volume = currently_attached_volume(instance_id, new_resource.device))
       Chef::Log.debug("There is already a volume attached at device #{new_resource.device}")
       compatible = volume_compatible_with_resource_definition?(attached_volume)
       raise "Volume #{attached_volume.volume_id} attached at #{attached_volume.attachments.first.device} but does not conform to this resource's specifications" unless compatible
