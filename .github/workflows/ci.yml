@@ -15,7 +15,15 @@ concurrency:
 
 jobs:
   lint-unit:
-    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      statuses: write
+    uses: sous-chefs/.github/.github/workflows/lint-unit.yml@9.0.1
+
+  workstation:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: sous-chefs/.github/.github/actions/install-workstation@main
@@ -29,8 +37,8 @@ jobs:
           CHEF_LICENSE: accept-no-persist
 
   kitchen:
-    runs-on: ubuntu-26.04
-    needs: lint-unit
+    runs-on: ubuntu-latest
+    needs: [lint-unit, workstation]
     strategy:
       fail-fast: false
       matrix:

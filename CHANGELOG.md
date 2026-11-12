@@ -2,6 +2,21 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## [10.0.0](https://github.com/sous-chefs/aws/compare/v9.3.2...v10.0.0) (2026-11-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* complete custom resource migration ([#528](https://github.com/sous-chefs/aws/issues/528))
+
+### Features
+
+* add verified Linux package handling for AWS agents ([#629](https://github.com/sous-chefs/aws/issues/629)) ([3d239b7](https://github.com/sous-chefs/aws/commit/3d239b7910f3817d5eeae077d6c9fff9fa91dcd6))
+* complete custom resource migration ([#528](https://github.com/sous-chefs/aws/issues/528)) ([0638904](https://github.com/sous-chefs/aws/commit/0638904dcb8286ea7e0122ab1c204c8f7f47e217))
+* manage SSM agent logging configuration ([#633](https://github.com/sous-chefs/aws/issues/633)) ([15d15e2](https://github.com/sous-chefs/aws/commit/15d15e2633889297d3b5a4c9616d09ae3d4f61d6))
+* manage the Systems Manager agent on Linux ([#631](https://github.com/sous-chefs/aws/issues/631)) ([4b6ee98](https://github.com/sous-chefs/aws/commit/4b6ee98d51a5df86d59d652543232c1bc4bf563c))
+* manage the unified CloudWatch agent on Linux ([#630](https://github.com/sous-chefs/aws/issues/630)) ([b10a98a](https://github.com/sous-chefs/aws/commit/b10a98a8bfa9f975b2f19756159880cf8b5956cb))
+
 ## [9.3.2](https://github.com/sous-chefs/aws/compare/v9.3.1...v9.3.2) (2026-04-21)
 
 
