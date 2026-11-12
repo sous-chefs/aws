@@ -26,7 +26,7 @@ jobs:
       - name: Prepare verified packages and isolated network
         run: sh test/prepare-agents.sh
       - name: Converge twice and verify agents
-        run: kitchen test default-ubuntu-2404 --destroy=never
+        run: kitchen test default-ubuntu-2404 --destroy=never --test-base-path=test/integration/agents
       - name: Remove twice and verify cleanup
         run: |
           export AWS_AGENT_RUN_LIST=remove
