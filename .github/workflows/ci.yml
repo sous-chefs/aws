@@ -15,6 +15,14 @@ concurrency:
 
 jobs:
   lint-unit:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      statuses: write
+    uses: sous-chefs/.github/.github/workflows/lint-unit.yml@9.0.1
+
+  workstation:
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
@@ -30,7 +38,7 @@ jobs:
 
   kitchen:
     runs-on: ubuntu-26.04
-    needs: lint-unit
+    needs: [lint-unit, workstation]
     strategy:
       fail-fast: false
       matrix:
