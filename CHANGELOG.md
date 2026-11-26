@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the aws cookbook.
 
+## [10.1.0](https://github.com/sous-chefs/aws/compare/v10.0.0...v10.1.0) (2026-11-26)
+
+
+### Features
+
+* manage EC2 network interfaces ([#639](https://github.com/sous-chefs/aws/issues/639)) ([42fd972](https://github.com/sous-chefs/aws/commit/42fd972fc1a921e2dfc63f5c97a25c0a6f80bf65))
+
 ## [10.0.0](https://github.com/sous-chefs/aws/compare/v9.3.2...v10.0.0) (2026-11-11)
 
 
