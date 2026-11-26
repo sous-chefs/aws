@@ -21,6 +21,7 @@ Included resources:
 - EBS Volumes (`aws_ebs_volume`)
 - EC2 Instance Role (`aws_instance_role`)
 - EC2 Instance Termination Protection (`aws_instance_term_protection`)
+- [EC2 Elastic Network Interfaces](documentation/aws_network_interface.md) (`aws_network_interface`)
 - Elastic IPs (`aws_elastic_ip`)
 - Elastic Load Balancer (`aws_elastic_lb`)
 - IAM User, Group, Policy, and Role Management: (`aws_iam_user`, `aws_iam_group`, `aws_iam_policy`, `aws_iam_role`)
