@@ -1,0 +1,5 @@
+# Remove once actionlint recognises GitHub's Ubuntu 26.04 runner.
+# https://github.com/rhysd/actionlint/pull/683
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04
